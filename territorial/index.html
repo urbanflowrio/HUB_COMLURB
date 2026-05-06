@@ -1,422 +1,845 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
+<!doctype html>
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HUB COMLURB — Territorial</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HUB COMLURB · Territorial</title>
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
 
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+<style>
+:root{
+  --bg:#07111f;
+  --ink:#f2f6ff;
+  --muted:#9fb0c7;
+  --panel:#0d1b2f;
+  --panel2:#10243d;
+  --line:#274260;
+  --navy:#071426;
+  --navy2:#10233d;
+  --blue:#6da5d8;
+  --orange:#e87535;
+  --green:#78aaa3;
+  --red:#ef4444;
+  --shadow:0 18px 45px rgba(0,0,0,.28);
+}
 
-    body {
-      font-family: "Segoe UI", Arial, sans-serif;
-      background: #0b1220;
-      overflow: hidden;
-    }
+*{box-sizing:border-box}
 
-    #map {
-      width: 100vw;
-      height: 100vh;
-      z-index: 1;
-    }
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:Inter,Segoe UI,Arial,sans-serif;
+}
 
-    .panel {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      width: 300px;
-      background: rgba(10, 18, 32, 0.94);
-      color: #fff;
-      border-radius: 18px;
-      padding: 20px;
-      z-index: 999;
-      box-shadow: 0 18px 45px rgba(0,0,0,.35);
-    }
+.app{
+  max-width:1880px;
+  margin:0 auto;
+  padding:18px;
+}
 
-    .panel h1 {
-      font-size: 22px;
-      margin-bottom: 6px;
-    }
+.header{
+  display:flex;
+  align-items:center;
+  gap:22px;
+  padding:20px 22px;
+  border:1px solid rgba(111,164,216,.25);
+  border-radius:22px;
+  background:#0b1a2e;
+  box-shadow:var(--shadow);
+  color:white;
+}
 
-    .panel p {
-      font-size: 13px;
-      color: #9ca3af;
-      margin-bottom: 18px;
-    }
+.logo{
+  width:230px;
+  max-height:58px;
+  object-fit:contain;
+  border-right:1px solid rgba(255,255,255,.35);
+  padding-right:20px;
+}
 
-    label {
-      font-size: 12px;
-      color: #9ca3af;
-      display: block;
-      margin: 12px 0 6px;
-    }
+.eyebrow{
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:#b9c9dc;
+}
 
-    select, input {
-      width: 100%;
-      background: #111827;
-      color: #fff;
-      border: 1px solid #1f2937;
-      border-radius: 10px;
-      padding: 11px;
-      outline: none;
-    }
+h1{
+  margin:4px 0;
+  font-size:clamp(25px,2vw,38px);
+  line-height:1.05;
+  color:white;
+}
 
-    button {
-      width: 100%;
-      border: none;
-      border-radius: 10px;
-      padding: 12px;
-      margin-top: 12px;
-      cursor: pointer;
-      font-weight: 600;
-      color: #fff;
-      background: #1d4ed8;
-    }
+.sub{
+  color:#c5d5e8;
+  font-size:14px;
+}
 
-    .secondary {
-      background: #1f2937;
-    }
+.nav{
+  margin-left:auto;
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
 
-    .cards {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      display: flex;
-      gap: 14px;
-      z-index: 999;
-    }
+.nav a{
+  color:#dbe8ff;
+  text-decoration:none;
+  border:1px solid rgba(255,255,255,.22);
+  padding:10px 16px;
+  border-radius:999px;
+  background:rgba(255,255,255,.04);
+  font-weight:850;
+}
 
-    .card {
-      width: 150px;
-      background: rgba(10, 18, 32, 0.94);
-      color: #fff;
-      border-radius: 18px;
-      padding: 18px;
-      box-shadow: 0 18px 45px rgba(0,0,0,.35);
-    }
+.nav a.active{
+  border-color:var(--orange);
+  background:rgba(232,117,53,.18);
+  color:#fff;
+}
 
-    .card span {
-      font-size: 11px;
-      color: #9ca3af;
-      display: block;
-      margin-bottom: 8px;
-    }
+.controls{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(160px,1fr)) 160px;
+  gap:12px;
+  margin:14px 0;
+}
 
-    .card strong {
-      font-size: 26px;
-    }
+.field,.btn,.search{
+  border:1px solid var(--line);
+  background:var(--panel);
+  border-radius:16px;
+  padding:11px 12px;
+  box-shadow:0 8px 20px rgba(16,32,51,.05);
+}
 
-    .legend {
-      position: absolute;
-      bottom: 20px;
-      left: 20px;
-      background: rgba(10, 18, 32, 0.94);
-      color: #fff;
-      border-radius: 18px;
-      padding: 16px;
-      z-index: 999;
-      box-shadow: 0 18px 45px rgba(0,0,0,.35);
-    }
+label{
+  display:block;
+  color:#aebbd0;
+  font-size:10px;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  font-weight:900;
+  margin-bottom:6px;
+}
 
-    .legend h3 {
-      font-size: 14px;
-      margin-bottom: 10px;
-    }
+select,input{
+  width:100%;
+  background:transparent;
+  border:0;
+  color:#f2f6ff;
+  font-weight:800;
+  outline:0;
+}
 
-    .legend div {
-      font-size: 12px;
-      margin: 7px 0;
-    }
+select option{
+  background:#0d1b2f;
+  color:#fff;
+}
 
-    .dot {
-      display: inline-block;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      margin-right: 8px;
-    }
+.btn{
+  cursor:pointer;
+  color:#eef5ff;
+  font-weight:950;
+  text-align:center;
+}
 
-    .loading {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%,-50%);
-      background: rgba(10, 18, 32, 0.96);
-      color: white;
-      padding: 18px 24px;
-      border-radius: 16px;
-      z-index: 2000;
-      box-shadow: 0 18px 45px rgba(0,0,0,.35);
-      font-weight: 600;
-    }
+.btn.orange{
+  border-color:rgba(232,117,53,.75);
+  background:#14243b;
+  color:#fff;
+}
 
-    @media (max-width: 768px) {
-      .panel {
-        width: calc(100% - 30px);
-        left: 15px;
-        top: 15px;
-      }
+.kpis{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:12px;
+  margin-bottom:14px;
+}
 
-      .cards {
-        right: 15px;
-        left: 15px;
-        top: auto;
-        bottom: 15px;
-        flex-direction: column;
-      }
+.kpi{
+  position:relative;
+  overflow:hidden;
+  min-height:104px;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:16px;
+  box-shadow:var(--shadow);
+}
 
-      .card {
-        width: 100%;
-      }
+.kpi:before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  height:4px;
+  background:#4b7eac;
+}
 
-      .legend {
-        display: none;
-      }
-    }
-  </style>
+.kpi.orange:before{background:var(--orange)}
+.kpi.green:before{background:var(--green)}
+
+.kpi span{
+  display:block;
+  color:#aebbd0;
+  font-size:11px;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  font-weight:950;
+}
+
+.kpi strong{
+  display:block;
+  font-size:clamp(22px,1.9vw,34px);
+  margin:9px 0 4px;
+  font-weight:950;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  color:#fff;
+}
+
+.kpi small{
+  color:#a8b8cf;
+}
+
+.panel{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:22px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+
+.panelHead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:16px 18px;
+  border-bottom:1px solid var(--line);
+  background:#0b1a2e;
+}
+
+.panel h2,.panel h3{
+  margin:0;
+  font-size:16px;
+  color:#fff;
+}
+
+.hint{
+  font-size:12px;
+  color:#a8b8cf;
+  margin-top:4px;
+}
+
+.badge{
+  font-size:12px;
+  color:#dceaff;
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:7px 10px;
+  background:#0d2037;
+  white-space:nowrap;
+}
+
+.layoutExec{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 390px;
+  gap:14px;
+}
+
+#map{
+  height:calc(100vh - 360px);
+  min-height:560px;
+  background:#08111f;
+}
+
+.leaflet-container{
+  background:#08111f;
+}
+
+.side{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.insight{
+  padding:18px;
+}
+
+.insight p{
+  margin:10px 0 0;
+  color:#d7e4f7;
+  line-height:1.45;
+}
+
+.ranking{
+  padding:12px 14px;
+}
+
+.rank{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:8px;
+  padding:11px 8px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  cursor:pointer;
+  border-radius:10px;
+}
+
+.rank:hover{
+  background:rgba(109,165,216,.08);
+}
+
+.rank:last-child{
+  border-bottom:0;
+}
+
+.rank b{
+  font-size:13px;
+  color:#fff;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.rank small{
+  color:#a8b8cf;
+}
+
+.map-legend{
+  position:absolute;
+  right:16px;
+  bottom:16px;
+  z-index:900;
+  width:230px;
+  background:rgba(13,27,47,.96);
+  border:1px solid rgba(109,165,216,.42);
+  border-radius:16px;
+  padding:12px 14px;
+  box-shadow:0 16px 38px rgba(0,0,0,.38);
+  color:#eaf3ff;
+  font-size:12px;
+  line-height:1.45;
+  pointer-events:auto;
+}
+
+.legend-title{
+  font-weight:950;
+  margin-bottom:8px;
+}
+
+.legend-item{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin:6px 0;
+}
+
+.legend-dot{
+  display:inline-block;
+  flex:0 0 auto;
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.85);
+}
+
+.footer{
+  margin-top:14px;
+  color:#7f93aa;
+  font-size:12px;
+  text-align:right;
+}
+
+.leaflet-popup-content-wrapper{
+  background:#0d1b2f!important;
+  color:#eaf3ff!important;
+  border:1px solid rgba(109,165,216,.35)!important;
+  border-radius:14px!important;
+}
+
+.leaflet-popup-tip{
+  background:#0d1b2f!important;
+}
+
+.popupTitle{
+  font-weight:950;
+  font-size:14px;
+  margin-bottom:8px;
+  color:#fff;
+}
+
+.popupGrid{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:5px 10px;
+  font-size:12px;
+}
+
+.popupGrid b{
+  color:#9fb0c7;
+}
+
+.popupGrid span{
+  color:#eaf3ff;
+}
+
+@media(max-width:1250px){
+  .layoutExec{grid-template-columns:1fr}
+  .kpis{grid-template-columns:repeat(3,1fr)}
+  .controls{grid-template-columns:repeat(2,1fr)}
+  #map{height:620px}
+}
+
+@media(max-width:760px){
+  .header{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .logo{
+    width:190px;
+    border-right:0;
+    padding-right:0;
+  }
+
+  .nav{
+    margin-left:0;
+  }
+
+  .controls,.kpis{
+    grid-template-columns:1fr;
+  }
+
+  .app{
+    padding:10px;
+  }
+
+  .map-legend{
+    left:12px;
+    right:12px;
+    bottom:12px;
+    width:auto;
+    font-size:11px;
+  }
+}
+</style>
 </head>
 
 <body>
 
-<div id="map"></div>
+<div class="app">
 
-<div id="loading" class="loading">Carregando base territorial...</div>
+  <header class="header">
+    <img class="logo" 
+         src="../assets/logos/RIOPREFEITURA%20Comlurb%20horizontal%20monocromatica%20branco.png" 
+         alt="COMLURB"
+         onerror="this.style.display='none'">
 
-<div class="panel">
-  <h1>HUB COMLURB</h1>
-  <p>Inteligência Territorial Operacional</p>
+    <div>
+      <div class="eyebrow">Centro de Inteligência Operacional</div>
+      <h1>HUB COMLURB · Territorial</h1>
+      <div class="sub">Base territorial de logradouros, bairros e áreas de planejamento do Rio de Janeiro</div>
+    </div>
 
-  <label>Filtrar AP</label>
-  <select id="apFilter">
-    <option value="all">Todas</option>
-    <option value="1">AP 1</option>
-    <option value="2">AP 2</option>
-    <option value="3">AP 3</option>
-    <option value="4">AP 4</option>
-    <option value="5">AP 5</option>
-  </select>
+    <nav class="nav">
+      <a href="../">Home</a>
+      <a href="./" class="active">Territorial</a>
+      <a href="../pessoas/">Pessoas</a>
+      <a href="../sme/">SME</a>
+      <a href="../sms/">SMS</a>
+    </nav>
+  </header>
 
-  <label>Buscar Bairro</label>
-  <input id="bairroInput" type="text" placeholder="Ex: Copacabana">
+  <section class="controls">
+    <div class="field">
+      <label>Área de Planejamento</label>
+      <select id="apFilter">
+        <option value="all">Todas as APs</option>
+        <option value="1">AP 1</option>
+        <option value="2">AP 2</option>
+        <option value="3">AP 3</option>
+        <option value="4">AP 4</option>
+        <option value="5">AP 5</option>
+      </select>
+    </div>
 
-  <label>Buscar Logradouro</label>
-  <input id="logradouroInput" type="text" placeholder="Ex: Avenida Brasil">
+    <div class="field">
+      <label>Bairro</label>
+      <input id="bairroInput" type="text" placeholder="Ex.: Copacabana">
+    </div>
 
-  <button onclick="aplicarFiltros()">Aplicar filtros</button>
-  <button class="secondary" onclick="resetarMapa()">Resetar mapa</button>
-</div>
+    <div class="field">
+      <label>Logradouro</label>
+      <input id="logradouroInput" type="text" placeholder="Ex.: Avenida Brasil">
+    </div>
 
-<div class="cards">
-  <div class="card">
-    <span>LOGRADOUROS</span>
-    <strong id="totalLogradouros">0</strong>
+    <button class="btn orange" onclick="aplicarFiltros()">Aplicar filtros</button>
+    <button class="btn" onclick="resetarMapa()">Limpar</button>
+    <button class="btn" onclick="toggleHeatmap()">Alternar mapa</button>
+  </section>
+
+  <section class="kpis">
+    <div class="kpi">
+      <span>Logradouros</span>
+      <strong id="kpiLogradouros">0</strong>
+      <small>Registros territoriais carregados</small>
+    </div>
+
+    <div class="kpi orange">
+      <span>Bairros</span>
+      <strong id="kpiBairros">0</strong>
+      <small>Com presença na base filtrada</small>
+    </div>
+
+    <div class="kpi green">
+      <span>APs</span>
+      <strong id="kpiAPs">0</strong>
+      <small>Áreas contempladas</small>
+    </div>
+
+    <div class="kpi">
+      <span>Maior concentração</span>
+      <strong id="kpiTopBairro">-</strong>
+      <small>Bairro com mais logradouros</small>
+    </div>
+
+    <div class="kpi orange">
+      <span>Visualização</span>
+      <strong id="kpiView">Clusters</strong>
+      <small>Modo atual do mapa</small>
+    </div>
+  </section>
+
+  <section class="layoutExec">
+
+    <div class="panel" style="position:relative">
+      <div class="panelHead">
+        <div>
+          <h2>Mapa Territorial</h2>
+          <div class="hint">Clusters e concentração territorial dos logradouros georreferenciados</div>
+        </div>
+        <div class="badge" id="badgeStatus">Carregando base...</div>
+      </div>
+
+      <div id="map"></div>
+
+      <div class="map-legend">
+        <div class="legend-title">Áreas de Planejamento</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#ef4444"></span>AP 1</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span>AP 2</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#10b981"></span>AP 3</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span>AP 4</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#8b5cf6"></span>AP 5</div>
+      </div>
+    </div>
+
+    <aside class="side">
+
+      <div class="panel">
+        <div class="panelHead">
+          <div>
+            <h3>Leitura Executiva</h3>
+            <div class="hint">Síntese automática da base territorial filtrada</div>
+          </div>
+        </div>
+
+        <div class="insight">
+          <p id="insightText">Carregando análise territorial...</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panelHead">
+          <div>
+            <h3>Top bairros</h3>
+            <div class="hint">Maior concentração de logradouros</div>
+          </div>
+        </div>
+
+        <div class="ranking" id="rankingBairros"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panelHead">
+          <div>
+            <h3>Distribuição por AP</h3>
+            <div class="hint">Volume de registros por área</div>
+          </div>
+        </div>
+
+        <div class="ranking" id="rankingAPs"></div>
+      </div>
+
+    </aside>
+
+  </section>
+
+  <div class="footer">
+    HUB COMLURB · Inteligência Territorial Operacional
   </div>
 
-  <div class="card">
-    <span>BAIRROS</span>
-    <strong id="totalBairros">0</strong>
-  </div>
-
-  <div class="card">
-    <span>APs</span>
-    <strong id="totalAPs">0</strong>
-  </div>
-</div>
-
-<div class="legend">
-  <h3>Áreas de Planejamento</h3>
-  <div><span class="dot" style="background:#ef4444"></span>AP 1</div>
-  <div><span class="dot" style="background:#3b82f6"></span>AP 2</div>
-  <div><span class="dot" style="background:#10b981"></span>AP 3</div>
-  <div><span class="dot" style="background:#f59e0b"></span>AP 4</div>
-  <div><span class="dot" style="background:#8b5cf6"></span>AP 5</div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 
 <script>
-  const GEOJSON_URL = '/HUB_COMLURB/assets/geojson/logradouros_rj_pontos.geojson';
+const GEOJSON_URL = "/HUB_COMLURB/assets/geojson/logradouros_rj_pontos.geojson";
 
-  const map = L.map('map').setView([-22.9068, -43.1729], 11);
+let geojsonData = null;
+let currentData = null;
+let heatLayer = null;
+let heatMode = false;
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap | HUB COMLURB',
-    maxZoom: 19
-  }).addTo(map);
+const map = L.map("map", {
+  zoomControl:true
+}).setView([-22.9068, -43.1729], 11);
 
-  let geojsonData = null;
-  let clusterGroup = L.markerClusterGroup({
-    maxClusterRadius: 45,
-    showCoverageOnHover: false,
-    spiderfyOnMaxZoom: true,
-    zoomToBoundsOnClick: true
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom:19,
+  attribution:"© OpenStreetMap | HUB COMLURB"
+}).addTo(map);
+
+let clusterGroup = L.markerClusterGroup({
+  maxClusterRadius:48,
+  showCoverageOnHover:false,
+  spiderfyOnMaxZoom:true,
+  zoomToBoundsOnClick:true
+});
+
+function getColor(ap){
+  const colors = {
+    "1":"#ef4444",
+    "2":"#3b82f6",
+    "3":"#10b981",
+    "4":"#f59e0b",
+    "5":"#8b5cf6"
+  };
+  return colors[String(ap)] || "#94a3b8";
+}
+
+function carregarMapa(data){
+  currentData = data;
+
+  if(heatLayer){
+    map.removeLayer(heatLayer);
+    heatLayer = null;
+  }
+
+  clusterGroup.clearLayers();
+
+  const layer = L.geoJSON(data, {
+    pointToLayer:function(feature,latlng){
+      const ap = feature.properties?.ap;
+
+      return L.circleMarker(latlng, {
+        radius:5,
+        fillColor:getColor(ap),
+        color:"#ffffff",
+        weight:1,
+        opacity:1,
+        fillOpacity:.88
+      });
+    },
+
+    onEachFeature:function(feature,layer){
+      const p = feature.properties || {};
+
+      layer.bindPopup(`
+        <div class="popupTitle">${p.nome || "Sem nome"}</div>
+        <div class="popupGrid">
+          <b>Bairro</b><span>${p.bairro || "-"}</span>
+          <b>AP</b><span>${p.ap || "-"}</span>
+          <b>Tipo</b><span>${p.tipo || "-"}</span>
+        </div>
+      `);
+    }
   });
 
-  function getColor(ap) {
-    const colors = {
-      "1": "#ef4444",
-      "2": "#3b82f6",
-      "3": "#10b981",
-      "4": "#f59e0b",
-      "5": "#8b5cf6"
-    };
+  clusterGroup.addLayer(layer);
 
-    return colors[String(ap)] || "#94a3b8";
+  if(!map.hasLayer(clusterGroup)){
+    map.addLayer(clusterGroup);
   }
 
-  function carregarMapa(data) {
-    clusterGroup.clearLayers();
+  heatMode = false;
+  document.getElementById("kpiView").innerText = "Clusters";
+}
 
-    const layer = L.geoJSON(data, {
-      pointToLayer: function(feature, latlng) {
-        const ap = feature.properties.ap;
+function toggleHeatmap(){
+  if(!currentData) return;
 
-        return L.circleMarker(latlng, {
-          radius: 5,
-          fillColor: getColor(ap),
-          color: "#ffffff",
-          weight: 1,
-          opacity: 1,
-          fillOpacity: 0.85
-        });
-      },
+  if(!heatMode){
+    map.removeLayer(clusterGroup);
 
-      onEachFeature: function(feature, layer) {
-        const p = feature.properties || {};
+    const heatData = currentData.features.map(f => [
+      f.geometry.coordinates[1],
+      f.geometry.coordinates[0],
+      0.6
+    ]);
 
-        layer.bindPopup(`
-          <strong>${p.nome || 'Sem nome'}</strong><br>
-          Bairro: ${p.bairro || '-'}<br>
-          AP: ${p.ap || '-'}<br>
-          Tipo: ${p.tipo || '-'}
-        `);
-      }
-    });
+    heatLayer = L.heatLayer(heatData, {
+      radius:18,
+      blur:22,
+      maxZoom:13
+    }).addTo(map);
 
-    clusterGroup.addLayer(layer);
-
-    if (!map.hasLayer(clusterGroup)) {
-      map.addLayer(clusterGroup);
+    heatMode = true;
+    document.getElementById("kpiView").innerText = "Heatmap";
+  }else{
+    if(heatLayer){
+      map.removeLayer(heatLayer);
+      heatLayer = null;
     }
+
+    map.addLayer(clusterGroup);
+    heatMode = false;
+    document.getElementById("kpiView").innerText = "Clusters";
   }
+}
 
-  function atualizarCards(features) {
-    const bairros = new Set(
-      features
-        .map(f => f.properties?.bairro)
-        .filter(Boolean)
-    );
+function aplicarFiltros(){
+  if(!geojsonData) return;
 
-    const aps = new Set(
-      features
-        .map(f => f.properties?.ap)
-        .filter(Boolean)
-    );
+  const ap = document.getElementById("apFilter").value;
+  const bairro = document.getElementById("bairroInput").value.trim().toLowerCase();
+  const logradouro = document.getElementById("logradouroInput").value.trim().toLowerCase();
 
-    document.getElementById('totalLogradouros').innerText =
-      features.length.toLocaleString('pt-BR');
+  const filtrados = geojsonData.features.filter(f => {
+    const p = f.properties || {};
 
-    document.getElementById('totalBairros').innerText =
-      bairros.size.toLocaleString('pt-BR');
+    const matchAP = ap === "all" || String(p.ap) === ap;
+    const matchBairro = !bairro || String(p.bairro || "").toLowerCase().includes(bairro);
+    const matchLogradouro = !logradouro || String(p.nome || "").toLowerCase().includes(logradouro);
 
-    document.getElementById('totalAPs').innerText =
-      aps.size.toLocaleString('pt-BR');
+    return matchAP && matchBairro && matchLogradouro;
+  });
+
+  const filteredData = {
+    type:"FeatureCollection",
+    features:filtrados
+  };
+
+  carregarMapa(filteredData);
+  atualizarTudo(filtrados);
+
+  if(filtrados.length){
+    const bounds = L.geoJSON(filteredData).getBounds();
+    map.fitBounds(bounds,{padding:[50,50]});
+  }else{
+    alert("Nenhum registro encontrado com os filtros aplicados.");
   }
+}
 
-  function aplicarFiltros() {
-    if (!geojsonData) return;
+function resetarMapa(){
+  if(!geojsonData) return;
 
-    const ap = document.getElementById('apFilter').value;
-    const bairro = document.getElementById('bairroInput').value.trim().toLowerCase();
-    const logradouro = document.getElementById('logradouroInput').value.trim().toLowerCase();
+  document.getElementById("apFilter").value = "all";
+  document.getElementById("bairroInput").value = "";
+  document.getElementById("logradouroInput").value = "";
 
-    const filtrados = geojsonData.features.filter(f => {
-      const p = f.properties || {};
+  carregarMapa(geojsonData);
+  atualizarTudo(geojsonData.features);
+  map.setView([-22.9068,-43.1729],11);
+}
 
-      const matchAP =
-        ap === 'all' ||
-        String(p.ap) === ap;
+function contarPorCampo(features,campo){
+  const obj = {};
 
-      const matchBairro =
-        !bairro ||
-        String(p.bairro || '').toLowerCase().includes(bairro);
+  features.forEach(f => {
+    const valor = f.properties?.[campo] || "Não informado";
+    obj[valor] = (obj[valor] || 0) + 1;
+  });
 
-      const matchLogradouro =
-        !logradouro ||
-        String(p.nome || '').toLowerCase().includes(logradouro);
+  return Object.entries(obj).sort((a,b) => b[1] - a[1]);
+}
 
-      return matchAP && matchBairro && matchLogradouro;
-    });
+function atualizarTudo(features){
+  const bairros = contarPorCampo(features,"bairro");
+  const aps = contarPorCampo(features,"ap");
 
-    const filteredData = {
-      type: 'FeatureCollection',
-      features: filtrados
-    };
+  document.getElementById("kpiLogradouros").innerText = features.length.toLocaleString("pt-BR");
+  document.getElementById("kpiBairros").innerText = bairros.length.toLocaleString("pt-BR");
+  document.getElementById("kpiAPs").innerText = aps.length.toLocaleString("pt-BR");
+  document.getElementById("kpiTopBairro").innerText = bairros[0] ? bairros[0][0] : "-";
 
-    carregarMapa(filteredData);
-    atualizarCards(filtrados);
+  document.getElementById("rankingBairros").innerHTML =
+    bairros.slice(0,8).map(([nome,total]) => `
+      <div class="rank" onclick="filtrarBairroRapido('${String(nome).replace(/'/g,"\\'")}')">
+        <b>${nome}</b>
+        <small>${total.toLocaleString("pt-BR")}</small>
+      </div>
+    `).join("");
 
-    if (filtrados.length > 0) {
-      const bounds = L.geoJSON(filteredData).getBounds();
-      map.fitBounds(bounds, { padding: [50, 50] });
-    } else {
-      alert('Nenhum registro encontrado com os filtros aplicados.');
+  document.getElementById("rankingAPs").innerHTML =
+    aps.map(([nome,total]) => `
+      <div class="rank" onclick="filtrarAPRapido('${nome}')">
+        <b>AP ${nome}</b>
+        <small>${total.toLocaleString("pt-BR")}</small>
+      </div>
+    `).join("");
+
+  const topBairro = bairros[0]?.[0] || "-";
+  const topTotal = bairros[0]?.[1] || 0;
+  const topAP = aps[0]?.[0] || "-";
+
+  document.getElementById("insightText").innerHTML =
+    `A base filtrada apresenta <b>${features.length.toLocaleString("pt-BR")}</b> logradouros distribuídos em <b>${bairros.length}</b> bairros e <b>${aps.length}</b> áreas de planejamento. O bairro com maior concentração é <b>${topBairro}</b>, com <b>${topTotal.toLocaleString("pt-BR")}</b> registros. A AP com maior volume no filtro atual é <b>AP ${topAP}</b>.`;
+}
+
+function filtrarBairroRapido(nome){
+  document.getElementById("bairroInput").value = nome;
+  aplicarFiltros();
+}
+
+function filtrarAPRapido(ap){
+  document.getElementById("apFilter").value = ap;
+  aplicarFiltros();
+}
+
+fetch(GEOJSON_URL)
+  .then(response => {
+    if(!response.ok){
+      throw new Error("Arquivo não encontrado. HTTP " + response.status);
     }
-  }
+    return response.json();
+  })
+  .then(data => {
+    if(!data || !data.features || !Array.isArray(data.features)){
+      throw new Error("GeoJSON inválido ou sem features.");
+    }
 
-  function resetarMapa() {
-    if (!geojsonData) return;
+    geojsonData = data;
 
-    document.getElementById('apFilter').value = 'all';
-    document.getElementById('bairroInput').value = '';
-    document.getElementById('logradouroInput').value = '';
+    carregarMapa(data);
+    atualizarTudo(data.features);
 
-    carregarMapa(geojsonData);
-    atualizarCards(geojsonData.features);
-    map.setView([-22.9068, -43.1729], 11);
-  }
+    document.getElementById("badgeStatus").innerText = "Base carregada";
+  })
+  .catch(error => {
+    console.error("ERRO AO CARREGAR GEOJSON:", error);
 
-  fetch(GEOJSON_URL)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Arquivo não encontrado. HTTP ' + response.status);
-      }
+    document.getElementById("badgeStatus").innerText = "Erro ao carregar";
 
-      return response.json();
-    })
-    .then(data => {
-      if (!data || !data.features || !Array.isArray(data.features)) {
-        throw new Error('GeoJSON inválido ou sem features.');
-      }
-
-      geojsonData = data;
-
-      carregarMapa(geojsonData);
-      atualizarCards(geojsonData.features);
-
-      document.getElementById('loading').style.display = 'none';
-    })
-    .catch(error => {
-      console.error('ERRO REAL AO CARREGAR GEOJSON:', error);
-
-      document.getElementById('loading').innerText =
-        'Erro ao carregar base territorial. Verifique o console e o caminho do arquivo.';
-
-      alert(
-        'Erro ao carregar GeoJSON.\n\n' +
-        'Detalhe: ' + error.message + '\n\n' +
-        'Caminho usado:\n' + GEOJSON_URL
-      );
-    });
+    alert(
+      "Erro ao carregar GeoJSON.\n\n" +
+      "Detalhe: " + error.message + "\n\n" +
+      "Caminho usado:\n" + GEOJSON_URL
+    );
+  });
 </script>
 
 </body>
