@@ -1,495 +1,422 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HUB COMLURB — Territorial</title>
 
-    <title>HUB COMLURB — Territorial</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
 
-    <!-- Leaflet -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-    <!-- Cluster -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #0b1220;
+      overflow: hidden;
+    }
 
-    <style>
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-        }
+    #map {
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+    }
 
-        body{
-            font-family:Segoe UI,Tahoma,Geneva,Verdana,sans-serif;
-            background:#0b1220;
-            overflow:hidden;
-        }
+    .panel {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 300px;
+      background: rgba(10, 18, 32, 0.94);
+      color: #fff;
+      border-radius: 18px;
+      padding: 20px;
+      z-index: 999;
+      box-shadow: 0 18px 45px rgba(0,0,0,.35);
+    }
 
-        #map{
-            width:100%;
-            height:100vh;
-        }
+    .panel h1 {
+      font-size: 22px;
+      margin-bottom: 6px;
+    }
 
-        .topbar{
-            position:absolute;
-            top:20px;
-            left:20px;
-            z-index:9999;
+    .panel p {
+      font-size: 13px;
+      color: #9ca3af;
+      margin-bottom: 18px;
+    }
 
-            background:rgba(11,18,32,.92);
-            backdrop-filter:blur(10px);
+    label {
+      font-size: 12px;
+      color: #9ca3af;
+      display: block;
+      margin: 12px 0 6px;
+    }
 
-            border:1px solid rgba(255,255,255,.08);
+    select, input {
+      width: 100%;
+      background: #111827;
+      color: #fff;
+      border: 1px solid #1f2937;
+      border-radius: 10px;
+      padding: 11px;
+      outline: none;
+    }
 
-            padding:18px;
-            border-radius:18px;
+    button {
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      color: #fff;
+      background: #1d4ed8;
+    }
 
-            min-width:300px;
+    .secondary {
+      background: #1f2937;
+    }
 
-            color:#fff;
+    .cards {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      gap: 14px;
+      z-index: 999;
+    }
 
-            box-shadow:0 10px 30px rgba(0,0,0,.35);
-        }
+    .card {
+      width: 150px;
+      background: rgba(10, 18, 32, 0.94);
+      color: #fff;
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 18px 45px rgba(0,0,0,.35);
+    }
 
-        .title{
-            font-size:22px;
-            font-weight:700;
-            margin-bottom:4px;
-        }
+    .card span {
+      font-size: 11px;
+      color: #9ca3af;
+      display: block;
+      margin-bottom: 8px;
+    }
 
-        .subtitle{
-            font-size:13px;
-            opacity:.7;
-            margin-bottom:18px;
-        }
+    .card strong {
+      font-size: 26px;
+    }
 
-        .filter-group{
-            margin-bottom:12px;
-        }
+    .legend {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      background: rgba(10, 18, 32, 0.94);
+      color: #fff;
+      border-radius: 18px;
+      padding: 16px;
+      z-index: 999;
+      box-shadow: 0 18px 45px rgba(0,0,0,.35);
+    }
 
-        .filter-group label{
-            display:block;
-            font-size:12px;
-            margin-bottom:6px;
-            opacity:.7;
-        }
+    .legend h3 {
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
 
-        .filter-group input,
-        .filter-group select{
-            width:100%;
-            padding:10px 12px;
+    .legend div {
+      font-size: 12px;
+      margin: 7px 0;
+    }
 
-            border:none;
-            border-radius:10px;
+    .dot {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
 
-            background:#1a2438;
-            color:#fff;
+    .loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+      background: rgba(10, 18, 32, 0.96);
+      color: white;
+      padding: 18px 24px;
+      border-radius: 16px;
+      z-index: 2000;
+      box-shadow: 0 18px 45px rgba(0,0,0,.35);
+      font-weight: 600;
+    }
 
-            outline:none;
-        }
+    @media (max-width: 768px) {
+      .panel {
+        width: calc(100% - 30px);
+        left: 15px;
+        top: 15px;
+      }
 
-        .btn{
-            width:100%;
-            border:none;
-            padding:12px;
-            border-radius:10px;
+      .cards {
+        right: 15px;
+        left: 15px;
+        top: auto;
+        bottom: 15px;
+        flex-direction: column;
+      }
 
-            background:#1d4ed8;
-            color:#fff;
+      .card {
+        width: 100%;
+      }
 
-            cursor:pointer;
-            font-weight:600;
-
-            transition:.2s;
-        }
-
-        .btn:hover{
-            opacity:.9;
-        }
-
-        .btn-secondary{
-            background:#334155;
-            margin-top:10px;
-        }
-
-        .stats{
-            position:absolute;
-            top:20px;
-            right:20px;
-
-            z-index:9999;
-
-            display:flex;
-            gap:14px;
-        }
-
-        .card{
-            background:rgba(11,18,32,.92);
-            backdrop-filter:blur(10px);
-
-            border:1px solid rgba(255,255,255,.08);
-
-            color:#fff;
-
-            padding:18px;
-            border-radius:18px;
-
-            min-width:160px;
-
-            box-shadow:0 10px 30px rgba(0,0,0,.35);
-        }
-
-        .card-title{
-            font-size:12px;
-            opacity:.7;
-            margin-bottom:8px;
-        }
-
-        .card-value{
-            font-size:26px;
-            font-weight:700;
-        }
-
-        .legend{
-            position:absolute;
-            bottom:20px;
-            left:20px;
-
-            z-index:9999;
-
-            background:rgba(11,18,32,.92);
-            backdrop-filter:blur(10px);
-
-            border:1px solid rgba(255,255,255,.08);
-
-            color:#fff;
-
-            padding:16px;
-            border-radius:18px;
-
-            box-shadow:0 10px 30px rgba(0,0,0,.35);
-        }
-
-        .legend h4{
-            margin-bottom:10px;
-            font-size:14px;
-        }
-
-        .legend-item{
-            display:flex;
-            align-items:center;
-            gap:8px;
-            margin-bottom:8px;
-            font-size:12px;
-        }
-
-        .dot{
-            width:14px;
-            height:14px;
-            border-radius:50%;
-        }
-
-        @media(max-width:768px){
-
-            .topbar{
-                width:calc(100% - 20px);
-                left:10px;
-                top:10px;
-                min-width:auto;
-            }
-
-            .stats{
-                top:auto;
-                bottom:10px;
-                right:10px;
-                left:10px;
-
-                flex-direction:column;
-            }
-
-            .legend{
-                display:none;
-            }
-        }
-    </style>
+      .legend {
+        display: none;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
 <div id="map"></div>
 
-<!-- CONTROLES -->
-<div class="topbar">
+<div id="loading" class="loading">Carregando base territorial...</div>
 
-    <div class="title">
-        HUB COMLURB
-    </div>
+<div class="panel">
+  <h1>HUB COMLURB</h1>
+  <p>Inteligência Territorial Operacional</p>
 
-    <div class="subtitle">
-        Inteligência Territorial Operacional
-    </div>
+  <label>Filtrar AP</label>
+  <select id="apFilter">
+    <option value="all">Todas</option>
+    <option value="1">AP 1</option>
+    <option value="2">AP 2</option>
+    <option value="3">AP 3</option>
+    <option value="4">AP 4</option>
+    <option value="5">AP 5</option>
+  </select>
 
-    <div class="filter-group">
-        <label>Filtrar AP</label>
+  <label>Buscar Bairro</label>
+  <input id="bairroInput" type="text" placeholder="Ex: Copacabana">
 
-        <select id="apFilter">
-            <option value="all">Todas</option>
-            <option value="1">AP 1</option>
-            <option value="2">AP 2</option>
-            <option value="3">AP 3</option>
-            <option value="4">AP 4</option>
-            <option value="5">AP 5</option>
-        </select>
-    </div>
+  <label>Buscar Logradouro</label>
+  <input id="logradouroInput" type="text" placeholder="Ex: Avenida Brasil">
 
-    <div class="filter-group">
-        <label>Buscar Bairro</label>
-
-        <input type="text" id="bairroInput" placeholder="Ex: Copacabana">
-    </div>
-
-    <div class="filter-group">
-        <label>Buscar Logradouro</label>
-
-        <input type="text" id="logradouroInput" placeholder="Ex: Avenida Brasil">
-    </div>
-
-    <button class="btn" onclick="aplicarFiltros()">
-        Aplicar filtros
-    </button>
-
-    <button class="btn btn-secondary" onclick="resetarMapa()">
-        Resetar mapa
-    </button>
-
+  <button onclick="aplicarFiltros()">Aplicar filtros</button>
+  <button class="secondary" onclick="resetarMapa()">Resetar mapa</button>
 </div>
 
-<!-- CARDS -->
-<div class="stats">
+<div class="cards">
+  <div class="card">
+    <span>LOGRADOUROS</span>
+    <strong id="totalLogradouros">0</strong>
+  </div>
 
-    <div class="card">
-        <div class="card-title">LOGRADOUROS</div>
-        <div class="card-value" id="totalLogradouros">0</div>
-    </div>
+  <div class="card">
+    <span>BAIRROS</span>
+    <strong id="totalBairros">0</strong>
+  </div>
 
-    <div class="card">
-        <div class="card-title">BAIRROS</div>
-        <div class="card-value" id="totalBairros">0</div>
-    </div>
-
-    <div class="card">
-        <div class="card-title">APs</div>
-        <div class="card-value" id="totalAPs">0</div>
-    </div>
-
+  <div class="card">
+    <span>APs</span>
+    <strong id="totalAPs">0</strong>
+  </div>
 </div>
 
-<!-- LEGENDA -->
 <div class="legend">
-
-    <h4>Áreas de Planejamento</h4>
-
-    <div class="legend-item">
-        <div class="dot" style="background:#ef4444"></div>
-        AP 1
-    </div>
-
-    <div class="legend-item">
-        <div class="dot" style="background:#3b82f6"></div>
-        AP 2
-    </div>
-
-    <div class="legend-item">
-        <div class="dot" style="background:#10b981"></div>
-        AP 3
-    </div>
-
-    <div class="legend-item">
-        <div class="dot" style="background:#f59e0b"></div>
-        AP 4
-    </div>
-
-    <div class="legend-item">
-        <div class="dot" style="background:#8b5cf6"></div>
-        AP 5
-    </div>
-
+  <h3>Áreas de Planejamento</h3>
+  <div><span class="dot" style="background:#ef4444"></span>AP 1</div>
+  <div><span class="dot" style="background:#3b82f6"></span>AP 2</div>
+  <div><span class="dot" style="background:#10b981"></span>AP 3</div>
+  <div><span class="dot" style="background:#f59e0b"></span>AP 4</div>
+  <div><span class="dot" style="background:#8b5cf6"></span>AP 5</div>
 </div>
 
-<!-- LEAFLET -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<!-- CLUSTER -->
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
 <script>
+  const GEOJSON_URL = '/HUB_COMLURB/assets/geojson/logradouros_rj_pontos.geojson';
 
-const map = L.map('map', {
-    zoomControl:true
-}).setView([-22.9068, -43.1729], 11);
+  const map = L.map('map').setView([-22.9068, -43.1729], 11);
 
-L.tileLayer(
-    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    {
-        attribution:'© OpenStreetMap'
-    }
-).addTo(map);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap | HUB COMLURB',
+    maxZoom: 19
+  }).addTo(map);
 
-let geojsonData;
-let clusterGroup = L.markerClusterGroup();
+  let geojsonData = null;
+  let clusterGroup = L.markerClusterGroup({
+    maxClusterRadius: 45,
+    showCoverageOnHover: false,
+    spiderfyOnMaxZoom: true,
+    zoomToBoundsOnClick: true
+  });
 
-function getColor(ap){
-
+  function getColor(ap) {
     const colors = {
-        "1":"#ef4444",
-        "2":"#3b82f6",
-        "3":"#10b981",
-        "4":"#f59e0b",
-        "5":"#8b5cf6"
+      "1": "#ef4444",
+      "2": "#3b82f6",
+      "3": "#10b981",
+      "4": "#f59e0b",
+      "5": "#8b5cf6"
     };
 
-    return colors[ap] || "#94a3b8";
-}
+    return colors[String(ap)] || "#94a3b8";
+  }
 
-fetch('../assets/geojson/logradouros_rj_pontos.geojson')
-
-.then(response => response.json())
-
-.then(data => {
-
-    geojsonData = data;
-
-    carregarMapa(data);
-
-    atualizarCards(data.features);
-
-})
-
-.catch(error => {
-
-    console.error(error);
-
-    alert('Erro ao carregar GeoJSON');
-
-});
-
-function carregarMapa(data){
-
+  function carregarMapa(data) {
     clusterGroup.clearLayers();
 
-    const geojsonLayer = L.geoJSON(data, {
+    const layer = L.geoJSON(data, {
+      pointToLayer: function(feature, latlng) {
+        const ap = feature.properties.ap;
 
-        pointToLayer:(feature, latlng)=>{
+        return L.circleMarker(latlng, {
+          radius: 5,
+          fillColor: getColor(ap),
+          color: "#ffffff",
+          weight: 1,
+          opacity: 1,
+          fillOpacity: 0.85
+        });
+      },
 
-            return L.circleMarker(latlng, {
+      onEachFeature: function(feature, layer) {
+        const p = feature.properties || {};
 
-                radius:5,
-
-                fillColor:getColor(feature.properties.ap),
-
-                color:"#fff",
-
-                weight:1,
-
-                opacity:1,
-
-                fillOpacity:.85
-
-            });
-
-        },
-
-        onEachFeature:(feature, layer)=>{
-
-            const p = feature.properties;
-
-            layer.bindPopup(`
-                <b>${p.nome || 'Sem nome'}</b><br>
-                Bairro: ${p.bairro || '-'}<br>
-                AP: ${p.ap || '-'}
-            `);
-
-        }
-
+        layer.bindPopup(`
+          <strong>${p.nome || 'Sem nome'}</strong><br>
+          Bairro: ${p.bairro || '-'}<br>
+          AP: ${p.ap || '-'}<br>
+          Tipo: ${p.tipo || '-'}
+        `);
+      }
     });
 
-    clusterGroup.addLayer(geojsonLayer);
+    clusterGroup.addLayer(layer);
 
-    map.addLayer(clusterGroup);
+    if (!map.hasLayer(clusterGroup)) {
+      map.addLayer(clusterGroup);
+    }
+  }
 
-}
+  function atualizarCards(features) {
+    const bairros = new Set(
+      features
+        .map(f => f.properties?.bairro)
+        .filter(Boolean)
+    );
 
-function aplicarFiltros(){
+    const aps = new Set(
+      features
+        .map(f => f.properties?.ap)
+        .filter(Boolean)
+    );
+
+    document.getElementById('totalLogradouros').innerText =
+      features.length.toLocaleString('pt-BR');
+
+    document.getElementById('totalBairros').innerText =
+      bairros.size.toLocaleString('pt-BR');
+
+    document.getElementById('totalAPs').innerText =
+      aps.size.toLocaleString('pt-BR');
+  }
+
+  function aplicarFiltros() {
+    if (!geojsonData) return;
 
     const ap = document.getElementById('apFilter').value;
-    const bairro = document.getElementById('bairroInput').value.toLowerCase();
-    const logradouro = document.getElementById('logradouroInput').value.toLowerCase();
+    const bairro = document.getElementById('bairroInput').value.trim().toLowerCase();
+    const logradouro = document.getElementById('logradouroInput').value.trim().toLowerCase();
 
     const filtrados = geojsonData.features.filter(f => {
+      const p = f.properties || {};
 
-        const p = f.properties;
+      const matchAP =
+        ap === 'all' ||
+        String(p.ap) === ap;
 
-        const matchAP =
-            ap === 'all' ||
-            String(p.ap) === ap;
+      const matchBairro =
+        !bairro ||
+        String(p.bairro || '').toLowerCase().includes(bairro);
 
-        const matchBairro =
-            !bairro ||
-            (p.bairro || '').toLowerCase().includes(bairro);
+      const matchLogradouro =
+        !logradouro ||
+        String(p.nome || '').toLowerCase().includes(logradouro);
 
-        const matchLogradouro =
-            !logradouro ||
-            (p.nome || '').toLowerCase().includes(logradouro);
-
-        return matchAP && matchBairro && matchLogradouro;
-
+      return matchAP && matchBairro && matchLogradouro;
     });
 
-    carregarMapa({
-        type:'FeatureCollection',
-        features:filtrados
-    });
+    const filteredData = {
+      type: 'FeatureCollection',
+      features: filtrados
+    };
 
+    carregarMapa(filteredData);
     atualizarCards(filtrados);
 
-}
+    if (filtrados.length > 0) {
+      const bounds = L.geoJSON(filteredData).getBounds();
+      map.fitBounds(bounds, { padding: [50, 50] });
+    } else {
+      alert('Nenhum registro encontrado com os filtros aplicados.');
+    }
+  }
 
-function resetarMapa(){
+  function resetarMapa() {
+    if (!geojsonData) return;
 
     document.getElementById('apFilter').value = 'all';
     document.getElementById('bairroInput').value = '';
     document.getElementById('logradouroInput').value = '';
 
     carregarMapa(geojsonData);
-
     atualizarCards(geojsonData.features);
-
     map.setView([-22.9068, -43.1729], 11);
+  }
 
-}
+  fetch(GEOJSON_URL)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Arquivo não encontrado. HTTP ' + response.status);
+      }
 
-function atualizarCards(features){
+      return response.json();
+    })
+    .then(data => {
+      if (!data || !data.features || !Array.isArray(data.features)) {
+        throw new Error('GeoJSON inválido ou sem features.');
+      }
 
-    document.getElementById('totalLogradouros')
-        .innerText = features.length.toLocaleString('pt-BR');
+      geojsonData = data;
 
-    const bairros = new Set(
-        features.map(f => f.properties.bairro)
-    );
+      carregarMapa(geojsonData);
+      atualizarCards(geojsonData.features);
 
-    document.getElementById('totalBairros')
-        .innerText = bairros.size;
+      document.getElementById('loading').style.display = 'none';
+    })
+    .catch(error => {
+      console.error('ERRO REAL AO CARREGAR GEOJSON:', error);
 
-    const aps = new Set(
-        features.map(f => f.properties.ap)
-    );
+      document.getElementById('loading').innerText =
+        'Erro ao carregar base territorial. Verifique o console e o caminho do arquivo.';
 
-    document.getElementById('totalAPs')
-        .innerText = aps.size;
-
-}
-
+      alert(
+        'Erro ao carregar GeoJSON.\n\n' +
+        'Detalhe: ' + error.message + '\n\n' +
+        'Caminho usado:\n' + GEOJSON_URL
+      );
+    });
 </script>
 
 </body>
