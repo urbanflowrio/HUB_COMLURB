@@ -1,502 +1,496 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logradouros RJ - HUB_COMLURB</title>
-    
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    
-    <!-- Leaflet MarkerCluster CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
-    
-    <!-- Leaflet Heatmap CSS -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <title>HUB COMLURB — Territorial</title>
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+    <!-- Cluster -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
         }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
+
+        body{
+            font-family:Segoe UI,Tahoma,Geneva,Verdana,sans-serif;
+            background:#0b1220;
+            overflow:hidden;
         }
-        
-        #map {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
+
+        #map{
+            width:100%;
+            height:100vh;
         }
-        
-        /* Painel de controle */
-        .control-panel {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 1000;
-            max-width: 300px;
+
+        .topbar{
+            position:absolute;
+            top:20px;
+            left:20px;
+            z-index:9999;
+
+            background:rgba(11,18,32,.92);
+            backdrop-filter:blur(10px);
+
+            border:1px solid rgba(255,255,255,.08);
+
+            padding:18px;
+            border-radius:18px;
+
+            min-width:300px;
+
+            color:#fff;
+
+            box-shadow:0 10px 30px rgba(0,0,0,.35);
         }
-        
-        .control-panel h3 {
-            margin-bottom: 15px;
-            color: #2c3e50;
-            font-size: 18px;
+
+        .title{
+            font-size:22px;
+            font-weight:700;
+            margin-bottom:4px;
         }
-        
-        .control-group {
-            margin-bottom: 15px;
+
+        .subtitle{
+            font-size:13px;
+            opacity:.7;
+            margin-bottom:18px;
         }
-        
-        .control-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: #555;
-            font-size: 14px;
-            font-weight: 500;
+
+        .filter-group{
+            margin-bottom:12px;
         }
-        
-        .control-group select,
-        .control-group input {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
+
+        .filter-group label{
+            display:block;
+            font-size:12px;
+            margin-bottom:6px;
+            opacity:.7;
         }
-        
-        .control-group button {
-            width: 100%;
-            padding: 10px;
-            background: #3498db;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: background 0.3s;
+
+        .filter-group input,
+        .filter-group select{
+            width:100%;
+            padding:10px 12px;
+
+            border:none;
+            border-radius:10px;
+
+            background:#1a2438;
+            color:#fff;
+
+            outline:none;
         }
-        
-        .control-group button:hover {
-            background: #2980b9;
+
+        .btn{
+            width:100%;
+            border:none;
+            padding:12px;
+            border-radius:10px;
+
+            background:#1d4ed8;
+            color:#fff;
+
+            cursor:pointer;
+            font-weight:600;
+
+            transition:.2s;
         }
-        
-        .btn-group {
-            display: flex;
-            gap: 10px;
+
+        .btn:hover{
+            opacity:.9;
         }
-        
-        .btn-group button {
-            flex: 1;
+
+        .btn-secondary{
+            background:#334155;
+            margin-top:10px;
         }
-        
-        .btn-secondary {
-            background: #95a5a6 !important;
+
+        .stats{
+            position:absolute;
+            top:20px;
+            right:20px;
+
+            z-index:9999;
+
+            display:flex;
+            gap:14px;
         }
-        
-        .btn-secondary:hover {
-            background: #7f8c8d !important;
+
+        .card{
+            background:rgba(11,18,32,.92);
+            backdrop-filter:blur(10px);
+
+            border:1px solid rgba(255,255,255,.08);
+
+            color:#fff;
+
+            padding:18px;
+            border-radius:18px;
+
+            min-width:160px;
+
+            box-shadow:0 10px 30px rgba(0,0,0,.35);
         }
-        
-        /* Legenda */
-        .legend {
-            position: absolute;
-            bottom: 30px;
-            left: 20px;
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 1000;
+
+        .card-title{
+            font-size:12px;
+            opacity:.7;
+            margin-bottom:8px;
         }
-        
-        .legend h4 {
-            margin-bottom: 10px;
-            color: #2c3e50;
-            font-size: 14px;
+
+        .card-value{
+            font-size:26px;
+            font-weight:700;
         }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 8px;
-            font-size: 13px;
+
+        .legend{
+            position:absolute;
+            bottom:20px;
+            left:20px;
+
+            z-index:9999;
+
+            background:rgba(11,18,32,.92);
+            backdrop-filter:blur(10px);
+
+            border:1px solid rgba(255,255,255,.08);
+
+            color:#fff;
+
+            padding:16px;
+            border-radius:18px;
+
+            box-shadow:0 10px 30px rgba(0,0,0,.35);
         }
-        
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            margin-right: 10px;
-            border: 2px solid white;
-            box-shadow: 0 0 3px rgba(0,0,0,0.3);
+
+        .legend h4{
+            margin-bottom:10px;
+            font-size:14px;
         }
-        
-        /* Estatísticas */
-        .stats-panel {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 1000;
-            min-width: 200px;
+
+        .legend-item{
+            display:flex;
+            align-items:center;
+            gap:8px;
+            margin-bottom:8px;
+            font-size:12px;
         }
-        
-        .stats-panel h4 {
-            margin-bottom: 10px;
-            color: #2c3e50;
-            font-size: 14px;
+
+        .dot{
+            width:14px;
+            height:14px;
+            border-radius:50%;
         }
-        
-        .stat-item {
-            font-size: 13px;
-            margin-bottom: 5px;
-            color: #555;
-        }
-        
-        .stat-value {
-            font-weight: bold;
-            color: #3498db;
-        }
-        
-        /* Responsivo */
-        @media (max-width: 768px) {
-            .control-panel {
-                top: 10px;
-                right: 10px;
-                left: 10px;
-                max-width: none;
+
+        @media(max-width:768px){
+
+            .topbar{
+                width:calc(100% - 20px);
+                left:10px;
+                top:10px;
+                min-width:auto;
             }
-            
-            .legend {
-                bottom: 10px;
-                left: 10px;
+
+            .stats{
+                top:auto;
+                bottom:10px;
+                right:10px;
+                left:10px;
+
+                flex-direction:column;
             }
-            
-            .stats-panel {
-                top: 10px;
-                left: 10px;
-                right: auto;
+
+            .legend{
+                display:none;
             }
         }
     </style>
 </head>
+
 <body>
-    <!-- Mapa -->
-    <div id="map"></div>
-    
-    <!-- Painel de Controle -->
-    <div class="control-panel">
-        <h3>🗺️ Controles do Mapa</h3>
-        
-        <!-- Visualização -->
-        <div class="control-group">
-            <label>Visualização</label>
-            <div class="btn-group">
-                <button onclick="toggleView('cluster')" class="active">Clusters</button>
-                <button onclick="toggleView('heatmap')" class="btn-secondary">Heatmap</button>
-            </div>
-        </div>
-        
-        <!-- Filtro por AP -->
-        <div class="control-group">
-            <label>Filtrar por AP</label>
-            <select id="ap-filter" onchange="filterByAP(this.value)">
-                <option value="all">Todas as APs</option>
-                <option value="1">AP 1 - Centro</option>
-                <option value="2">AP 2 - Zona Sul</option>
-                <option value="3">AP 3 - Zona Norte</option>
-                <option value="4">AP 4 - Zona Oeste</option>
-                <option value="5">AP 5 - Zona Oeste Extrema</option>
-            </select>
-        </div>
-        
-        <!-- Busca por Bairro -->
-        <div class="control-group">
-            <label>Buscar Bairro</label>
-            <input type="text" id="bairro-search" placeholder="Digite o nome do bairro">
-            <button onclick="filterByBairro(document.getElementById('bairro-search').value)" style="margin-top: 5px;">
-                🔍 Buscar
-            </button>
-        </div>
-        
-        <!-- Busca por Logradouro -->
-        <div class="control-group">
-            <label>Buscar Logradouro</label>
-            <input type="text" id="logradouro-search" placeholder="Digite o nome da rua">
-            <button onclick="searchLogradouro(document.getElementById('logradouro-search').value)" style="margin-top: 5px;">
-                🔍 Buscar
-            </button>
-        </div>
-        
-        <!-- Ações -->
-        <div class="control-group">
-            <button onclick="resetMap()" class="btn-secondary">↻ Resetar Mapa</button>
-        </div>
-        
-        <div class="control-group">
-            <button onclick="getStatistics()">📊 Ver Estatísticas</button>
-        </div>
+
+<div id="map"></div>
+
+<!-- CONTROLES -->
+<div class="topbar">
+
+    <div class="title">
+        HUB COMLURB
     </div>
-    
-    <!-- Estatísticas -->
-    <div class="stats-panel">
-        <h4>📈 Estatísticas</h4>
-        <div class="stat-item">Total: <span class="stat-value" id="stat-total">-</span></div>
-        <div class="stat-item">Bairros: <span class="stat-value" id="stat-bairros">-</span></div>
-        <div class="stat-item">Visíveis: <span class="stat-value" id="stat-visible">-</span></div>
+
+    <div class="subtitle">
+        Inteligência Territorial Operacional
     </div>
-    
-    <!-- Legenda -->
-    <div class="legend">
-        <h4>Legenda - APs</h4>
-        <div class="legend-item">
-            <div class="legend-color" style="background: #e74c3c;"></div>
-            AP 1 - Centro
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background: #3498db;"></div>
-            AP 2 - Zona Sul
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background: #2ecc71;"></div>
-            AP 3 - Zona Norte
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background: #f39c12;"></div>
-            AP 4 - Zona Oeste
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background: #9b59b6;"></div>
-            AP 5 - Oeste Extrema
-        </div>
+
+    <div class="filter-group">
+        <label>Filtrar AP</label>
+
+        <select id="apFilter">
+            <option value="all">Todas</option>
+            <option value="1">AP 1</option>
+            <option value="2">AP 2</option>
+            <option value="3">AP 3</option>
+            <option value="4">AP 4</option>
+            <option value="5">AP 5</option>
+        </select>
     </div>
-    
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
-    <!-- Leaflet MarkerCluster JS -->
-    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-    
-    <!-- Leaflet Heatmap JS -->
-    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
-    
-    <!-- Código do Mapa -->
-    <script>
-        // Configuração do mapa base
-        const map = L.map('map').setView([-22.9068, -43.1729], 11);
-        
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap | HUB_COMLURB'
-        }).addTo(map);
-        
-        // Variáveis globais
-        let markers = L.markerClusterGroup({
-            maxClusterRadius: 50,
-            spiderfyOnMaxZoom: true,
-            showCoverageOnHover: false,
-            zoomToBoundsOnClick: true
-        });
-        
-        let heatmapLayer;
-        let allData;
-        
-        // Cores por AP
-        function getAPColor(ap) {
-            const colors = {
-                1: '#e74c3c',
-                2: '#3498db',
-                3: '#2ecc71',
-                4: '#f39c12',
-                5: '#9b59b6'
-            };
-            return colors[ap] || '#95a5a6';
-        }
-        
-        // Carregar dados
-        fetch('assets/geojson/logradouros_pontos.geojson')
-            .then(response => response.json())
-            .then(data => {
-                allData = data;
-                loadClusters(data);
-                updateStats(data.features.length, getUniqueBairros(data));
-            })
-            .catch(error => {
-                console.error('Erro:', error);
-                alert('Erro ao carregar dados. Verifique o caminho do arquivo GeoJSON.');
+
+    <div class="filter-group">
+        <label>Buscar Bairro</label>
+
+        <input type="text" id="bairroInput" placeholder="Ex: Copacabana">
+    </div>
+
+    <div class="filter-group">
+        <label>Buscar Logradouro</label>
+
+        <input type="text" id="logradouroInput" placeholder="Ex: Avenida Brasil">
+    </div>
+
+    <button class="btn" onclick="aplicarFiltros()">
+        Aplicar filtros
+    </button>
+
+    <button class="btn btn-secondary" onclick="resetarMapa()">
+        Resetar mapa
+    </button>
+
+</div>
+
+<!-- CARDS -->
+<div class="stats">
+
+    <div class="card">
+        <div class="card-title">LOGRADOUROS</div>
+        <div class="card-value" id="totalLogradouros">0</div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">BAIRROS</div>
+        <div class="card-value" id="totalBairros">0</div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">APs</div>
+        <div class="card-value" id="totalAPs">0</div>
+    </div>
+
+</div>
+
+<!-- LEGENDA -->
+<div class="legend">
+
+    <h4>Áreas de Planejamento</h4>
+
+    <div class="legend-item">
+        <div class="dot" style="background:#ef4444"></div>
+        AP 1
+    </div>
+
+    <div class="legend-item">
+        <div class="dot" style="background:#3b82f6"></div>
+        AP 2
+    </div>
+
+    <div class="legend-item">
+        <div class="dot" style="background:#10b981"></div>
+        AP 3
+    </div>
+
+    <div class="legend-item">
+        <div class="dot" style="background:#f59e0b"></div>
+        AP 4
+    </div>
+
+    <div class="legend-item">
+        <div class="dot" style="background:#8b5cf6"></div>
+        AP 5
+    </div>
+
+</div>
+
+<!-- LEAFLET -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- CLUSTER -->
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+<script>
+
+const map = L.map('map', {
+    zoomControl:true
+}).setView([-22.9068, -43.1729], 11);
+
+L.tileLayer(
+    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    {
+        attribution:'© OpenStreetMap'
+    }
+).addTo(map);
+
+let geojsonData;
+let clusterGroup = L.markerClusterGroup();
+
+function getColor(ap){
+
+    const colors = {
+        "1":"#ef4444",
+        "2":"#3b82f6",
+        "3":"#10b981",
+        "4":"#f59e0b",
+        "5":"#8b5cf6"
+    };
+
+    return colors[ap] || "#94a3b8";
+}
+
+fetch('../assets/geojson/logradouros_rj_pontos.geojson')
+
+.then(response => response.json())
+
+.then(data => {
+
+    geojsonData = data;
+
+    carregarMapa(data);
+
+    atualizarCards(data.features);
+
+})
+
+.catch(error => {
+
+    console.error(error);
+
+    alert('Erro ao carregar GeoJSON');
+
+});
+
+function carregarMapa(data){
+
+    clusterGroup.clearLayers();
+
+    const geojsonLayer = L.geoJSON(data, {
+
+        pointToLayer:(feature, latlng)=>{
+
+            return L.circleMarker(latlng, {
+
+                radius:5,
+
+                fillColor:getColor(feature.properties.ap),
+
+                color:"#fff",
+
+                weight:1,
+
+                opacity:1,
+
+                fillOpacity:.85
+
             });
-        
-        // Carregar clusters
-        function loadClusters(data) {
-            markers.clearLayers();
-            
-            L.geoJSON(data, {
-                pointToLayer: (feature, latlng) => {
-                    return L.circleMarker(latlng, {
-                        radius: 6,
-                        fillColor: getAPColor(feature.properties.ap),
-                        color: '#fff',
-                        weight: 1,
-                        opacity: 1,
-                        fillOpacity: 0.8
-                    });
-                },
-                onEachFeature: (feature, layer) => {
-                    const props = feature.properties;
-                    layer.bindPopup(`
-                        <b>${props.nome}</b><br>
-                        <b>Bairro:</b> ${props.bairro}<br>
-                        <b>AP:</b> ${props.ap}<br>
-                        <b>Tipo:</b> ${props.tipo}
-                    `);
-                    markers.addLayer(layer);
-                }
-            });
-            
-            map.addLayer(markers);
+
+        },
+
+        onEachFeature:(feature, layer)=>{
+
+            const p = feature.properties;
+
+            layer.bindPopup(`
+                <b>${p.nome || 'Sem nome'}</b><br>
+                Bairro: ${p.bairro || '-'}<br>
+                AP: ${p.ap || '-'}
+            `);
+
         }
-        
-        // Carregar heatmap
-        function loadHeatmap(data) {
-            const heatData = data.features.map(f => {
-                return [
-                    f.geometry.coordinates[1],
-                    f.geometry.coordinates[0],
-                    0.5
-                ];
-            });
-            
-            if (heatmapLayer) map.removeLayer(heatmapLayer);
-            
-            heatmapLayer = L.heatLayer(heatData, {
-                radius: 15,
-                blur: 20,
-                maxZoom: 13
-            }).addTo(map);
-        }
-        
-        // Alternar visualização
-        function toggleView(view) {
-            if (view === 'cluster') {
-                if (heatmapLayer) map.removeLayer(heatmapLayer);
-                map.addLayer(markers);
-            } else {
-                map.removeLayer(markers);
-                loadHeatmap(allData);
-            }
-        }
-        
-        // Filtrar por AP
-        function filterByAP(ap) {
-            if (ap === 'all') {
-                loadClusters(allData);
-                updateStats(allData.features.length, getUniqueBairros(allData));
-                return;
-            }
-            
-            const filtered = {
-                type: 'FeatureCollection',
-                features: allData.features.filter(f => f.properties.ap === parseInt(ap))
-            };
-            
-            loadClusters(filtered);
-            updateStats(filtered.features.length, getUniqueBairros(filtered));
-        }
-        
-        // Filtrar por bairro
-        function filterByBairro(bairro) {
-            if (!bairro) return;
-            
-            const filtered = {
-                type: 'FeatureCollection',
-                features: allData.features.filter(f => 
-                    f.properties.bairro.toLowerCase().includes(bairro.toLowerCase())
-                )
-            };
-            
-            if (filtered.features.length > 0) {
-                loadClusters(filtered);
-                const bounds = L.geoJSON(filtered).getBounds();
-                map.fitBounds(bounds, {padding: [50, 50]});
-                updateStats(filtered.features.length, getUniqueBairros(filtered));
-            } else {
-                alert('Nenhum logradouro encontrado');
-            }
-        }
-        
-        // Buscar logradouro
-        function searchLogradouro(query) {
-            if (!query) return;
-            
-            const filtered = {
-                type: 'FeatureCollection',
-                features: allData.features.filter(f => 
-                    f.properties.nome.toLowerCase().includes(query.toLowerCase())
-                )
-            };
-            
-            if (filtered.features.length > 0) {
-                loadClusters(filtered);
-                const bounds = L.geoJSON(filtered).getBounds();
-                map.fitBounds(bounds, {padding: [50, 50]});
-                updateStats(filtered.features.length, getUniqueBairros(filtered));
-            } else {
-                alert('Nenhum logradouro encontrado');
-            }
-        }
-        
-        // Resetar mapa
-        function resetMap() {
-            map.setView([-22.9068, -43.1729], 11);
-            loadClusters(allData);
-            document.getElementById('ap-filter').value = 'all';
-            document.getElementById('bairro-search').value = '';
-            document.getElementById('logradouro-search').value = '';
-            updateStats(allData.features.length, getUniqueBairros(allData));
-        }
-        
-        // Estatísticas
-        function getStatistics() {
-            const stats = {
-                total: allData.features.length,
-                porAP: {},
-                porBairro: {}
-            };
-            
-            allData.features.forEach(f => {
-                const ap = f.properties.ap;
-                const bairro = f.properties.bairro;
-                stats.porAP[ap] = (stats.porAP[ap] || 0) + 1;
-                stats.porBairro[bairro] = (stats.porBairro[bairro] || 0) + 1;
-            });
-            
-            console.log('=== ESTATÍSTICAS COMPLETAS ===', stats);
-            alert(`Total: ${stats.total}\nBairros: ${Object.keys(stats.porBairro).length}\nAPs: ${Object.keys(stats.porAP).length}`);
-        }
-        
-        function getUniqueBairros(data) {
-            const bairros = new Set(data.features.map(f => f.properties.bairro));
-            return bairros.size;
-        }
-        
-        function updateStats(total, bairros) {
-            document.getElementById('stat-total').textContent = total.toLocaleString('pt-BR');
-            document.getElementById('stat-bairros').textContent = bairros;
-            document.getElementById('stat-visible').textContent = total.toLocaleString('pt-BR');
-        }
-    </script>
+
+    });
+
+    clusterGroup.addLayer(geojsonLayer);
+
+    map.addLayer(clusterGroup);
+
+}
+
+function aplicarFiltros(){
+
+    const ap = document.getElementById('apFilter').value;
+    const bairro = document.getElementById('bairroInput').value.toLowerCase();
+    const logradouro = document.getElementById('logradouroInput').value.toLowerCase();
+
+    const filtrados = geojsonData.features.filter(f => {
+
+        const p = f.properties;
+
+        const matchAP =
+            ap === 'all' ||
+            String(p.ap) === ap;
+
+        const matchBairro =
+            !bairro ||
+            (p.bairro || '').toLowerCase().includes(bairro);
+
+        const matchLogradouro =
+            !logradouro ||
+            (p.nome || '').toLowerCase().includes(logradouro);
+
+        return matchAP && matchBairro && matchLogradouro;
+
+    });
+
+    carregarMapa({
+        type:'FeatureCollection',
+        features:filtrados
+    });
+
+    atualizarCards(filtrados);
+
+}
+
+function resetarMapa(){
+
+    document.getElementById('apFilter').value = 'all';
+    document.getElementById('bairroInput').value = '';
+    document.getElementById('logradouroInput').value = '';
+
+    carregarMapa(geojsonData);
+
+    atualizarCards(geojsonData.features);
+
+    map.setView([-22.9068, -43.1729], 11);
+
+}
+
+function atualizarCards(features){
+
+    document.getElementById('totalLogradouros')
+        .innerText = features.length.toLocaleString('pt-BR');
+
+    const bairros = new Set(
+        features.map(f => f.properties.bairro)
+    );
+
+    document.getElementById('totalBairros')
+        .innerText = bairros.size;
+
+    const aps = new Set(
+        features.map(f => f.properties.ap)
+    );
+
+    document.getElementById('totalAPs')
+        .innerText = aps.size;
+
+}
+
+</script>
+
 </body>
 </html>
