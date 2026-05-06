@@ -11,16 +11,16 @@
 
 <style>
 :root{
-  --bg:#06101d;
+  --bg:#07111f;
   --ink:#f2f6ff;
   --muted:#9fb0c7;
-  --panel:#0b1a2e;
+  --panel:#0d1b2f;
   --panel2:#10243d;
   --line:#274260;
   --blue:#6da5d8;
   --orange:#e87535;
   --green:#78aaa3;
-  --shadow:0 18px 45px rgba(0,0,0,.35);
+  --shadow:0 18px 45px rgba(0,0,0,.28);
 }
 
 *{box-sizing:border-box}
@@ -254,7 +254,7 @@ select option{
 
 .leaflet-container{
   background:#02060d!important;
-  filter:contrast(1.08) saturate(1.12);
+  filter:contrast(1.03) brightness(.92) saturate(.95);
 }
 
 .side{
@@ -373,8 +373,26 @@ select option{
   color:#9fb0c7;
 }
 
-.glow-point{
-  filter:drop-shadow(0 0 8px rgba(255,255,255,.65));
+.leaflet-interactive{
+  transition:all .18s ease;
+  filter:drop-shadow(0 0 6px rgba(109,165,216,.55));
+}
+
+.marker-cluster-small,
+.marker-cluster-medium,
+.marker-cluster-large{
+  background:rgba(109,165,216,.20)!important;
+  border:1px solid rgba(255,255,255,.42);
+  box-shadow:0 0 18px rgba(109,165,216,.42);
+}
+
+.marker-cluster-small div,
+.marker-cluster-medium div,
+.marker-cluster-large div{
+  background:rgba(232,117,53,.82)!important;
+  color:#fff!important;
+  font-weight:950;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.40);
 }
 
 @media(max-width:1250px){
@@ -431,7 +449,7 @@ select option{
   <div>
     <div class="eyebrow">Centro de Inteligência Operacional</div>
     <h1>HUB COMLURB · Territorial</h1>
-    <div class="sub">Mapa executivo com mancha de concentração, clusters e leitura territorial</div>
+    <div class="sub">Mapa executivo com densidade territorial, pontos glow e leitura operacional</div>
   </div>
 
   <nav class="nav">
@@ -498,8 +516,8 @@ select option{
 
   <div class="kpi orange">
     <span>Visualização</span>
-    <strong id="kpiView">Mancha</strong>
-    <small>Modo atual do mapa</small>
+    <strong id="kpiView">Híbrido</strong>
+    <small>Heatmap leve + pontos glow</small>
   </div>
 </section>
 
@@ -509,7 +527,7 @@ select option{
     <div class="panelHead">
       <div>
         <h2>Mapa Territorial</h2>
-        <div class="hint">Mancha de calor e pontos operacionais em base cartográfica dark</div>
+        <div class="hint">Densidade suave com pontos operacionais em base cartográfica dark</div>
       </div>
       <div class="badge" id="badgeStatus">Carregando base...</div>
     </div>
@@ -518,10 +536,10 @@ select option{
 
     <div class="map-legend">
       <div class="legend-title">Legenda do mapa</div>
-      <div class="legend-item"><span class="legend-dot" style="background:#78aaa3"></span>Baixa concentração</div>
-      <div class="legend-item"><span class="legend-dot" style="background:#6da5d8"></span>Média concentração</div>
-      <div class="legend-item"><span class="legend-dot" style="background:#e87535"></span>Alta concentração</div>
-      <div style="margin-top:8px;color:#a8b8cf;font-size:11px">Quanto mais intensa a mancha, maior o volume territorial.</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span>Densidade baixa</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#6da5d8"></span>Densidade média</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#e87535"></span>Densidade alta</div>
+      <div style="margin-top:8px;color:#a8b8cf;font-size:11px">O brilho indica concentração territorial; os pontos mostram localização operacional.</div>
     </div>
   </div>
 
@@ -580,7 +598,7 @@ let geojsonData = null;
 let currentData = null;
 let heatLayer = null;
 let clusterGroup = null;
-let modoAtual = "heat";
+let modoAtual = "hybrid";
 
 const map = L.map("map", {
   zoomControl:true
@@ -616,38 +634,31 @@ function limparCamadas(){
   }
 }
 
-function carregarHeatmap(data){
-  limparCamadas();
-
+function criarHeatmap(data){
   const heatData = data.features.map(f => [
     f.geometry.coordinates[1],
     f.geometry.coordinates[0],
-    0.85
+    0.42
   ]);
 
   heatLayer = L.heatLayer(heatData, {
-    radius:32,
-    blur:38,
-    maxZoom:15,
-    minOpacity:.35,
+    radius:18,
+    blur:20,
+    maxZoom:16,
+    minOpacity:.12,
     gradient:{
-      0.15:"#78aaa3",
-      0.35:"#6da5d8",
-      0.55:"#2f6ea5",
-      0.72:"#e87535",
-      1.00:"#ffffff"
+      0.15:"#1d4ed8",
+      0.35:"#2563eb",
+      0.55:"#6da5d8",
+      0.78:"#e87535",
+      1.00:"#ffd8bd"
     }
   }).addTo(map);
-
-  modoAtual = "heat";
-  document.getElementById("kpiView").innerText = "Mancha";
 }
 
-function carregarClusters(data){
-  limparCamadas();
-
+function criarPontos(data, usarCluster=false){
   clusterGroup = L.markerClusterGroup({
-    maxClusterRadius:42,
+    maxClusterRadius:38,
     showCoverageOnHover:false,
     spiderfyOnMaxZoom:true,
     zoomToBoundsOnClick:true
@@ -659,13 +670,12 @@ function carregarClusters(data){
       const ap = p.ap;
 
       return L.circleMarker(latlng, {
-        radius:8,
+        radius:4.8,
         fillColor:getColor(ap),
-        color:"#ffffff",
-        weight:2,
-        opacity:1,
-        fillOpacity:.86,
-        className:"glow-point"
+        color:"rgba(255,255,255,.95)",
+        weight:1.6,
+        opacity:.95,
+        fillOpacity:.78
       });
     },
 
@@ -683,11 +693,47 @@ function carregarClusters(data){
     }
   });
 
-  clusterGroup.addLayer(layer);
-  map.addLayer(clusterGroup);
+  if(usarCluster){
+    clusterGroup.addLayer(layer);
+    map.addLayer(clusterGroup);
+  }else{
+    map.addLayer(layer);
+    clusterGroup = layer;
+  }
+}
 
+function carregarHibrido(data){
+  limparCamadas();
+  criarHeatmap(data);
+  criarPontos(data, false);
+  modoAtual = "hybrid";
+  document.getElementById("kpiView").innerText = "Híbrido";
+}
+
+function carregarClusters(data){
+  limparCamadas();
+  criarPontos(data, true);
   modoAtual = "cluster";
-  document.getElementById("kpiView").innerText = "Pontos";
+  document.getElementById("kpiView").innerText = "Clusters";
+}
+
+function carregarHeat(data){
+  limparCamadas();
+  criarHeatmap(data);
+  modoAtual = "heat";
+  document.getElementById("kpiView").innerText = "Mancha";
+}
+
+function alternarModo(){
+  if(!currentData) return;
+
+  if(modoAtual === "hybrid"){
+    carregarClusters(currentData);
+  }else if(modoAtual === "cluster"){
+    carregarHeat(currentData);
+  }else{
+    carregarHibrido(currentData);
+  }
 }
 
 function carregarMapa(data){
@@ -695,18 +741,10 @@ function carregarMapa(data){
 
   if(modoAtual === "cluster"){
     carregarClusters(data);
+  }else if(modoAtual === "heat"){
+    carregarHeat(data);
   }else{
-    carregarHeatmap(data);
-  }
-}
-
-function alternarModo(){
-  if(!currentData) return;
-
-  if(modoAtual === "heat"){
-    carregarClusters(currentData);
-  }else{
-    carregarHeatmap(currentData);
+    carregarHibrido(data);
   }
 }
 
@@ -825,7 +863,7 @@ fetch(GEOJSON_URL)
     geojsonData = data;
     currentData = data;
 
-    carregarHeatmap(data);
+    carregarHibrido(data);
     atualizarTudo(data.features);
 
     document.getElementById("badgeStatus").innerText = "Base carregada";
