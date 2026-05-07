@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Radar de Pessoas COMLURB</title>
+<title>HUB Pessoas COMLURB</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
@@ -12,63 +12,56 @@
 
 <style>
 :root{
-  --bg:#06111f;
-  --panel:#0d1f36;
-  --panel2:#0a1b31;
-  --panel3:#102844;
-  --line:#294866;
-  --text:#f7f9ff;
-  --muted:#b8c9de;
-  --blue:#4b86bd;
-  --blue2:#5b9bd5;
-  --orange:#e87535;
-  --green:#78aaa3;
-  --red:#ef6a5d;
-  --yellow:#ffa02b;
+  --bg:#050d18;--panel:#0d1f36;--panel2:#09182b;--panel3:#102844;--line:#294866;
+  --text:#f7f9ff;--muted:#b8c9de;--blue:#4b86bd;--blue2:#5b9bd5;
+  --orange:#e87535;--green:#78aaa3;--red:#ef6a5d;--yellow:#ffa02b;--purple:#9b7cff;
 }
 *{box-sizing:border-box}
-body{margin:0;background:radial-gradient(circle at top left,#0d2a48 0,#06111f 38%,#040b15 100%);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
-.app{max-width:1800px;margin:0 auto;padding:28px}
-.header{display:flex;align-items:center;gap:28px;padding:26px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(135deg,#0a1b31,#0d1f36);box-shadow:0 24px 80px rgba(0,0,0,.28)}
-.logoBox{width:280px;min-height:82px;display:flex;align-items:center;border-right:1px solid rgba(255,255,255,.24);padding-right:24px}
-.logoText{font-weight:950;font-size:28px;letter-spacing:.05em;color:#fff}.logoText span{color:var(--blue2)}
-.titleBox{flex:1}.eyebrow{font-size:12px;font-weight:900;letter-spacing:.25em;color:#b8d4f2;text-transform:uppercase}h1{margin:6px 0;font-size:38px}.sub{color:#c7d8ee;line-height:1.45}
+body{margin:0;background:radial-gradient(circle at 15% 0%,#103a62 0,#06111f 35%,#030811 100%);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
+.app{max-width:1840px;margin:0 auto;padding:28px}
+.header{display:flex;align-items:center;gap:28px;padding:26px;border:1px solid var(--line);border-radius:26px;background:linear-gradient(135deg,rgba(10,27,49,.96),rgba(13,31,54,.92));box-shadow:0 28px 90px rgba(0,0,0,.35)}
+.logoBox{width:300px;min-height:88px;display:flex;align-items:center;border-right:1px solid rgba(255,255,255,.22);padding-right:24px}
+.logoText{font-weight:950;font-size:30px;letter-spacing:.04em;color:#fff}.logoText span{color:var(--blue2)}
+.titleBox{flex:1}.eyebrow{font-size:12px;font-weight:900;letter-spacing:.26em;color:#b8d4f2;text-transform:uppercase}h1{margin:6px 0;font-size:40px}.sub{color:#c7d8ee;line-height:1.45;max-width:1050px}
+.headerMetric{min-width:220px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:18px}.headerMetric small{display:block;color:#b8d4f2;font-weight:900;letter-spacing:.16em;text-transform:uppercase;font-size:10px}.headerMetric b{display:block;font-size:34px;margin-top:8px}
 .status{display:none;margin:14px 0;padding:13px;border:1px solid var(--orange);border-radius:14px;background:#1b2130;color:#ffd4b8}
-.navTabs{display:flex;gap:10px;margin:18px 0;flex-wrap:wrap}.tabBtn{border:1px solid var(--line);background:#0a1b31;color:#dcecff;border-radius:999px;padding:11px 16px;font-weight:900;cursor:pointer}.tabBtn.active{background:linear-gradient(90deg,#2f67a5,#4b86bd);border-color:#6fa7d8;color:#fff}
+.navTabs{display:flex;gap:10px;margin:18px 0;flex-wrap:wrap}.tabBtn{border:1px solid var(--line);background:#0a1b31;color:#dcecff;border-radius:999px;padding:11px 16px;font-weight:900;cursor:pointer}.tabBtn.active{background:linear-gradient(90deg,#2f67a5,#4b86bd);border-color:#6fa7d8;color:#fff;box-shadow:0 0 24px rgba(91,155,213,.2)}
 .screen{display:none}.screen.active{display:block}
 .filters{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}.field{background:rgba(13,31,54,.92);border:1px solid var(--line);border-radius:16px;padding:12px}label{display:block;font-size:10px;font-weight:900;letter-spacing:.18em;color:#b8d4f2;margin-bottom:8px;text-transform:uppercase}select{width:100%;background:transparent;color:#fff;border:0;font-weight:800;font-size:15px;outline:none}option{background:#0d1f36}
-.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:14px}.kpi{background:rgba(13,31,54,.92);border:1px solid var(--line);border-radius:20px;padding:18px;min-height:118px}.kpi.feature{grid-column:span 2;background:linear-gradient(135deg,#0d1f36,#12365c);border-color:#4074a2}.kpi .label{font-size:11px;letter-spacing:.16em;color:#b8d4f2;font-weight:900;text-transform:uppercase}.kpi .value{font-size:34px;font-weight:950;margin:14px 0 4px}.kpi.feature .value{font-size:46px}.kpi .note{color:#c7d8ee;font-size:13px}
-.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}.grid2{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}.panel{background:rgba(13,31,54,.92);border:1px solid var(--line);border-radius:22px;min-height:320px;overflow:hidden;box-shadow:0 18px 60px rgba(0,0,0,.18)}.panelHead{padding:18px;border-bottom:1px solid var(--line)}h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px}.body{padding:18px}
-.barRow{display:grid;grid-template-columns:150px 1fr 70px 55px;gap:10px;align-items:center;margin-bottom:12px}.track{height:22px;background:#132941;border-radius:999px;overflow:hidden}.fill{height:100%;background:linear-gradient(90deg,#2f67a5,#5b9bd5)}.fill.orange{background:linear-gradient(90deg,#b95023,#e87535)}.fill.green{background:linear-gradient(90deg,#437b76,#78aaa3)}.fill.red{background:linear-gradient(90deg,#9c3229,#ef6a5d)}.num,.pct{text-align:right;font-weight:800}.empty{color:#aebfd5;padding:12px 0}
-.rank{display:grid;grid-template-columns:1fr auto;gap:12px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.08)}.rank small{display:block;color:#aebfd5;margin-top:4px}.pill{border:1px solid #345978;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:900;white-space:nowrap}.ok{color:#83d99d}.att{color:#ffa02b}.crit{color:#ff7d72}
-.map{height:560px;width:100%;background:#08192d}.mapSmall{height:420px;width:100%;background:#08192d}.leaflet-container{background:#08192d}.mapLegend{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;color:#c7d8ee;font-size:13px}.legendDot{width:11px;height:11px;border-radius:50%;display:inline-block;margin-right:6px;background:var(--blue2)}.legendDot.orange{background:var(--orange)}.legendDot.green{background:var(--green)}
-.matrix{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.matrixCell{background:#132840;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px;min-height:92px}.matrixCell small{display:block;color:#a8bdd5;font-size:9px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}.matrixCell b{display:block;font-size:24px;margin-top:8px}
-.tableWrap{max-height:520px;overflow:auto}.dataTable{width:100%;border-collapse:collapse}.dataTable th{position:sticky;top:0;background:#102844;color:#b8d4f2;text-align:left;font-size:11px;letter-spacing:.12em;text-transform:uppercase;z-index:1}.dataTable td,.dataTable th{padding:12px;border-bottom:1px solid rgba(255,255,255,.08)}.dataTable td{color:#eaf3ff}
-.footer{margin-top:16px;color:#aebfd5;font-size:13px}
-@media(max-width:1280px){.filters{grid-template-columns:repeat(2,1fr)}.grid,.grid2{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}.kpi.feature{grid-column:span 1}}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:14px}.kpi{background:rgba(13,31,54,.92);border:1px solid var(--line);border-radius:21px;padding:18px;min-height:122px;box-shadow:0 18px 50px rgba(0,0,0,.16)}.kpi.feature{grid-column:span 2;background:linear-gradient(135deg,#0d1f36,#12365c);border-color:#4074a2}.kpi.warn{border-color:rgba(255,160,43,.52);background:linear-gradient(135deg,#0d1f36,#2a2114)}.kpi.danger{border-color:rgba(239,106,93,.55);background:linear-gradient(135deg,#0d1f36,#2b1519)}.kpi .label{font-size:11px;letter-spacing:.16em;color:#b8d4f2;font-weight:900;text-transform:uppercase}.kpi .value{font-size:34px;font-weight:950;margin:14px 0 4px}.kpi.feature .value{font-size:48px}.kpi .note{color:#c7d8ee;font-size:13px;line-height:1.35}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}.grid2{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}.gridWide{display:grid;grid-template-columns:1.45fr .55fr;gap:14px}.panel{background:rgba(13,31,54,.92);border:1px solid var(--line);border-radius:23px;min-height:320px;overflow:hidden;box-shadow:0 20px 70px rgba(0,0,0,.22)}.panelHead{padding:18px;border-bottom:1px solid var(--line)}h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px}.body{padding:18px}
+.barRow{display:grid;grid-template-columns:160px 1fr 76px 58px;gap:10px;align-items:center;margin-bottom:12px}.track{height:22px;background:#132941;border-radius:999px;overflow:hidden}.fill{height:100%;background:linear-gradient(90deg,#2f67a5,#5b9bd5)}.fill.orange{background:linear-gradient(90deg,#b95023,#e87535)}.fill.green{background:linear-gradient(90deg,#437b76,#78aaa3)}.fill.red{background:linear-gradient(90deg,#9c3229,#ef6a5d)}.fill.purple{background:linear-gradient(90deg,#614bbd,#9b7cff)}.num,.pct{text-align:right;font-weight:800}.empty{color:#aebfd5;padding:12px 0}
+.rank{display:grid;grid-template-columns:1fr auto;gap:12px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.08)}.rank small{display:block;color:#aebfd5;margin-top:4px;line-height:1.35}.pill{border:1px solid #345978;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:900;white-space:nowrap}.ok{color:#83d99d}.att{color:#ffa02b}.crit{color:#ff7d72}.info{color:#8fc7ff}
+.matrix{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.matrixCell{background:#132840;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px;min-height:96px}.matrixCell small{display:block;color:#a8bdd5;font-size:9px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}.matrixCell b{display:block;font-size:25px;margin-top:8px}.matrixCell span{display:block;color:#c7d8ee;font-size:12px;margin-top:5px;line-height:1.35}
+.map{height:590px;width:100%;background:#08192d}.leaflet-container{background:#08192d}.mapLegend{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;color:#c7d8ee;font-size:13px}.legendDot{width:11px;height:11px;border-radius:50%;display:inline-block;margin-right:6px;background:var(--blue2)}.legendDot.orange{background:var(--orange)}.legendDot.green{background:var(--green)}
+.tableWrap{max-height:560px;overflow:auto}.dataTable{width:100%;border-collapse:collapse}.dataTable th{position:sticky;top:0;background:#102844;color:#b8d4f2;text-align:left;font-size:11px;letter-spacing:.12em;text-transform:uppercase;z-index:1}.dataTable td,.dataTable th{padding:12px;border-bottom:1px solid rgba(255,255,255,.08)}.dataTable td{color:#eaf3ff}.statusTag{display:inline-flex;border:1px solid #345978;border-radius:999px;padding:5px 9px;font-weight:900;font-size:12px}.statusTag.baixo{color:#83d99d;border-color:#3f7d55}.statusTag.atencao{color:#ffa02b;border-color:#8d6a23}.statusTag.critico{color:#ff7d72;border-color:#8b3f38}
+.story{font-size:15px;color:#d8e8fb;line-height:1.55}.story b{color:#fff}.footer{margin-top:16px;color:#aebfd5;font-size:13px}
+@media(max-width:1280px){.filters{grid-template-columns:repeat(2,1fr)}.grid,.grid2,.gridWide{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}.kpi.feature{grid-column:span 1}.headerMetric{display:none}}
 @media(max-width:760px){.app{padding:14px}.header{flex-direction:column;align-items:flex-start}.logoBox{width:100%;border-right:0;border-bottom:1px solid rgba(255,255,255,.18);padding-right:0;padding-bottom:16px}.filters,.kpis,.matrix{grid-template-columns:1fr}h1{font-size:30px}.barRow{grid-template-columns:1fr}.num,.pct{text-align:left}}
 </style>
 </head>
-
 <body>
 <div class="app">
   <header class="header">
-    <div class="logoBox"><div class="logoText">COMLURB<span>DATA</span></div></div>
+    <div class="logoBox"><div class="logoText">HUB<span>PESSOAS</span></div></div>
     <div class="titleBox">
-      <div class="eyebrow">Radar de Pessoas</div>
-      <h1>Inteligência de Gestão da Força de Trabalho</h1>
-      <div class="sub">Painel integrado com R54, Organograma, Laudos e camada territorial. A visão de saúde ocupacional é agregada e não exibe nomes.</div>
+      <div class="eyebrow">Centro de Inteligência de Capacidade Operacional</div>
+      <h1>Leitura Estratégica da Força de Trabalho</h1>
+      <div class="sub">Integra R54, Organograma, Saúde Ocupacional e Território para identificar pressão operacional, risco estrutural e pontos de atenção gerencial. A visão de saúde ocupacional é agregada e não exibe nomes.</div>
     </div>
+    <div class="headerMetric"><small>Índice geral</small><b id="headerIndice">-</b></div>
   </header>
 
   <div id="status" class="status"></div>
 
   <nav class="navTabs">
-    <button class="tabBtn active" data-tab="executiva">Visão Executiva</button>
-    <button class="tabBtn" data-tab="perfil">Perfil Funcional</button>
+    <button class="tabBtn active" data-tab="executiva">Inteligência Executiva</button>
+    <button class="tabBtn" data-tab="pressao">Pressão Gerencial</button>
+    <button class="tabBtn" data-tab="capacidade">Capacidade</button>
     <button class="tabBtn" data-tab="territorial">Territorial</button>
     <button class="tabBtn" data-tab="saude">Saúde Ocupacional</button>
-    <button class="tabBtn" data-tab="risco">Risco de Reposição</button>
+    <button class="tabBtn" data-tab="risco">Risco Estrutural</button>
+    <button class="tabBtn" data-tab="analitico">Analítico</button>
   </nav>
 
   <section class="filters">
@@ -80,24 +73,48 @@ body{margin:0;background:radial-gradient(circle at top left,#0d2a48 0,#06111f 38
 
   <main id="executiva" class="screen active">
     <section class="kpis">
-      <div class="kpi feature"><div class="label">Efetivo filtrado</div><div id="kEfetivo" class="value">-</div><div class="note">Registros do R54 após filtros</div></div>
-      <div class="kpi"><div class="label">Diretorias</div><div id="kDiretorias" class="value">-</div><div class="note">Composição organizacional</div></div>
-      <div class="kpi"><div class="label">Com laudo</div><div id="kLaudos" class="value">-</div><div class="note">Agregado, sem nomes</div></div>
-      <div class="kpi"><div class="label">% com laudo</div><div id="kPctLaudos" class="value">-</div><div class="note">Sobre efetivo filtrado</div></div>
-      <div class="kpi"><div class="label">65+ anos</div><div id="k65" class="value">-</div><div class="note">Risco de reposição</div></div>
+      <div class="kpi feature"><div class="label">Capacidade observada</div><div id="kEfetivo" class="value">-</div><div class="note">Efetivo no recorte selecionado</div></div>
+      <div class="kpi warn"><div class="label">Pressão operacional</div><div id="kPressao" class="value">-</div><div class="note">Índice composto de laudos, idade e afastamento</div></div>
+      <div class="kpi"><div class="label">Com restrição/laudo</div><div id="kLaudos" class="value">-</div><div class="note">Agregado, sem nomes</div></div>
+      <div class="kpi danger"><div class="label">65+ anos</div><div id="k65" class="value">-</div><div class="note">Risco de reposição estrutural</div></div>
+      <div class="kpi"><div class="label">Cobertura territorial</div><div id="kTerr" class="value">-</div><div class="note">Registros com coordenada residencial</div></div>
     </section>
 
-    <section class="grid2">
-      <div class="panel"><div class="panelHead"><h2>Efetivo por Diretoria</h2><div class="hint">Usa a base de organograma como régua oficial.</div></div><div id="chartDiretoria" class="body"></div></div>
-      <div class="panel"><div class="panelHead"><h2>Alertas executivos</h2><div class="hint">Leituras automáticas para priorização.</div></div><div id="alerts" class="body"></div></div>
+    <section class="gridWide">
+      <div class="panel"><div class="panelHead"><h2>Ranking de pressão gerencial</h2><div class="hint">Prioriza onde a gestão deve olhar primeiro. Não é avaliação individual.</div></div><div id="chartPressaoExec" class="body"></div></div>
+      <div class="panel"><div class="panelHead"><h2>Leitura executiva automática</h2><div class="hint">Síntese do recorte atual.</div></div><div id="storyExec" class="body story"></div></div>
+    </section>
+
+    <section class="grid" style="margin-top:14px">
+      <div class="panel"><div class="panelHead"><h2>Efetivo por Diretoria</h2><div class="hint">Hierarquia oficial do organograma.</div></div><div id="chartDiretoria" class="body"></div></div>
+      <div class="panel"><div class="panelHead"><h2>Restrições por Diretoria</h2><div class="hint">Laudos vigentes agregados.</div></div><div id="chartLaudosDirExec" class="body"></div></div>
+      <div class="panel"><div class="panelHead"><h2>Risco 65+ por Diretoria</h2><div class="hint">Concentração de envelhecimento estrutural.</div></div><div id="chart65DirExec" class="body"></div></div>
     </section>
   </main>
 
-  <main id="perfil" class="screen">
+  <main id="pressao" class="screen">
+    <section class="kpis">
+      <div class="kpi feature"><div class="label">Índice médio de pressão</div><div id="pIndice" class="value">-</div><div class="note">0 a 100, quanto maior, maior atenção gerencial</div></div>
+      <div class="kpi"><div class="label">Gerências críticas</div><div id="pCriticas" class="value">-</div><div class="note">Índice ≥ 70</div></div>
+      <div class="kpi"><div class="label">Em atenção</div><div id="pAtencao" class="value">-</div><div class="note">Índice entre 45 e 69</div></div>
+      <div class="kpi"><div class="label">Baixa pressão</div><div id="pBaixo" class="value">-</div><div class="note">Índice abaixo de 45</div></div>
+      <div class="kpi"><div class="label">Maior pressão</div><div id="pMaior" class="value">-</div><div class="note">Gerência com maior índice</div></div>
+    </section>
+    <section class="panel"><div class="panelHead"><h2>Matriz de pressão gerencial</h2><div class="hint">Efetivo, laudos, 60+, 65+, cobertura territorial e índice composto.</div></div><div class="body tableWrap"><table class="dataTable"><thead><tr><th>Diretoria</th><th>Super/Coord.</th><th>Gerência</th><th>Efetivo</th><th>Laudos</th><th>% Laudo</th><th>60+</th><th>65+</th><th>Território</th><th>Índice</th><th>Status</th></tr></thead><tbody id="tblPressao"></tbody></table></div></section>
+  </main>
+
+  <main id="capacidade" class="screen">
+    <section class="kpis">
+      <div class="kpi feature"><div class="label">Capacidade potencial</div><div id="cEfetivo" class="value">-</div><div class="note">Efetivo total do recorte</div></div>
+      <div class="kpi"><div class="label">Com potencial limitação</div><div id="cLimitacao" class="value">-</div><div class="note">Laudo/restrição identificada</div></div>
+      <div class="kpi"><div class="label">Funções distintas</div><div id="cFuncoes" class="value">-</div><div class="note">Diversidade funcional</div></div>
+      <div class="kpi"><div class="label">Gerências</div><div id="cGerencias" class="value">-</div><div class="note">Estruturas no recorte</div></div>
+      <div class="kpi"><div class="label">Setores</div><div id="cSetores" class="value">-</div><div class="note">Lotação/Setor</div></div>
+    </section>
     <section class="grid">
-      <div class="panel"><div class="panelHead"><h2>Top funções</h2><div class="hint">Funções mais representativas no filtro.</div></div><div id="chartFuncoes" class="body"></div></div>
-      <div class="panel"><div class="panelHead"><h2>Top gerências</h2><div class="hint">Concentração de efetivo por gerência.</div></div><div id="chartGerencias" class="body"></div></div>
-      <div class="panel"><div class="panelHead"><h2>Top setores</h2><div class="hint">Concentração operacional por setor.</div></div><div id="chartSetores" class="body"></div></div>
+      <div class="panel"><div class="panelHead"><h2>Top funções</h2><div class="hint">Não separa operacional/administrativo. Toda estrutura sustenta a operação.</div></div><div id="chartFuncoes" class="body"></div></div>
+      <div class="panel"><div class="panelHead"><h2>Top gerências por efetivo</h2><div class="hint">Dependência crítica de capacidade.</div></div><div id="chartGerencias" class="body"></div></div>
+      <div class="panel"><div class="panelHead"><h2>Top setores por efetivo</h2><div class="hint">Concentração de pessoal por setor.</div></div><div id="chartSetores" class="body"></div></div>
     </section>
   </main>
 
@@ -109,7 +126,6 @@ body{margin:0;background:radial-gradient(circle at top left,#0d2a48 0,#06111f 38
       <div class="kpi"><div class="label">Bairros origem</div><div id="kBairros" class="value">-</div><div class="note">Residência</div></div>
       <div class="kpi"><div class="label">Locais trabalho</div><div id="kLocais" class="value">-</div><div class="note">Setores com coordenada</div></div>
     </section>
-
     <section class="grid2">
       <div class="panel"><div class="panelHead"><h2>Mapa territorial: residência x trabalho</h2><div class="hint">Azul: residência. Laranja: local de trabalho. Heatmap: concentração residencial.</div></div><div id="map" class="map"></div><div class="body mapLegend"><span><i class="legendDot"></i>Residência</span><span><i class="legendDot orange"></i>Trabalho</span><span><i class="legendDot green"></i>Heatmap de moradia</span></div></div>
       <div class="panel"><div class="panelHead"><h2>Top concentração territorial</h2><div class="hint">Bairros ou municípios de residência.</div></div><div id="chartTerritorio" class="body"></div></div>
@@ -124,20 +140,29 @@ body{margin:0;background:radial-gradient(circle at top left,#0d2a48 0,#06111f 38
       <div class="kpi"><div class="label">PCD + INSS</div><div id="sAmbos" class="value">-</div><div class="note">Conclusão contém ambos</div></div>
       <div class="kpi"><div class="label">Temporários</div><div id="sTemp" class="value">-</div><div class="note">Com data de retorno/fim</div></div>
     </section>
-
     <section class="grid2">
-      <div class="panel"><div class="panelHead"><h2>Laudos por Diretoria</h2><div class="hint">Agregado institucional, sem identificação individual.</div></div><div id="chartLaudosDir" class="body"></div></div>
+      <div class="panel"><div class="panelHead"><h2>Saúde ocupacional por Diretoria</h2><div class="hint">Agregado institucional, sem identificação individual.</div></div><div id="chartLaudosDir" class="body"></div></div>
       <div class="panel"><div class="panelHead"><h2>Tipos de conclusão</h2><div class="hint">Classificação simplificada por texto da conclusão.</div></div><div id="chartTiposLaudo" class="body"></div></div>
     </section>
-
-    <section class="panel" style="margin-top:14px"><div class="panelHead"><h2>Resumo por estrutura</h2><div class="hint">Tabela agregada por Diretoria, Superintendência e Gerência. Não exibe nomes.</div></div><div class="body tableWrap"><table class="dataTable"><thead><tr><th>Diretoria</th><th>Superintendência</th><th>Gerência</th><th>Laudos</th><th>PCD</th><th>INSS</th><th>Temporários</th></tr></thead><tbody id="tblSaude"></tbody></table></div></section>
+    <section class="panel" style="margin-top:14px"><div class="panelHead"><h2>Resumo agregado por estrutura</h2><div class="hint">Diretoria, Superintendência e Gerência. Não exibe nomes.</div></div><div class="body tableWrap"><table class="dataTable"><thead><tr><th>Diretoria</th><th>Superintendência</th><th>Gerência</th><th>Laudos</th><th>PCD</th><th>INSS</th><th>Temporários</th></tr></thead><tbody id="tblSaude"></tbody></table></div></section>
   </main>
 
   <main id="risco" class="screen">
-    <section class="grid2">
-      <div class="panel"><div class="panelHead"><h2>Risco de reposição por Diretoria</h2><div class="hint">Servidores com 65 anos ou mais.</div></div><div id="chartRiscoDir" class="body"></div></div>
-      <div class="panel"><div class="panelHead"><h2>Matriz de atenção</h2><div class="hint">Efetivo, laudos e idade elevada.</div></div><div id="riskMatrix" class="body"></div></div>
+    <section class="kpis">
+      <div class="kpi feature"><div class="label">Risco estrutural</div><div id="rIndice" class="value">-</div><div class="note">Composição de 60+, 65+ e restrições</div></div>
+      <div class="kpi"><div class="label">60+ anos</div><div id="r60" class="value">-</div><div class="note">Pré-risco de reposição</div></div>
+      <div class="kpi danger"><div class="label">65+ anos</div><div id="r65" class="value">-</div><div class="note">Risco mais imediato</div></div>
+      <div class="kpi"><div class="label">Laudo + 60+</div><div id="rLaudo60" class="value">-</div><div class="note">Interseção sensível</div></div>
+      <div class="kpi"><div class="label">Funções 65+</div><div id="rFuncoes65" class="value">-</div><div class="note">Funções distintas com 65+</div></div>
     </section>
+    <section class="grid2">
+      <div class="panel"><div class="panelHead"><h2>Risco 65+ por Diretoria</h2><div class="hint">Concentração de envelhecimento estrutural.</div></div><div id="chartRiscoDir" class="body"></div></div>
+      <div class="panel"><div class="panelHead"><h2>Gerências com maior risco</h2><div class="hint">Servidores 65+ por gerência.</div></div><div id="riskMatrix" class="body"></div></div>
+    </section>
+  </main>
+
+  <main id="analitico" class="screen">
+    <section class="panel"><div class="panelHead"><h2>Analítico agregado por gerência</h2><div class="hint">Sem nomes. Base para priorização, validação e planejamento.</div></div><div class="body tableWrap"><table class="dataTable"><thead><tr><th>Diretoria</th><th>Super/Coord.</th><th>Gerência</th><th>Setores</th><th>Efetivo</th><th>Laudos</th><th>60+</th><th>65+</th><th>Território mapeado</th><th>Índice pressão</th><th>Status</th></tr></thead><tbody id="tblAnalitico"></tbody></table></div></section>
   </main>
 
   <div class="footer">Fontes: R54 publicado no Google Sheets, Base de Laudos e Base de Organograma. Atualização dinâmica via CSV publicado.</div>
@@ -153,9 +178,11 @@ let map, layerRes, layerTrab, heatLayer;
 
 const $ = id => document.getElementById(id);
 const fmt = n => Number(n||0).toLocaleString('pt-BR');
+const pctTxt = n => `${Number(n||0).toFixed(1).replace('.',',')}%`;
 const norm = v => String(v ?? '').trim();
 const upper = v => norm(v).toUpperCase();
 const unique = arr => [...new Set(arr.filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),'pt-BR'));
+const clamp = (n,min,max)=>Math.max(min,Math.min(max,n));
 
 function showStatus(msg){ const el=$('status'); el.style.display='block'; el.textContent=msg; }
 function hideStatus(){ $('status').style.display='none'; }
@@ -164,60 +191,33 @@ async function fetchText(url){
   const urls = [url, `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`];
   let lastErr;
   for(const u of urls){
-    try{
-      const r = await fetch(u, {cache:'no-store'});
-      if(!r.ok) throw new Error(`HTTP ${r.status}`);
-      return await r.text();
-    }catch(e){ lastErr=e; }
+    try{ const r = await fetch(u, {cache:'no-store'}); if(!r.ok) throw new Error(`HTTP ${r.status}`); return await r.text(); }
+    catch(e){ lastErr=e; }
   }
   throw lastErr;
 }
-
-function parseCsv(text){
-  return Papa.parse(text, {header:true, skipEmptyLines:true, transformHeader:h=>norm(h).replace(/^\uFEFF/,'')}).data;
-}
-
+function parseCsv(text){ return Papa.parse(text, {header:true, skipEmptyLines:true, transformHeader:h=>norm(h).replace(/^\uFEFF/,'')}).data; }
 function findField(row, names){
   const keys = Object.keys(row || {});
-  for(const n of names){
-    const exact = keys.find(k => upper(k) === upper(n));
-    if(exact) return row[exact];
-  }
+  for(const n of names){ const exact = keys.find(k => upper(k) === upper(n)); if(exact) return row[exact]; }
   const normalized = name => upper(name).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Z0-9]/g,'');
-  for(const n of names){
-    const target = normalized(n);
-    const fuzzy = keys.find(k => normalized(k) === target);
-    if(fuzzy) return row[fuzzy];
-  }
+  for(const n of names){ const target = normalized(n); const fuzzy = keys.find(k => normalized(k) === target); if(fuzzy) return row[fuzzy]; }
   return '';
 }
-
 function getRegistro(row){ return norm(findField(row, ['REGISTRO','Registro','MATRICULA','Matrícula'])); }
 function getSetor(row){ return upper(findField(row, ['Setor','SETOR','Lotação','LOTACAO','LOTAÇÃO','LOCAL DE TRABALHO'])); }
 function getFuncao(row){ return norm(findField(row, ['Função','FUNÇÃO','FUNCAO','Cargo','CARGO'])); }
 function getIdade(row){ const v = String(findField(row, ['Idade','IDADE'])).replace(',','.'); return Number.parseFloat(v) || 0; }
+function getSituacao(row){ return upper(findField(row, ['Situação Funcional','SITUAÇÃO FUNCIONAL','Situacao Funcional','SITUACAO FUNCIONAL','Status Funcional','STATUS'])); }
+function isAfastado(row){ const s=getSituacao(row); return /(AFAST|LICEN|CEDID|SUSP|INSS|READAPT)/.test(s); }
 function getBairro(row){ return norm(findField(row, ['BAIRRO_RES','Bairro Residência','Bairro','BAIRRO','MUNICIPIO_RES','Município Residência','MUNICIPIO'])); }
 function getMunicipio(row){ return upper(findField(row, ['MUNICIPIO_RES','Município Residência','MUNICIPIO','Cidade'])); }
-
 function fixCoord(v, type){
-  if(v === null || v === undefined) return null;
-  let s = String(v).trim().replace(',','.');
-  if(!s) return null;
-  let n = Number.parseFloat(s);
-  if(!Number.isFinite(n)) return null;
-  if(type === 'lat'){
-    while(Math.abs(n) > 90) n = n / 10;
-    if(n > -10 && n < 0) n = n * 10;
-    if(n < -35 || n > 6) return null;
-  }
-  if(type === 'lng'){
-    while(Math.abs(n) > 180) n = n / 10;
-    if(n > -10 && n < 0) n = n * 10;
-    if(n < -75 || n > -25) return null;
-  }
+  if(v === null || v === undefined) return null; let s = String(v).trim().replace(',','.'); if(!s) return null; let n = Number.parseFloat(s); if(!Number.isFinite(n)) return null;
+  if(type === 'lat'){ while(Math.abs(n) > 90) n = n / 10; if(n > -10 && n < 0) n = n * 10; if(n < -35 || n > 6) return null; }
+  if(type === 'lng'){ while(Math.abs(n) > 180) n = n / 10; if(n > -10 && n < 0) n = n * 10; if(n < -75 || n > -25) return null; }
   return n;
 }
-
 function getLatRes(row){ return fixCoord(findField(row, ['LAT_RES','Latitude Residência','LATITUDE_RES','LATITUDE RES','LATITUDE']), 'lat'); }
 function getLngRes(row){ return fixCoord(findField(row, ['LNG_RES','LONG_RES','Longitude Residência','LONGITUDE_RES','LONGITUDE RES','LONGITUDE']), 'lng'); }
 function getLatTrab(row){ return fixCoord(findField(row, ['LAT_TRAB','LATITUDE_TRAB','Latitude Trabalho','LATITUDE TRABALHO']), 'lat'); }
@@ -226,268 +226,60 @@ function getLngTrab(row){ return fixCoord(findField(row, ['LNG_TRAB','LONG_TRAB'
 function buildOrgMap(org){
   const map = {};
   org.forEach(r=>{
-    const setor = upper(findField(r, ['Setor']));
-    if(!setor) return;
-    map[setor] = {
-      setor,
-      gerencia: norm(findField(r, ['Gerência','Gerencia'])) || setor,
-      superintendencia: norm(findField(r, ['Superintendência/Coordenação','Superintendencia/Coordenacao','Superintendência','Coordenação'])) || '-',
-      diretoria: norm(findField(r, ['Diretoria'])) || '-'
-    };
+    const setor = upper(findField(r, ['Setor'])); if(!setor) return;
+    map[setor] = {setor, gerencia:norm(findField(r, ['Gerência','Gerencia'])) || setor, superintendencia:norm(findField(r, ['Superintendência/Coordenação','Superintendencia/Coordenacao','Superintendência','Coordenação'])) || '-', diretoria:norm(findField(r, ['Diretoria'])) || '-'};
   });
   return map;
 }
-
-function enrichR54(r54, orgMap, laudoRegs){
-  return r54.map(r=>{
-    const setor = getSetor(r);
-    const org = orgMap[setor] || {};
-    const reg = getRegistro(r);
-    return {
-      ...r,
-      __REGISTRO: reg,
-      __SETOR: setor || '-',
-      __GERENCIA: org.gerencia || norm(findField(r, ['Gerência','Gerencia'])) || setor || '-',
-      __SUPER: org.superintendencia || norm(findField(r, ['Superintendência/Coordenação','Superintendência','Coordenação'])) || '-',
-      __DIRETORIA: org.diretoria || norm(findField(r, ['Diretoria'])) || '-',
-      __FUNCAO: getFuncao(r) || '-',
-      __IDADE: getIdade(r),
-      __BAIRRO: getBairro(r) || '-',
-      __MUNICIPIO: getMunicipio(r) || '-',
-      __LAT_RES: getLatRes(r),
-      __LNG_RES: getLngRes(r),
-      __LAT_TRAB: getLatTrab(r),
-      __LNG_TRAB: getLngTrab(r),
-      __TEM_LAUDO: laudoRegs.has(reg)
-    };
-  });
-}
-
 function classifyLaudo(row){
   const c = upper(findField(row, ['Conclusao','Conclusão']));
   const pcd = c.includes('PCD') || c.includes('PESSOA COM DEFICIENCIA') || c.includes('PESSOA COM DEFICIÊNCIA');
   const inss = c.includes('INSS');
   const retorno = norm(findField(row, ['Data para retorno ou Fim da restrição','Data para retorno ou Fim da restricao','Fim da restrição','Fim da restricao']));
-  let tipo = 'Outros';
-  if(pcd && inss) tipo = 'PCD + INSS';
-  else if(pcd) tipo = 'PCD';
-  else if(inss) tipo = 'INSS';
+  let tipo = 'Outros'; if(pcd && inss) tipo = 'PCD + INSS'; else if(pcd) tipo = 'PCD'; else if(inss) tipo = 'INSS';
   return {pcd,inss,temporario:!!retorno,tipo};
 }
-
 function enrichLaudos(laudos, orgMap){
-  return laudos.map(r=>{
-    const setor = upper(findField(r, ['Lotação','Lotacao','Setor']));
-    const org = orgMap[setor] || {};
-    const cls = classifyLaudo(r);
-    return {
-      ...r,
-      __REGISTRO: getRegistro(r),
-      __SETOR: setor || '-',
-      __GERENCIA: org.gerencia || setor || '-',
-      __SUPER: org.superintendencia || norm(findField(r, ['Superintendência','Superintendencia'])) || '-',
-      __DIRETORIA: org.diretoria || norm(findField(r, ['Diretoria'])) || '-',
-      __FUNCAO: getFuncao(r) || '-',
-      __STATUS: norm(findField(r, ['Status'])),
-      __PCD: cls.pcd,
-      __INSS: cls.inss,
-      __TEMP: cls.temporario,
-      __TIPO: cls.tipo
-    };
+  return laudos.map(r=>{ const setor = upper(findField(r, ['Lotação','Lotacao','Setor'])); const org = orgMap[setor] || {}; const cls = classifyLaudo(r);
+    return {...r,__REGISTRO:getRegistro(r),__SETOR:setor||'-',__GERENCIA:org.gerencia||setor||'-',__SUPER:org.superintendencia||norm(findField(r, ['Superintendência','Superintendencia']))||'-',__DIRETORIA:org.diretoria||norm(findField(r, ['Diretoria']))||'-',__FUNCAO:getFuncao(r)||'-',__STATUS:norm(findField(r, ['Status'])),__PCD:cls.pcd,__INSS:cls.inss,__TEMP:cls.temporario,__TIPO:cls.tipo};
   });
 }
-
-function applyFiltersTo(data){
-  const d=$('fDiretoria').value, s=$('fSuper').value, g=$('fGerencia').value, setor=$('fSetor').value;
-  return data.filter(r=>(!d||r.__DIRETORIA===d)&&(!s||r.__SUPER===s)&&(!g||r.__GERENCIA===g)&&(!setor||r.__SETOR===setor));
-}
-
-function populateSelect(id, values, keep=true){
-  const el=$(id); const current = keep ? el.value : '';
-  el.innerHTML = '<option value="">Todas</option>';
-  if(id === 'fSetor') el.innerHTML = '<option value="">Todos</option>';
-  values.forEach(v=>{ const o=document.createElement('option'); o.value=v; o.textContent=v; el.appendChild(o); });
-  if(values.includes(current)) el.value=current;
-}
-
-function refreshFilters(){
-  const d=$('fDiretoria').value, s=$('fSuper').value, g=$('fGerencia').value;
-  const baseD = R54;
-  populateSelect('fDiretoria', unique(baseD.map(r=>r.__DIRETORIA)));
-  const baseS = baseD.filter(r=>!d||r.__DIRETORIA===d);
-  populateSelect('fSuper', unique(baseS.map(r=>r.__SUPER)));
-  const baseG = baseS.filter(r=>!s||r.__SUPER===s);
-  populateSelect('fGerencia', unique(baseG.map(r=>r.__GERENCIA)));
-  const baseSet = baseG.filter(r=>!g||r.__GERENCIA===g);
-  populateSelect('fSetor', unique(baseSet.map(r=>r.__SETOR)));
-}
-
-function groupCount(data, field){
-  const m = new Map();
-  data.forEach(r=>{ const k = r[field] || '-'; m.set(k, (m.get(k)||0)+1); });
-  return [...m.entries()].map(([name,value])=>({name,value})).sort((a,b)=>b.value-a.value);
-}
-
-function barChart(id, rows, opts={}){
-  const el=$(id); el.innerHTML='';
-  if(!rows.length){ el.innerHTML='<div class="empty">Sem dados para o filtro atual.</div>'; return; }
-  const max = Math.max(...rows.map(r=>r.value),1);
-  rows.slice(0, opts.limit || 10).forEach(r=>{
-    const pct = Math.round((r.value/max)*100);
-    const div=document.createElement('div'); div.className='barRow';
-    div.innerHTML = `<div title="${r.name}">${r.name}</div><div class="track"><div class="fill ${opts.color||''}" style="width:${pct}%"></div></div><div class="num">${fmt(r.value)}</div><div class="pct">${pct}%</div>`;
-    el.appendChild(div);
+function enrichR54(r54, orgMap, laudoRegs){
+  return r54.map(r=>{ const setor = getSetor(r); const org = orgMap[setor] || {}; const reg = getRegistro(r); const lat=getLatRes(r), lng=getLngRes(r);
+    return {...r,__REGISTRO:reg,__SETOR:setor||'-',__GERENCIA:org.gerencia||norm(findField(r, ['Gerência','Gerencia']))||setor||'-',__SUPER:org.superintendencia||norm(findField(r, ['Superintendência/Coordenação','Superintendência','Coordenação']))||'-',__DIRETORIA:org.diretoria||norm(findField(r, ['Diretoria']))||'-',__FUNCAO:getFuncao(r)||'-',__IDADE:getIdade(r),__SITUACAO:getSituacao(r),__AFASTADO:isAfastado(r),__BAIRRO:getBairro(r)||'-',__MUNICIPIO:getMunicipio(r)||'-',__LAT_RES:lat,__LNG_RES:lng,__LAT_TRAB:getLatTrab(r),__LNG_TRAB:getLngTrab(r),__TEM_LAUDO:laudoRegs.has(reg),__MAPEADO:!!(lat&&lng)};
   });
 }
-
-function rankList(id, rows){
-  const el=$(id); el.innerHTML='';
-  if(!rows.length){ el.innerHTML='<div class="empty">Sem alertas para o filtro atual.</div>'; return; }
-  rows.slice(0,8).forEach(r=>{
-    const div=document.createElement('div'); div.className='rank';
-    div.innerHTML = `<div><b>${r.title}</b><small>${r.desc}</small></div><div class="pill ${r.cls||'att'}">${r.value}</div>`;
-    el.appendChild(div);
-  });
+function applyFiltersTo(data){ const d=$('fDiretoria').value, s=$('fSuper').value, g=$('fGerencia').value, setor=$('fSetor').value; return data.filter(r=>(!d||r.__DIRETORIA===d)&&(!s||r.__SUPER===s)&&(!g||r.__GERENCIA===g)&&(!setor||r.__SETOR===setor)); }
+function populateSelect(id, values, keep=true){ const el=$(id); const current = keep ? el.value : ''; el.innerHTML = id === 'fSetor' ? '<option value="">Todos</option>' : '<option value="">Todas</option>'; values.forEach(v=>{ const o=document.createElement('option'); o.value=v; o.textContent=v; el.appendChild(o); }); if(values.includes(current)) el.value=current; }
+function refreshFilters(){ const d=$('fDiretoria').value, s=$('fSuper').value, g=$('fGerencia').value; populateSelect('fDiretoria', unique(R54.map(r=>r.__DIRETORIA))); const baseS=R54.filter(r=>!d||r.__DIRETORIA===d); populateSelect('fSuper', unique(baseS.map(r=>r.__SUPER))); const baseG=baseS.filter(r=>!s||r.__SUPER===s); populateSelect('fGerencia', unique(baseG.map(r=>r.__GERENCIA))); const baseSet=baseG.filter(r=>!g||r.__GERENCIA===g); populateSelect('fSetor', unique(baseSet.map(r=>r.__SETOR))); }
+function groupCount(data, field){ const m=new Map(); data.forEach(r=>{ const k=r[field]||'-'; m.set(k,(m.get(k)||0)+1); }); return [...m.entries()].map(([name,value])=>({name,value})).sort((a,b)=>b.value-a.value); }
+function barChart(id, rows, opts={}){ const el=$(id); el.innerHTML=''; if(!rows.length){ el.innerHTML='<div class="empty">Sem dados para o filtro atual.</div>'; return; } const max=Math.max(...rows.map(r=>r.value),1); rows.slice(0,opts.limit||10).forEach(r=>{ const pct=Math.round((r.value/max)*100); const div=document.createElement('div'); div.className='barRow'; div.innerHTML=`<div title="${r.name}">${r.name}</div><div class="track"><div class="fill ${opts.color||''}" style="width:${pct}%"></div></div><div class="num">${fmt(r.value)}</div><div class="pct">${pct}%</div>`; el.appendChild(div); }); }
+function rankList(id, rows){ const el=$(id); el.innerHTML=''; if(!rows.length){ el.innerHTML='<div class="empty">Sem dados para o filtro atual.</div>'; return; } rows.slice(0,10).forEach(r=>{ const div=document.createElement('div'); div.className='rank'; div.innerHTML=`<div><b>${r.title}</b><small>${r.desc}</small></div><div class="pill ${r.cls||'att'}">${r.value}</div>`; el.appendChild(div); }); }
+function statusFromIndex(i){ if(i>=70) return {txt:'Crítico', cls:'critico'}; if(i>=45) return {txt:'Atenção', cls:'atencao'}; return {txt:'Baixo', cls:'baixo'}; }
+function pressureRows(data=FILTERED){
+  const map=new Map();
+  data.forEach(r=>{ const key=`${r.__DIRETORIA}|${r.__SUPER}|${r.__GERENCIA}`; if(!map.has(key)) map.set(key,{dir:r.__DIRETORIA,sup:r.__SUPER,ger:r.__GERENCIA,setores:new Set(),efetivo:0,laudos:0,a60:0,a65:0,afast:0,map:0}); const a=map.get(key); a.efetivo++; a.setores.add(r.__SETOR); if(r.__TEM_LAUDO)a.laudos++; if(r.__IDADE>=60)a.a60++; if(r.__IDADE>=65)a.a65++; if(r.__AFASTADO)a.afast++; if(r.__MAPEADO)a.map++; });
+  return [...map.values()].map(a=>{ const pLaudo=a.efetivo?a.laudos/a.efetivo*100:0, p60=a.efetivo?a.a60/a.efetivo*100:0, p65=a.efetivo?a.a65/a.efetivo*100:0, pAfast=a.efetivo?a.afast/a.efetivo*100:0, pMap=a.efetivo?a.map/a.efetivo*100:0; const index=clamp((pLaudo*1.15)+(p65*1.35)+(p60*.45)+(pAfast*1.1)+((100-pMap)*.12),0,100); return {...a,setoresCount:a.setores.size,pLaudo,p60,p65,pAfast,pMap,index}; }).sort((a,b)=>b.index-a.index);
 }
+function laudosVigentes(){ return FILTERED_LAUDOS.filter(l=>!l.__STATUS || upper(l.__STATUS).includes('VIGENTE')); }
 
 function renderExecutive(){
-  $('kEfetivo').textContent = fmt(FILTERED.length);
-  $('kDiretorias').textContent = fmt(unique(FILTERED.map(r=>r.__DIRETORIA)).length);
-  const comLaudo = FILTERED.filter(r=>r.__TEM_LAUDO).length;
-  $('kLaudos').textContent = fmt(comLaudo);
-  $('kPctLaudos').textContent = FILTERED.length ? `${((comLaudo/FILTERED.length)*100).toFixed(1).replace('.',',')}%` : '0%';
-  $('k65').textContent = fmt(FILTERED.filter(r=>r.__IDADE >= 65).length);
-  barChart('chartDiretoria', groupCount(FILTERED,'__DIRETORIA'), {limit:10});
-
-  const laudoRate = FILTERED.length ? (comLaudo/FILTERED.length)*100 : 0;
-  const risk65 = FILTERED.filter(r=>r.__IDADE >= 65).length;
-  const topDir = groupCount(FILTERED,'__DIRETORIA')[0];
-  rankList('alerts', [
-    {title:'Pressão de saúde ocupacional', desc:'Percentual de efetivo filtrado com registro de laudo.', value:`${laudoRate.toFixed(1).replace('.',',')}%`, cls:laudoRate>10?'crit':'att'},
-    {title:'Risco de reposição', desc:'Servidores com 65 anos ou mais no recorte atual.', value:fmt(risk65), cls:risk65>100?'crit':'att'},
-    {title:'Maior concentração', desc:topDir ? `Diretoria com maior efetivo: ${topDir.name}` : 'Sem dados', value:topDir?fmt(topDir.value):'-', cls:'ok'},
-    {title:'Cobertura territorial', desc:'Registros com coordenadas residenciais válidas.', value:fmt(FILTERED.filter(r=>r.__LAT_RES&&r.__LNG_RES).length), cls:'ok'}
-  ]);
+  const comLaudo=FILTERED.filter(r=>r.__TEM_LAUDO).length, a65=FILTERED.filter(r=>r.__IDADE>=65).length, mapped=FILTERED.filter(r=>r.__MAPEADO).length; const rows=pressureRows(); const avg=rows.length?rows.reduce((s,r)=>s+r.index,0)/rows.length:0; $('headerIndice').textContent=Math.round(avg); $('kEfetivo').textContent=fmt(FILTERED.length); $('kPressao').textContent=Math.round(avg); $('kLaudos').textContent=fmt(comLaudo); $('k65').textContent=fmt(a65); $('kTerr').textContent=FILTERED.length?pctTxt(mapped/FILTERED.length*100):'0%';
+  barChart('chartPressaoExec', rows.map(r=>({name:r.ger,value:Math.round(r.index)})), {limit:12,color:'orange'}); barChart('chartDiretoria', groupCount(FILTERED,'__DIRETORIA'), {limit:8}); barChart('chartLaudosDirExec', groupCount(laudosVigentes(),'__DIRETORIA'), {limit:8,color:'orange'}); barChart('chart65DirExec', groupCount(FILTERED.filter(r=>r.__IDADE>=65),'__DIRETORIA'), {limit:8,color:'red'});
+  const top=rows[0], topDir=groupCount(FILTERED,'__DIRETORIA')[0]; const laudoRate=FILTERED.length?comLaudo/FILTERED.length*100:0; const ageRate=FILTERED.length?a65/FILTERED.length*100:0;
+  $('storyExec').innerHTML = `<p><b>Leitura do recorte:</b> o filtro atual contempla <b>${fmt(FILTERED.length)}</b> registros e apresenta índice médio de pressão operacional de <b>${Math.round(avg)}/100</b>.</p><p>A maior concentração de efetivo está em <b>${topDir?.name || '-'}</b>. A estrutura com maior pressão gerencial no recorte é <b>${top?.ger || '-'}</b>, com índice <b>${top?Math.round(top.index):'-'}</b>.</p><p>Do ponto de vista estrutural, <b>${pctTxt(laudoRate)}</b> do efetivo possui laudo/restrição identificada e <b>${pctTxt(ageRate)}</b> está na faixa de 65 anos ou mais. Essa leitura deve ser usada para priorizar planejamento de cobertura, reposição e acompanhamento gerencial, sem avaliação individual.</p>`;
 }
-
-function renderPerfil(){
-  barChart('chartFuncoes', groupCount(FILTERED,'__FUNCAO'), {limit:10});
-  barChart('chartGerencias', groupCount(FILTERED,'__GERENCIA'), {limit:10, color:'green'});
-  barChart('chartSetores', groupCount(FILTERED,'__SETOR'), {limit:10, color:'orange'});
-}
-
-function initMap(){
-  if(map) return;
-  map = L.map('map', {preferCanvas:true}).setView([-22.9068,-43.1729], 10);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {maxZoom:19, attribution:'&copy; OpenStreetMap & Carto'}).addTo(map);
-  layerRes = L.layerGroup().addTo(map);
-  layerTrab = L.layerGroup().addTo(map);
-}
-
-function renderTerritorial(){
-  const res = FILTERED.filter(r=>r.__LAT_RES && r.__LNG_RES);
-  const trab = FILTERED.filter(r=>r.__LAT_TRAB && r.__LNG_TRAB);
-  $('kResMap').textContent = fmt(res.length);
-  $('kTrabMap').textContent = fmt(trab.length);
-  $('kForaRJ').textContent = fmt(FILTERED.filter(r=>r.__MUNICIPIO && !['RIO DE JANEIRO','RIO'].includes(r.__MUNICIPIO)).length);
-  $('kBairros').textContent = fmt(unique(FILTERED.map(r=>r.__BAIRRO).filter(v=>v && v!=='-')).length);
-  $('kLocais').textContent = fmt(unique(trab.map(r=>r.__SETOR)).length);
-  barChart('chartTerritorio', groupCount(FILTERED,'__BAIRRO'), {limit:14, color:'green'});
-
-  initMap();
-  setTimeout(()=>map.invalidateSize(),100);
-  layerRes.clearLayers(); layerTrab.clearLayers(); if(heatLayer) map.removeLayer(heatLayer);
-
-  res.slice(0,2500).forEach(r=>{
-    L.circleMarker([r.__LAT_RES,r.__LNG_RES], {radius:3, color:'#5b9bd5', fillColor:'#5b9bd5', fillOpacity:.65, weight:1})
-      .bindTooltip(`Residência<br>${r.__BAIRRO}<br>${r.__DIRETORIA}`, {direction:'top'})
-      .addTo(layerRes);
-  });
-  const seenTrab = new Set();
-  trab.forEach(r=>{
-    const key = `${r.__SETOR}|${r.__LAT_TRAB}|${r.__LNG_TRAB}`;
-    if(seenTrab.has(key)) return;
-    seenTrab.add(key);
-    L.circleMarker([r.__LAT_TRAB,r.__LNG_TRAB], {radius:6, color:'#e87535', fillColor:'#e87535', fillOpacity:.85, weight:2})
-      .bindTooltip(`Trabalho<br>${r.__SETOR}<br>${r.__GERENCIA}`, {direction:'top'})
-      .addTo(layerTrab);
-  });
-  if(res.length){
-    heatLayer = L.heatLayer(res.map(r=>[r.__LAT_RES,r.__LNG_RES,.55]), {radius:24, blur:22, maxZoom:13}).addTo(map);
-    const bounds = L.latLngBounds(res.slice(0,1000).map(r=>[r.__LAT_RES,r.__LNG_RES]));
-    if(bounds.isValid()) map.fitBounds(bounds.pad(.15));
-  }
-}
-
-function renderSaude(){
-  const Ls = FILTERED_LAUDOS;
-  const vig = Ls.filter(l=>!l.__STATUS || upper(l.__STATUS).includes('VIGENTE'));
-  $('sLaudos').textContent = fmt(vig.length);
-  $('sPcd').textContent = fmt(vig.filter(l=>l.__PCD).length);
-  $('sInss').textContent = fmt(vig.filter(l=>l.__INSS).length);
-  $('sAmbos').textContent = fmt(vig.filter(l=>l.__PCD && l.__INSS).length);
-  $('sTemp').textContent = fmt(vig.filter(l=>l.__TEMP).length);
-  barChart('chartLaudosDir', groupCount(vig,'__DIRETORIA'), {limit:10, color:'orange'});
-  barChart('chartTiposLaudo', groupCount(vig,'__TIPO'), {limit:8});
-
-  const agg = new Map();
-  vig.forEach(l=>{
-    const key = `${l.__DIRETORIA}|${l.__SUPER}|${l.__GERENCIA}`;
-    if(!agg.has(key)) agg.set(key, {dir:l.__DIRETORIA, sup:l.__SUPER, ger:l.__GERENCIA, total:0, pcd:0, inss:0, temp:0});
-    const a=agg.get(key); a.total++; if(l.__PCD) a.pcd++; if(l.__INSS) a.inss++; if(l.__TEMP) a.temp++;
-  });
-  const rows = [...agg.values()].sort((a,b)=>b.total-a.total).slice(0,60);
-  $('tblSaude').innerHTML = rows.map(r=>`<tr><td>${r.dir}</td><td>${r.sup}</td><td>${r.ger}</td><td>${fmt(r.total)}</td><td>${fmt(r.pcd)}</td><td>${fmt(r.inss)}</td><td>${fmt(r.temp)}</td></tr>`).join('') || '<tr><td colspan="7">Sem dados para o filtro atual.</td></tr>';
-}
-
-function renderRisco(){
-  const risk = FILTERED.filter(r=>r.__IDADE >= 65);
-  barChart('chartRiscoDir', groupCount(risk,'__DIRETORIA'), {limit:10, color:'red'});
-  const byGer = groupCount(risk,'__GERENCIA').slice(0,8).map(x=>({title:x.name, desc:'Servidores com 65 anos ou mais', value:fmt(x.value), cls:x.value>20?'crit':'att'}));
-  rankList('riskMatrix', byGer);
-}
-
-function renderAll(){
-  FILTERED = applyFiltersTo(R54);
-  FILTERED_LAUDOS = applyFiltersTo(LAUDOS);
-  renderExecutive(); renderPerfil(); renderSaude(); renderRisco();
-  if(document.querySelector('.tabBtn.active')?.dataset.tab === 'territorial') renderTerritorial();
-}
-
-function setupTabs(){
-  document.querySelectorAll('.tabBtn').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      document.querySelectorAll('.tabBtn').forEach(b=>b.classList.remove('active'));
-      document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-      btn.classList.add('active'); $(btn.dataset.tab).classList.add('active');
-      if(btn.dataset.tab === 'territorial') setTimeout(renderTerritorial,120);
-    });
-  });
-}
-
-function setupFilters(){
-  ['fDiretoria','fSuper','fGerencia','fSetor'].forEach(id=>{
-    $(id).addEventListener('change',()=>{ refreshFilters(); renderAll(); });
-  });
-}
-
-async function boot(){
-  try{
-    showStatus('Carregando R54, Laudos e Organograma...');
-    const [r54Csv, laudosCsv, orgCsv] = await Promise.all([fetchText(R54_URL), fetchText(LAUDOS_URL), fetchText(ORG_URL)]);
-    ORG = parseCsv(orgCsv);
-    const orgMap = buildOrgMap(ORG);
-    const rawLaudos = parseCsv(laudosCsv);
-    const laudoRegs = new Set(rawLaudos.map(getRegistro).filter(Boolean));
-    R54 = enrichR54(parseCsv(r54Csv), orgMap, laudoRegs);
-    LAUDOS = enrichLaudos(rawLaudos, orgMap);
-    refreshFilters(); renderAll(); hideStatus();
-  }catch(e){
-    console.error(e);
-    showStatus('Não foi possível carregar os dados. Confira se os três CSVs estão publicados na web e acessíveis. Erro: ' + e.message);
-  }
-}
-
+function renderPressao(){ const rows=pressureRows(); const avg=rows.length?rows.reduce((s,r)=>s+r.index,0)/rows.length:0; $('pIndice').textContent=Math.round(avg); $('pCriticas').textContent=fmt(rows.filter(r=>r.index>=70).length); $('pAtencao').textContent=fmt(rows.filter(r=>r.index>=45&&r.index<70).length); $('pBaixo').textContent=fmt(rows.filter(r=>r.index<45).length); $('pMaior').textContent=rows[0]?.ger || '-'; const html=rows.map(r=>{ const st=statusFromIndex(r.index); return `<tr><td>${r.dir}</td><td>${r.sup}</td><td>${r.ger}</td><td>${fmt(r.efetivo)}</td><td>${fmt(r.laudos)}</td><td>${pctTxt(r.pLaudo)}</td><td>${fmt(r.a60)}</td><td>${fmt(r.a65)}</td><td>${pctTxt(r.pMap)}</td><td><b>${Math.round(r.index)}</b></td><td><span class="statusTag ${st.cls}">${st.txt}</span></td></tr>`; }).join(''); $('tblPressao').innerHTML=html||'<tr><td colspan="11">Sem dados.</td></tr>'; }
+function renderCapacidade(){ $('cEfetivo').textContent=fmt(FILTERED.length); $('cLimitacao').textContent=fmt(FILTERED.filter(r=>r.__TEM_LAUDO).length); $('cFuncoes').textContent=fmt(unique(FILTERED.map(r=>r.__FUNCAO)).length); $('cGerencias').textContent=fmt(unique(FILTERED.map(r=>r.__GERENCIA)).length); $('cSetores').textContent=fmt(unique(FILTERED.map(r=>r.__SETOR)).length); barChart('chartFuncoes', groupCount(FILTERED,'__FUNCAO'), {limit:12}); barChart('chartGerencias', groupCount(FILTERED,'__GERENCIA'), {limit:12,color:'green'}); barChart('chartSetores', groupCount(FILTERED,'__SETOR'), {limit:12,color:'orange'}); }
+function initMap(){ if(map)return; map=L.map('map',{preferCanvas:true}).setView([-22.9068,-43.1729],10); L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap & Carto'}).addTo(map); layerRes=L.layerGroup().addTo(map); layerTrab=L.layerGroup().addTo(map); }
+function renderTerritorial(){ const res=FILTERED.filter(r=>r.__LAT_RES&&r.__LNG_RES), trab=FILTERED.filter(r=>r.__LAT_TRAB&&r.__LNG_TRAB); $('kResMap').textContent=fmt(res.length); $('kTrabMap').textContent=fmt(trab.length); $('kForaRJ').textContent=fmt(FILTERED.filter(r=>r.__MUNICIPIO&&!['RIO DE JANEIRO','RIO'].includes(r.__MUNICIPIO)).length); $('kBairros').textContent=fmt(unique(FILTERED.map(r=>r.__BAIRRO).filter(v=>v&&v!=='-')).length); $('kLocais').textContent=fmt(unique(trab.map(r=>r.__SETOR)).length); barChart('chartTerritorio', groupCount(FILTERED,'__BAIRRO'), {limit:14,color:'green'}); initMap(); setTimeout(()=>map.invalidateSize(),100); layerRes.clearLayers(); layerTrab.clearLayers(); if(heatLayer) map.removeLayer(heatLayer); res.slice(0,2500).forEach(r=>L.circleMarker([r.__LAT_RES,r.__LNG_RES],{radius:3,color:'#5b9bd5',fillColor:'#5b9bd5',fillOpacity:.65,weight:1}).bindTooltip(`Residência<br>${r.__BAIRRO}<br>${r.__DIRETORIA}`,{direction:'top'}).addTo(layerRes)); const seen=new Set(); trab.forEach(r=>{ const key=`${r.__SETOR}|${r.__LAT_TRAB}|${r.__LNG_TRAB}`; if(seen.has(key))return; seen.add(key); L.circleMarker([r.__LAT_TRAB,r.__LNG_TRAB],{radius:6,color:'#e87535',fillColor:'#e87535',fillOpacity:.85,weight:2}).bindTooltip(`Trabalho<br>${r.__SETOR}<br>${r.__GERENCIA}`,{direction:'top'}).addTo(layerTrab); }); if(res.length){ heatLayer=L.heatLayer(res.map(r=>[r.__LAT_RES,r.__LNG_RES,.55]),{radius:24,blur:22,maxZoom:13}).addTo(map); const bounds=L.latLngBounds(res.slice(0,1000).map(r=>[r.__LAT_RES,r.__LNG_RES])); if(bounds.isValid()) map.fitBounds(bounds.pad(.15)); } }
+function renderSaude(){ const Ls=laudosVigentes(); $('sLaudos').textContent=fmt(Ls.length); $('sPcd').textContent=fmt(Ls.filter(l=>l.__PCD).length); $('sInss').textContent=fmt(Ls.filter(l=>l.__INSS).length); $('sAmbos').textContent=fmt(Ls.filter(l=>l.__PCD&&l.__INSS).length); $('sTemp').textContent=fmt(Ls.filter(l=>l.__TEMP).length); barChart('chartLaudosDir', groupCount(Ls,'__DIRETORIA'), {limit:10,color:'orange'}); barChart('chartTiposLaudo', groupCount(Ls,'__TIPO'), {limit:8}); const agg=new Map(); Ls.forEach(l=>{ const key=`${l.__DIRETORIA}|${l.__SUPER}|${l.__GERENCIA}`; if(!agg.has(key))agg.set(key,{dir:l.__DIRETORIA,sup:l.__SUPER,ger:l.__GERENCIA,total:0,pcd:0,inss:0,temp:0}); const a=agg.get(key); a.total++; if(l.__PCD)a.pcd++; if(l.__INSS)a.inss++; if(l.__TEMP)a.temp++; }); const rows=[...agg.values()].sort((a,b)=>b.total-a.total).slice(0,80); $('tblSaude').innerHTML=rows.map(r=>`<tr><td>${r.dir}</td><td>${r.sup}</td><td>${r.ger}</td><td>${fmt(r.total)}</td><td>${fmt(r.pcd)}</td><td>${fmt(r.inss)}</td><td>${fmt(r.temp)}</td></tr>`).join('')||'<tr><td colspan="7">Sem dados.</td></tr>'; }
+function renderRisco(){ const r60=FILTERED.filter(r=>r.__IDADE>=60), r65=FILTERED.filter(r=>r.__IDADE>=65), laudo60=FILTERED.filter(r=>r.__IDADE>=60&&r.__TEM_LAUDO); const idx=FILTERED.length?clamp((r60.length/FILTERED.length*100*.7)+(r65.length/FILTERED.length*100*1.4)+(laudo60.length/FILTERED.length*100*1.2),0,100):0; $('rIndice').textContent=Math.round(idx); $('r60').textContent=fmt(r60.length); $('r65').textContent=fmt(r65.length); $('rLaudo60').textContent=fmt(laudo60.length); $('rFuncoes65').textContent=fmt(unique(r65.map(r=>r.__FUNCAO)).length); barChart('chartRiscoDir', groupCount(r65,'__DIRETORIA'), {limit:10,color:'red'}); rankList('riskMatrix', groupCount(r65,'__GERENCIA').slice(0,10).map(x=>({title:x.name,desc:'Servidores com 65 anos ou mais',value:fmt(x.value),cls:x.value>20?'crit':'att'}))); }
+function renderAnalitico(){ const rows=pressureRows(); $('tblAnalitico').innerHTML=rows.map(r=>{ const st=statusFromIndex(r.index); return `<tr><td>${r.dir}</td><td>${r.sup}</td><td>${r.ger}</td><td>${fmt(r.setoresCount)}</td><td>${fmt(r.efetivo)}</td><td>${fmt(r.laudos)}</td><td>${fmt(r.a60)}</td><td>${fmt(r.a65)}</td><td>${pctTxt(r.pMap)}</td><td><b>${Math.round(r.index)}</b></td><td><span class="statusTag ${st.cls}">${st.txt}</span></td></tr>`; }).join('')||'<tr><td colspan="11">Sem dados.</td></tr>'; }
+function renderAll(){ FILTERED=applyFiltersTo(R54); FILTERED_LAUDOS=applyFiltersTo(LAUDOS); renderExecutive(); renderPressao(); renderCapacidade(); renderSaude(); renderRisco(); renderAnalitico(); if(document.querySelector('.tabBtn.active')?.dataset.tab==='territorial') renderTerritorial(); }
+function setupTabs(){ document.querySelectorAll('.tabBtn').forEach(btn=>btn.addEventListener('click',()=>{ document.querySelectorAll('.tabBtn').forEach(b=>b.classList.remove('active')); document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); btn.classList.add('active'); $(btn.dataset.tab).classList.add('active'); if(btn.dataset.tab==='territorial') setTimeout(renderTerritorial,120); })); }
+function setupFilters(){ ['fDiretoria','fSuper','fGerencia','fSetor'].forEach(id=>$(id).addEventListener('change',()=>{ refreshFilters(); renderAll(); })); }
+async function boot(){ try{ showStatus('Carregando R54, Laudos e Organograma...'); const [r54Csv, laudosCsv, orgCsv]=await Promise.all([fetchText(R54_URL),fetchText(LAUDOS_URL),fetchText(ORG_URL)]); ORG=parseCsv(orgCsv); const orgMap=buildOrgMap(ORG); const rawLaudos=parseCsv(laudosCsv); const laudoRegs=new Set(rawLaudos.map(getRegistro).filter(Boolean)); R54=enrichR54(parseCsv(r54Csv),orgMap,laudoRegs); LAUDOS=enrichLaudos(rawLaudos,orgMap); refreshFilters(); renderAll(); hideStatus(); }catch(e){ console.error(e); showStatus('Não foi possível carregar os dados. Confira se os três CSVs estão publicados na web e acessíveis. Erro: '+e.message); } }
 setupTabs(); setupFilters(); boot();
 </script>
 </body>
