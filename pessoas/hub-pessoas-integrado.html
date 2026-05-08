@@ -37,9 +37,7 @@
       color:var(--text);
     }
 
-    .app{
-      min-height:100vh;
-    }
+    .app{min-height:100vh}
 
     .topbar{
       padding:24px 32px;
@@ -76,7 +74,23 @@
       margin:7px 0 0;
       color:var(--muted2);
       font-size:14px;
-      max-width:780px;
+      max-width:820px;
+    }
+
+    .status-line{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    .status-pill{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      padding:6px 9px;
+      border-radius:999px;
     }
 
     .tabs{
@@ -111,6 +125,10 @@
       gap:12px;
     }
 
+    select,input,button{
+      font-family:inherit;
+    }
+
     select,input{
       width:100%;
       border:1px solid var(--line);
@@ -123,17 +141,12 @@
 
     option{color:#0f172a}
 
-    main{
-      padding:8px 32px 40px;
-    }
+    main{padding:8px 32px 40px}
 
     .tab{display:none}
     .tab.active{display:block}
 
-    .grid{
-      display:grid;
-      gap:16px;
-    }
+    .grid{display:grid;gap:16px}
 
     .kpi-grid{
       grid-template-columns:repeat(5,minmax(160px,1fr));
@@ -147,6 +160,9 @@
       padding:18px;
       box-shadow:0 18px 50px rgba(0,0,0,.18);
     }
+
+    .kpi{cursor:pointer;transition:.18s ease}
+    .kpi:hover{transform:translateY(-2px);border-color:rgba(56,189,248,.35)}
 
     .kpi .label{
       color:var(--muted);
@@ -177,48 +193,44 @@
       margin:8px 0 14px;
     }
 
-    .section-title h2{
-      margin:0;
-      font-size:20px;
+    .section-title h2{margin:0;font-size:20px}
+    .section-title p{margin:4px 0 0;color:var(--muted);font-size:13px}
+
+    .two{grid-template-columns:1.2fr .8fr}
+    .three{grid-template-columns:repeat(3,1fr)}
+
+    .chart-box{height:330px}
+    .chart-box.small{height:270px}
+    canvas{width:100%!important;height:100%!important}
+
+    .toolbar{
+      display:flex;
+      justify-content:flex-end;
+      gap:10px;
+      margin-bottom:12px;
+      flex-wrap:wrap;
     }
 
-    .section-title p{
-      margin:4px 0 0;
-      color:var(--muted);
-      font-size:13px;
+    .action-btn{
+      border:1px solid var(--line);
+      background:rgba(56,189,248,.12);
+      color:#e0f2fe;
+      border-radius:12px;
+      padding:10px 12px;
+      cursor:pointer;
+      font-weight:800;
+      font-size:12px;
     }
 
-    .two{
-      grid-template-columns:1.2fr .8fr;
-    }
+    .action-btn:hover{background:rgba(56,189,248,.20)}
 
-    .three{
-      grid-template-columns:repeat(3,1fr);
-    }
-
-    .chart-box{
-      height:330px;
-    }
-
-    .chart-box.small{
-      height:270px;
-    }
-
-    canvas{
-      width:100%!important;
-      height:100%!important;
-    }
-
-    table{
-      width:100%;
-      border-collapse:collapse;
-      font-size:13px;
-    }
+    table{width:100%;border-collapse:collapse;font-size:13px}
 
     th,td{
       padding:11px 10px;
       border-bottom:1px solid rgba(255,255,255,.07);
       text-align:left;
+      vertical-align:top;
     }
 
     th{
@@ -228,9 +240,7 @@
       letter-spacing:.07em;
     }
 
-    td{
-      color:#e5e7eb;
-    }
+    td{color:#e5e7eb}
 
     .badge{
       display:inline-flex;
@@ -240,42 +250,51 @@
       color:#bae6fd;
       font-weight:800;
       font-size:12px;
+      white-space:nowrap;
     }
 
-    .footer-note{
-      color:var(--muted);
-      font-size:12px;
-      margin-top:16px;
-    }
+    .badge.red{background:rgba(251,113,133,.14);color:#fecdd3}
+    .badge.green{background:rgba(34,197,94,.14);color:#bbf7d0}
+    .badge.yellow{background:rgba(250,204,21,.14);color:#fef08a}
+
+    .footer-note{color:var(--muted);font-size:12px;margin-top:16px}
 
     .loading{
-      padding:28px 32px;
+      margin:20px 32px;
+      padding:18px;
       color:var(--muted2);
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--line);
+      border-radius:18px;
+      white-space:pre-wrap;
+      line-height:1.5;
+    }
+
+    .error-box{
+      border-color:rgba(251,113,133,.45);
+      background:rgba(251,113,133,.08);
+      color:#fecdd3;
+    }
+
+    .empty-box{
+      padding:22px;
+      color:var(--muted2);
+      text-align:center;
     }
 
     @media(max-width:1100px){
-      .filters,.kpi-grid,.three,.two{
-        grid-template-columns:1fr 1fr;
-      }
+      .filters,.kpi-grid,.three,.two{grid-template-columns:1fr 1fr}
     }
 
     @media(max-width:700px){
-      .topbar,.filters,main,.tabs{
-        padding-left:18px;
-        padding-right:18px;
-      }
-
-      .filters,.kpi-grid,.three,.two{
-        grid-template-columns:1fr;
-      }
-
-      .brand-logo{
-        height:38px;
-      }
-
-      .title-block h1{
-        font-size:22px;
-      }
+      .topbar,.filters,main,.tabs{padding-left:18px;padding-right:18px}
+      .filters,.kpi-grid,.three,.two{grid-template-columns:1fr}
+      .brand-logo{height:38px}
+      .title-block h1{font-size:22px}
+      .chart-box{height:300px}
+      .loading{margin:18px}
+      table{font-size:12px}
+      th,td{padding:9px 7px}
     }
   </style>
 </head>
@@ -289,11 +308,17 @@
         src="../assets/logos/RIOPREFEITURA Comlurb horizontal monocromatica branco.png"
         alt="COMLURB"
         class="brand-logo"
+        onerror="this.style.display='none'"
       />
 
       <div class="title-block">
-        <h1>Perfil Funcional da Força de Trabalho</h1>
-        <p>Visão integrada do efetivo, funções exercidas, saúde ocupacional e risco de reposição.</p>
+        <h1>HUB COMLURB — Pessoas</h1>
+        <p>Inteligência Operacional aplicada ao perfil funcional, distribuição do efetivo, saúde ocupacional agregada e risco de reposição.</p>
+        <div class="status-line">
+          <span class="status-pill">Fonte: Planilha oficial publicada</span>
+          <span class="status-pill" id="lastUpdate">Última atualização: carregando...</span>
+          <span class="status-pill" id="rowCount">Linhas: -</span>
+        </div>
       </div>
     </div>
   </header>
@@ -304,6 +329,7 @@
     <button class="tab-btn" data-tab="saude">Saúde Ocupacional</button>
     <button class="tab-btn" data-tab="reposicao">Risco de Reposição</button>
     <button class="tab-btn" data-tab="gerencias">Gerências</button>
+    <button class="tab-btn" data-tab="analitico">Analítico</button>
   </nav>
 
   <section class="filters">
@@ -311,7 +337,7 @@
     <select id="fCoordenacao"><option value="">Todas as coordenações</option></select>
     <select id="fGerencia"><option value="">Todas as gerências</option></select>
     <select id="fSetor"><option value="">Todos os setores</option></select>
-    <input id="fBusca" placeholder="Buscar servidor, registro ou função..." />
+    <input id="fBusca" placeholder="Buscar servidor, registro, cargo ou função..." />
   </section>
 
   <div id="loading" class="loading">Carregando dados...</div>
@@ -320,27 +346,27 @@
 
     <section id="executiva" class="tab active">
       <div class="grid kpi-grid">
-        <div class="card kpi">
+        <div class="card kpi" onclick="openTab('analitico')">
           <div class="label">Efetivo filtrado</div>
           <div class="value" id="kEfetivo">0</div>
           <div class="sub">servidores na seleção</div>
         </div>
-        <div class="card kpi">
+        <div class="card kpi" onclick="openTab('gerencias')">
           <div class="label">Gerências</div>
           <div class="value" id="kGerencias">0</div>
-          <div class="sub">com efetivo ativo/afastado</div>
+          <div class="sub">com efetivo na seleção</div>
         </div>
-        <div class="card kpi">
+        <div class="card kpi" onclick="openTab('perfil')">
           <div class="label">Funções exercidas</div>
           <div class="value" id="kFuncoes">0</div>
-          <div class="sub">funções identificadas</div>
+          <div class="sub">funções / encargos identificados</div>
         </div>
-        <div class="card kpi">
+        <div class="card kpi" onclick="openTab('saude')">
           <div class="label">Saúde ocupacional</div>
           <div class="value" id="kSaude">0</div>
           <div class="sub">registros agregados</div>
         </div>
-        <div class="card kpi">
+        <div class="card kpi" onclick="openTab('reposicao')">
           <div class="label">Risco 65+</div>
           <div class="value" id="kReposicao">0</div>
           <div class="sub">servidores com 65 anos ou mais</div>
@@ -350,17 +376,13 @@
       <div class="section-title">
         <div>
           <h2>Resumo executivo</h2>
-          <p>Leitura rápida da composição funcional e pontos de atenção.</p>
+          <p>Leitura rápida da força de trabalho por diretoria e situação funcional.</p>
         </div>
       </div>
 
       <div class="grid two">
-        <div class="card chart-box">
-          <canvas id="chartDiretoria"></canvas>
-        </div>
-        <div class="card chart-box">
-          <canvas id="chartSituacao"></canvas>
-        </div>
+        <div class="card chart-box"><canvas id="chartDiretoria"></canvas></div>
+        <div class="card chart-box"><canvas id="chartSituacao"></canvas></div>
       </div>
     </section>
 
@@ -368,32 +390,19 @@
       <div class="section-title">
         <div>
           <h2>Perfil funcional</h2>
-          <p>Distribuição por função exercida / encargo, função de origem e situação funcional.</p>
+          <p>Distribuição por função exercida / encargo, função de origem, cargo e situação funcional.</p>
         </div>
       </div>
 
       <div class="grid two">
-        <div class="card chart-box">
-          <canvas id="chartFuncaoExercida"></canvas>
-        </div>
-        <div class="card chart-box">
-          <canvas id="chartFuncaoOrigem"></canvas>
-        </div>
+        <div class="card chart-box"><canvas id="chartFuncaoExercida"></canvas></div>
+        <div class="card chart-box"><canvas id="chartFuncaoOrigem"></canvas></div>
       </div>
 
       <div class="grid three" style="margin-top:16px">
-        <div class="card">
-          <h3>Top funções exercidas</h3>
-          <table id="tblFuncoes"></table>
-        </div>
-        <div class="card">
-          <h3>Top cargos</h3>
-          <table id="tblCargos"></table>
-        </div>
-        <div class="card">
-          <h3>Situação funcional</h3>
-          <table id="tblSituacao"></table>
-        </div>
+        <div class="card"><h3>Top funções exercidas</h3><table id="tblFuncoes"></table></div>
+        <div class="card"><h3>Top cargos</h3><table id="tblCargos"></table></div>
+        <div class="card"><h3>Situação funcional</h3><table id="tblSituacao"></table></div>
       </div>
     </section>
 
@@ -401,45 +410,21 @@
       <div class="section-title">
         <div>
           <h2>Saúde ocupacional</h2>
-          <p>Visão agregada, sem exibição nominal.</p>
+          <p>Visão agregada, sem exposição nominal.</p>
         </div>
       </div>
 
       <div class="grid kpi-grid">
-        <div class="card kpi">
-          <div class="label">Total agregado</div>
-          <div class="value" id="sTotal">0</div>
-          <div class="sub">registros identificados</div>
-        </div>
-        <div class="card kpi">
-          <div class="label">Com laudo / restrição</div>
-          <div class="value" id="sLaudo">0</div>
-          <div class="sub">quando informado na base</div>
-        </div>
-        <div class="card kpi">
-          <div class="label">Gerências impactadas</div>
-          <div class="value" id="sGerencias">0</div>
-          <div class="sub">com registros de saúde</div>
-        </div>
-        <div class="card kpi">
-          <div class="label">Função mais impactada</div>
-          <div class="value" id="sFuncao" style="font-size:20px">-</div>
-          <div class="sub">maior concentração</div>
-        </div>
-        <div class="card kpi">
-          <div class="label">% do efetivo</div>
-          <div class="value" id="sPerc">0%</div>
-          <div class="sub">sobre seleção atual</div>
-        </div>
+        <div class="card kpi"><div class="label">Total agregado</div><div class="value" id="sTotal">0</div><div class="sub">registros identificados</div></div>
+        <div class="card kpi"><div class="label">Com laudo / restrição</div><div class="value" id="sLaudo">0</div><div class="sub">quando informado na base</div></div>
+        <div class="card kpi"><div class="label">Gerências impactadas</div><div class="value" id="sGerencias">0</div><div class="sub">com registros de saúde</div></div>
+        <div class="card kpi"><div class="label">Função mais impactada</div><div class="value" id="sFuncao" style="font-size:20px">-</div><div class="sub">maior concentração</div></div>
+        <div class="card kpi"><div class="label">% do efetivo</div><div class="value" id="sPerc">0%</div><div class="sub">sobre seleção atual</div></div>
       </div>
 
       <div class="grid two">
-        <div class="card chart-box">
-          <canvas id="chartSaudeGerencia"></canvas>
-        </div>
-        <div class="card chart-box">
-          <canvas id="chartSaudeFuncao"></canvas>
-        </div>
+        <div class="card chart-box"><canvas id="chartSaudeGerencia"></canvas></div>
+        <div class="card chart-box"><canvas id="chartSaudeFuncao"></canvas></div>
       </div>
     </section>
 
@@ -452,40 +437,16 @@
       </div>
 
       <div class="grid kpi-grid">
-        <div class="card kpi">
-          <div class="label">60 anos ou mais</div>
-          <div class="value" id="r60">0</div>
-          <div class="sub">atenção futura</div>
-        </div>
-        <div class="card kpi">
-          <div class="label">65 anos ou mais</div>
-          <div class="value" id="r65">0</div>
-          <div class="sub">risco crítico</div>
-        </div>
-        <div class="card kpi">
-          <div class="label">% 65+</div>
-          <div class="value" id="rPerc">0%</div>
-          <div class="sub">sobre o efetivo filtrado</div>
-        </div>
-        <div class="card kpi">
-          <div class="label">Função crítica</div>
-          <div class="value" id="rFuncao" style="font-size:20px">-</div>
-          <div class="sub">maior concentração 65+</div>
-        </div>
-        <div class="card kpi">
-          <div class="label">Gerência crítica</div>
-          <div class="value" id="rGerencia" style="font-size:20px">-</div>
-          <div class="sub">maior concentração 65+</div>
-        </div>
+        <div class="card kpi"><div class="label">60 anos ou mais</div><div class="value" id="r60">0</div><div class="sub">atenção futura</div></div>
+        <div class="card kpi"><div class="label">65 anos ou mais</div><div class="value" id="r65">0</div><div class="sub">risco crítico</div></div>
+        <div class="card kpi"><div class="label">% 65+</div><div class="value" id="rPerc">0%</div><div class="sub">sobre o efetivo filtrado</div></div>
+        <div class="card kpi"><div class="label">Função crítica</div><div class="value" id="rFuncao" style="font-size:20px">-</div><div class="sub">maior concentração 65+</div></div>
+        <div class="card kpi"><div class="label">Gerência crítica</div><div class="value" id="rGerencia" style="font-size:20px">-</div><div class="sub">maior concentração 65+</div></div>
       </div>
 
       <div class="grid two">
-        <div class="card chart-box">
-          <canvas id="chartIdade"></canvas>
-        </div>
-        <div class="card chart-box">
-          <canvas id="chartReposicaoGerencia"></canvas>
-        </div>
+        <div class="card chart-box"><canvas id="chartIdade"></canvas></div>
+        <div class="card chart-box"><canvas id="chartReposicaoGerencia"></canvas></div>
       </div>
     </section>
 
@@ -496,142 +457,241 @@
           <p>Leitura consolidada por gerência.</p>
         </div>
       </div>
+      <div class="card"><table id="tblGerencias"></table></div>
+    </section>
 
-      <div class="card">
-        <table id="tblGerencias"></table>
+    <section id="analitico" class="tab">
+      <div class="section-title">
+        <div>
+          <h2>Base analítica</h2>
+          <p>Consulta nominal restrita ao perfil funcional. A saúde ocupacional permanece agregada.</p>
+        </div>
       </div>
+
+      <div class="toolbar">
+        <button class="action-btn" onclick="exportCSV()">Exportar Excel/CSV</button>
+      </div>
+
+      <div class="card"><table id="tblAnalitico"></table></div>
     </section>
 
     <div class="footer-note">
-      Fonte: R54 integrado. Painel com leitura agregada e sem exposição nominal em saúde ocupacional.
+      Fonte: Planilha oficial publicada. Painel dinâmico com leitura agregada e diagnóstico de carregamento.
     </div>
   </main>
 </div>
 
 <script>
+/* =========================================================
+   CONFIGURAÇÃO PRINCIPAL
+   ========================================================= */
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRE3Q_RdpZOqc4f3O3fQirMQkEXQWyBkiIlXB6LZWgqTZbItGBHAxUHf2-0kEcALDIUfyPeK7GyBQrB/pub?gid=1371643814&single=true&output=csv";
 
 let rawData = [];
 let filteredData = [];
 let charts = {};
+let columnCache = {};
 
 const aliases = {
-  registro:["REGISTRO","MATRICULA","MATRÍCULA"],
-  nome:["NOME","NOME DO SERVIDOR","SERVIDOR"],
-  diretoria:["DIRETORIA"],
-  coordenacao:["COORDENAÇÃO","COORDENACAO"],
-  gerencia:["GERÊNCIA","GERENCIA"],
-  setor:["SETOR"],
-  cargo:["CARGO"],
-  funcao:["FUNÇÃO","FUNCAO","FUNÇÃO DE ORIGEM","FUNCAO DE ORIGEM"],
-  funcaoExercida:["FUNÇÃO EXERCIDA","FUNCAO EXERCIDA","ENCARGO","FUNÇÃO EC","FUNCAO EC","FUNCAO_ENCARGO"],
-  situacao:["SITUAÇÃO FUNCIONAL","SITUACAO FUNCIONAL","SITUAÇÃO","SITUACAO"],
-  idade:["IDADE"],
-  saude:["SAÚDE OCUPACIONAL","SAUDE OCUPACIONAL","LAUDO","RESTRIÇÃO","RESTRICAO","READAPTADO","APTO COM RESTRIÇÃO","APTO COM RESTRICAO"]
+  registro:["REGISTRO","MATRICULA","MATRÍCULA","MATRIC","ID FUNCIONAL"],
+  nome:["NOME","NOME DO SERVIDOR","SERVIDOR","NOME_SERVIDOR"],
+  diretoria:["DIRETORIA","DIR"],
+  coordenacao:["COORDENAÇÃO","COORDENACAO","COORD","COORDENADORIA"],
+  gerencia:["GERÊNCIA","GERENCIA","GER"],
+  setor:["SETOR","LOTAÇÃO","LOTACAO","LOCAL DE TRABALHO","UNIDADE"],
+  cargo:["CARGO","CARGO EFETIVO"],
+  funcao:["FUNÇÃO","FUNCAO","FUNÇÃO DE ORIGEM","FUNCAO DE ORIGEM","FUNCAO_ORIGEM"],
+  funcaoExercida:["FUNÇÃO EXERCIDA","FUNCAO EXERCIDA","ENCARGO","FUNÇÃO EC","FUNCAO EC","FUNCAO_ENCARGO","FUNÇÃO/ENCARGO","FUNCAO/ENCARGO"],
+  situacao:["SITUAÇÃO FUNCIONAL","SITUACAO FUNCIONAL","SITUAÇÃO","SITUACAO","STATUS"],
+  idade:["IDADE","IDADE ATUAL"],
+  admissao:["ADMISSÃO","ADMISSAO","DATA ADMISSÃO","DATA ADMISSAO"],
+  referencia:["REFERÊNCIA","REFERENCIA","MÊS REFERÊNCIA","MES REFERENCIA","COMPETÊNCIA","COMPETENCIA"],
+  saude:["SAÚDE OCUPACIONAL","SAUDE OCUPACIONAL","LAUDO","RESTRIÇÃO","RESTRICAO","READAPTADO","APTO COM RESTRIÇÃO","APTO COM RESTRICAO","FILHO EXCEPCIONAL"]
 };
 
+/* =========================================================
+   UTILITÁRIOS
+   ========================================================= */
 function norm(v){
   return String(v ?? "")
     .trim()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g,"")
+    .replace(/\s+/g," ")
     .toUpperCase();
 }
 
-function findCol(row, keys){
-  const cols = Object.keys(row || {});
+function clean(v){
+  return String(v ?? "").trim();
+}
+
+function fmt(n){
+  return Number(n || 0).toLocaleString("pt-BR");
+}
+
+function pct(a,b){
+  return b ? ((a/b)*100).toFixed(1).replace(".",",") + "%" : "0%";
+}
+
+function safeId(v){
+  return String(v ?? "").replace(/[&<>'"]/g, s => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[s]));
+}
+
+function parseNumber(v){
+  const n = String(v ?? "")
+    .replace(/\./g,"")
+    .replace(",",".")
+    .replace(/[^\d.-]/g,"");
+  return Number(n) || 0;
+}
+
+function getColumns(){
+  return Object.keys(rawData[0] || {});
+}
+
+function findCol(field){
+  if(columnCache[field]) return columnCache[field];
+
+  const cols = getColumns();
+  const keys = aliases[field] || [field];
+
   for(const k of keys){
-    const found = cols.find(c => norm(c) === norm(k));
-    if(found) return found;
+    const exact = cols.find(c => norm(c) === norm(k));
+    if(exact){
+      columnCache[field] = exact;
+      return exact;
+    }
   }
-  const loose = cols.find(c => keys.some(k => norm(c).includes(norm(k))));
-  return loose || null;
+
+  const loose = cols.find(c => keys.some(k => norm(c).includes(norm(k)) || norm(k).includes(norm(c))));
+  columnCache[field] = loose || null;
+  return columnCache[field];
 }
 
 function val(row, field){
-  const col = findCol(row, aliases[field] || [field]);
-  return col ? String(row[col] ?? "").trim() : "";
+  const col = findCol(field);
+  return col ? clean(row[col]) : "";
 }
 
 function num(row, field){
-  const v = val(row, field).replace(",",".").replace(/[^\d.-]/g,"");
-  return Number(v) || 0;
+  return parseNumber(val(row, field));
 }
-
-function isSaude(row){
-  const possible = Object.keys(row).filter(c =>
-    ["SAUDE","SAÚDE","LAUDO","RESTRICAO","RESTRIÇÃO","READAPT"].some(k => norm(c).includes(norm(k)))
-  );
-  return possible.some(c => {
-    const v = norm(row[c]);
-    return v && !["NAO","NÃO","0","FALSE","N","SEM LAUDO","SEM RESTRICAO","SEM RESTRIÇÃO"].includes(v);
-  });
-}
-
-function fmt(n){ return Number(n||0).toLocaleString("pt-BR"); }
-function pct(a,b){ return b ? ((a/b)*100).toFixed(1).replace(".",",")+"%" : "0%"; }
 
 function countBy(data, getter){
   const map = {};
-  data.forEach(r=>{
-    const k = getter(r) || "Não informado";
+  data.forEach(r => {
+    const k = clean(getter(r)) || "Não informado";
     map[k] = (map[k] || 0) + 1;
   });
-  return Object.entries(map).sort((a,b)=>b[1]-a[1]);
+  return Object.entries(map).sort((a,b) => b[1] - a[1] || a[0].localeCompare(b[0],"pt-BR"));
 }
 
-function topN(arr,n=10){ return arr.slice(0,n); }
+function topN(arr,n=10){
+  return arr.slice(0,n);
+}
 
-function setSelect(id, values){
+function uniqueValues(data, field){
+  return [...new Set(data.map(r => val(r, field)).filter(Boolean))]
+    .sort((a,b) => a.localeCompare(b,"pt-BR"));
+}
+
+function hasAnyData(row){
+  return Object.values(row || {}).some(v => clean(v));
+}
+
+function isSaude(row){
+  const cols = Object.keys(row || {}).filter(c =>
+    ["SAUDE","LAUDO","RESTRICAO","RESTRIÇÃO","READAPT","EXCEPCIONAL"].some(k => norm(c).includes(norm(k)))
+  );
+
+  return cols.some(c => {
+    const v = norm(row[c]);
+    if(!v) return false;
+    const negativos = ["NAO","NÃO","0","FALSE","FALSO","N","SEM LAUDO","SEM RESTRICAO","SEM RESTRIÇÃO","SEM RESTRICOES","SEM RESTRIÇÕES","INEXISTENTE"];
+    return !negativos.includes(v);
+  });
+}
+
+function currentDateTimeBR(){
+  return new Date().toLocaleString("pt-BR",{
+    day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"
+  });
+}
+
+/* =========================================================
+   FILTROS EM CASCATA
+   ========================================================= */
+function setSelect(id, values, label){
   const el = document.getElementById(id);
   const current = el.value;
-  const first = el.options[0].text;
-  el.innerHTML = `<option value="">${first}</option>`;
-  values.filter(Boolean).sort((a,b)=>a.localeCompare(b,"pt-BR")).forEach(v=>{
-    el.innerHTML += `<option value="${v}">${v}</option>`;
+  el.innerHTML = `<option value="">${label}</option>`;
+
+  values.forEach(v => {
+    const opt = document.createElement("option");
+    opt.value = v;
+    opt.textContent = v;
+    el.appendChild(opt);
   });
+
   if(values.includes(current)) el.value = current;
 }
 
+function getFilterValues(){
+  return {
+    diretoria:document.getElementById("fDiretoria").value,
+    coordenacao:document.getElementById("fCoordenacao").value,
+    gerencia:document.getElementById("fGerencia").value,
+    setor:document.getElementById("fSetor").value,
+    busca:norm(document.getElementById("fBusca").value)
+  };
+}
+
+function filterForOptions(level){
+  const f = getFilterValues();
+
+  return rawData.filter(r => {
+    if(level !== "diretoria" && f.diretoria && val(r,"diretoria") !== f.diretoria) return false;
+    if(level !== "coordenacao" && f.coordenacao && val(r,"coordenacao") !== f.coordenacao) return false;
+    if(level !== "gerencia" && f.gerencia && val(r,"gerencia") !== f.gerencia) return false;
+    if(level !== "setor" && f.setor && val(r,"setor") !== f.setor) return false;
+    return true;
+  });
+}
+
 function populateFilters(){
-  setSelect("fDiretoria",[...new Set(rawData.map(r=>val(r,"diretoria")))].filter(Boolean));
-  setSelect("fCoordenacao",[...new Set(rawData.map(r=>val(r,"coordenacao")))].filter(Boolean));
-  setSelect("fGerencia",[...new Set(rawData.map(r=>val(r,"gerencia")))].filter(Boolean));
-  setSelect("fSetor",[...new Set(rawData.map(r=>val(r,"setor")))].filter(Boolean));
+  setSelect("fDiretoria", uniqueValues(filterForOptions("diretoria"), "diretoria"), "Todas as diretorias");
+  setSelect("fCoordenacao", uniqueValues(filterForOptions("coordenacao"), "coordenacao"), "Todas as coordenações");
+  setSelect("fGerencia", uniqueValues(filterForOptions("gerencia"), "gerencia"), "Todas as gerências");
+  setSelect("fSetor", uniqueValues(filterForOptions("setor"), "setor"), "Todos os setores");
 }
 
 function applyFilters(){
-  const fd = document.getElementById("fDiretoria").value;
-  const fc = document.getElementById("fCoordenacao").value;
-  const fg = document.getElementById("fGerencia").value;
-  const fs = document.getElementById("fSetor").value;
-  const busca = norm(document.getElementById("fBusca").value);
+  const f = getFilterValues();
 
-  filteredData = rawData.filter(r=>{
-    if(fd && val(r,"diretoria") !== fd) return false;
-    if(fc && val(r,"coordenacao") !== fc) return false;
-    if(fg && val(r,"gerencia") !== fg) return false;
-    if(fs && val(r,"setor") !== fs) return false;
+  filteredData = rawData.filter(r => {
+    if(f.diretoria && val(r,"diretoria") !== f.diretoria) return false;
+    if(f.coordenacao && val(r,"coordenacao") !== f.coordenacao) return false;
+    if(f.gerencia && val(r,"gerencia") !== f.gerencia) return false;
+    if(f.setor && val(r,"setor") !== f.setor) return false;
 
-    if(busca){
+    if(f.busca){
       const blob = norm([
-        val(r,"registro"),
-        val(r,"nome"),
-        val(r,"cargo"),
-        val(r,"funcao"),
-        val(r,"funcaoExercida"),
-        val(r,"gerencia"),
-        val(r,"setor")
+        val(r,"registro"), val(r,"nome"), val(r,"cargo"), val(r,"funcao"),
+        val(r,"funcaoExercida"), val(r,"gerencia"), val(r,"setor"), val(r,"situacao")
       ].join(" "));
-      if(!blob.includes(busca)) return false;
+      if(!blob.includes(f.busca)) return false;
     }
 
     return true;
   });
 
+  populateFilters();
   renderAll();
 }
 
+/* =========================================================
+   GRÁFICOS
+   ========================================================= */
 function destroyChart(id){
   if(charts[id]){
     charts[id].destroy();
@@ -639,31 +699,42 @@ function destroyChart(id){
   }
 }
 
+function chartColors(qtd){
+  const palette = [
+    "rgba(56,189,248,.80)","rgba(34,197,94,.80)","rgba(250,204,21,.80)",
+    "rgba(167,139,250,.80)","rgba(251,113,133,.80)","rgba(45,212,191,.80)",
+    "rgba(251,146,60,.80)","rgba(148,163,184,.80)","rgba(129,140,248,.80)","rgba(244,114,182,.80)"
+  ];
+  return Array.from({length:qtd},(_,i)=>palette[i % palette.length]);
+}
+
 function makeChart(id,type,labels,data,label){
   destroyChart(id);
+  const canvas = document.getElementById(id);
+  if(!canvas) return;
 
-  const ctx = document.getElementById(id);
-  if(!ctx) return;
-
-  charts[id] = new Chart(ctx,{
+  charts[id] = new Chart(canvas,{
     type,
     data:{
       labels,
       datasets:[{
         label,
         data,
+        backgroundColor:chartColors(data.length),
+        borderColor:"rgba(255,255,255,.18)",
         borderWidth:1,
-        borderRadius:10
+        borderRadius:type === "bar" ? 10 : 0
       }]
     },
     options:{
       responsive:true,
       maintainAspectRatio:false,
+      indexAxis:type === "bar" && labels.some(l => String(l).length > 18) ? "y" : "x",
       plugins:{
-        legend:{display:type==="doughnut", labels:{color:"#cbd5e1"}},
+        legend:{display:type === "doughnut", labels:{color:"#cbd5e1"}},
         tooltip:{callbacks:{label:(c)=>`${c.label}: ${fmt(c.raw)}`}}
       },
-      scales:type==="doughnut" ? {} : {
+      scales:type === "doughnut" ? {} : {
         x:{ticks:{color:"#94a3b8"}, grid:{color:"rgba(255,255,255,.05)"}},
         y:{ticks:{color:"#94a3b8"}, grid:{color:"rgba(255,255,255,.05)"}, beginAtZero:true}
       }
@@ -671,131 +742,245 @@ function makeChart(id,type,labels,data,label){
   });
 }
 
+/* =========================================================
+   TABELAS
+   ========================================================= */
 function renderTable(id, rows, headers){
   const el = document.getElementById(id);
   if(!el) return;
 
+  if(!rows.length){
+    el.innerHTML = `<tbody><tr><td class="empty-box">Sem dados para a seleção atual.</td></tr></tbody>`;
+    return;
+  }
+
   el.innerHTML = `
-    <thead>
-      <tr>${headers.map(h=>`<th>${h}</th>`).join("")}</tr>
-    </thead>
+    <thead><tr>${headers.map(h => `<th>${safeId(h)}</th>`).join("")}</tr></thead>
     <tbody>
-      ${rows.map(r=>`
-        <tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>
-      `).join("")}
+      ${rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join("")}</tr>`).join("")}
     </tbody>
   `;
 }
 
+function badge(text,type=""){
+  return `<span class="badge ${type}">${safeId(text)}</span>`;
+}
+
+/* =========================================================
+   RENDERIZAÇÃO GERAL
+   ========================================================= */
 function renderAll(){
   const total = filteredData.length;
   const saudeData = filteredData.filter(isSaude);
-  const rep60 = filteredData.filter(r=>num(r,"idade") >= 60);
-  const rep65 = filteredData.filter(r=>num(r,"idade") >= 65);
+  const rep60 = filteredData.filter(r => num(r,"idade") >= 60);
+  const rep65 = filteredData.filter(r => num(r,"idade") >= 65);
 
   document.getElementById("kEfetivo").textContent = fmt(total);
-  document.getElementById("kGerencias").textContent = fmt(new Set(filteredData.map(r=>val(r,"gerencia")).filter(Boolean)).size);
-  document.getElementById("kFuncoes").textContent = fmt(new Set(filteredData.map(r=>val(r,"funcaoExercida") || val(r,"funcao")).filter(Boolean)).size);
+  document.getElementById("kGerencias").textContent = fmt(new Set(filteredData.map(r => val(r,"gerencia")).filter(Boolean)).size);
+  document.getElementById("kFuncoes").textContent = fmt(new Set(filteredData.map(r => val(r,"funcaoExercida") || val(r,"funcao")).filter(Boolean)).size);
   document.getElementById("kSaude").textContent = fmt(saudeData.length);
   document.getElementById("kReposicao").textContent = fmt(rep65.length);
 
-  const diretoria = topN(countBy(filteredData,r=>val(r,"diretoria")),10);
-  makeChart("chartDiretoria","bar",diretoria.map(x=>x[0]),diretoria.map(x=>x[1]),"Efetivo");
+  const diretoria = topN(countBy(filteredData, r => val(r,"diretoria")), 10);
+  makeChart("chartDiretoria", "bar", diretoria.map(x=>x[0]), diretoria.map(x=>x[1]), "Efetivo por diretoria");
 
-  const situacao = topN(countBy(filteredData,r=>val(r,"situacao")),8);
-  makeChart("chartSituacao","doughnut",situacao.map(x=>x[0]),situacao.map(x=>x[1]),"Situação");
+  const situacao = topN(countBy(filteredData, r => val(r,"situacao")), 8);
+  makeChart("chartSituacao", "doughnut", situacao.map(x=>x[0]), situacao.map(x=>x[1]), "Situação funcional");
 
-  const fx = topN(countBy(filteredData,r=>val(r,"funcaoExercida") || val(r,"funcao")),12);
-  makeChart("chartFuncaoExercida","bar",fx.map(x=>x[0]),fx.map(x=>x[1]),"Função exercida / encargo");
+  const fx = topN(countBy(filteredData, r => val(r,"funcaoExercida") || val(r,"funcao")), 12);
+  makeChart("chartFuncaoExercida", "bar", fx.map(x=>x[0]), fx.map(x=>x[1]), "Função exercida / encargo");
 
-  const fo = topN(countBy(filteredData,r=>val(r,"funcao")),12);
-  makeChart("chartFuncaoOrigem","bar",fo.map(x=>x[0]),fo.map(x=>x[1]),"Função de origem");
+  const fo = topN(countBy(filteredData, r => val(r,"funcao")), 12);
+  makeChart("chartFuncaoOrigem", "bar", fo.map(x=>x[0]), fo.map(x=>x[1]), "Função de origem");
 
-  renderTable("tblFuncoes",fx.map(x=>[x[0],fmt(x[1]),`<span class="badge">${pct(x[1],total)}</span>`]),["Função exercida / encargo","Qtd.","%"]);
-  renderTable("tblCargos",topN(countBy(filteredData,r=>val(r,"cargo")),10).map(x=>[x[0],fmt(x[1]),pct(x[1],total)]),["Cargo","Qtd.","%"]);
-  renderTable("tblSituacao",situacao.map(x=>[x[0],fmt(x[1]),pct(x[1],total)]),["Situação","Qtd.","%"]);
+  renderTable("tblFuncoes", fx.map(x => [safeId(x[0]), fmt(x[1]), badge(pct(x[1],total))]), ["Função exercida / encargo","Qtd.","%"]);
+  renderTable("tblCargos", topN(countBy(filteredData,r=>val(r,"cargo")),10).map(x => [safeId(x[0]), fmt(x[1]), badge(pct(x[1],total))]), ["Cargo","Qtd.","%"]);
+  renderTable("tblSituacao", situacao.map(x => [safeId(x[0]), fmt(x[1]), badge(pct(x[1],total))]), ["Situação","Qtd.","%"]);
 
   document.getElementById("sTotal").textContent = fmt(saudeData.length);
   document.getElementById("sLaudo").textContent = fmt(saudeData.length);
-  document.getElementById("sGerencias").textContent = fmt(new Set(saudeData.map(r=>val(r,"gerencia")).filter(Boolean)).size);
+  document.getElementById("sGerencias").textContent = fmt(new Set(saudeData.map(r => val(r,"gerencia")).filter(Boolean)).size);
   document.getElementById("sPerc").textContent = pct(saudeData.length,total);
 
-  const sf = topN(countBy(saudeData,r=>val(r,"funcaoExercida") || val(r,"funcao")),1);
+  const sf = topN(countBy(saudeData, r => val(r,"funcaoExercida") || val(r,"funcao")), 1);
   document.getElementById("sFuncao").textContent = sf[0]?.[0] || "-";
 
-  const sg = topN(countBy(saudeData,r=>val(r,"gerencia")),10);
-  makeChart("chartSaudeGerencia","bar",sg.map(x=>x[0]),sg.map(x=>x[1]),"Saúde ocupacional por gerência");
+  const sg = topN(countBy(saudeData, r => val(r,"gerencia")), 10);
+  makeChart("chartSaudeGerencia", "bar", sg.map(x=>x[0]), sg.map(x=>x[1]), "Saúde ocupacional por gerência");
 
-  const sfun = topN(countBy(saudeData,r=>val(r,"funcaoExercida") || val(r,"funcao")),10);
-  makeChart("chartSaudeFuncao","bar",sfun.map(x=>x[0]),sfun.map(x=>x[1]),"Saúde ocupacional por função");
+  const sfun = topN(countBy(saudeData, r => val(r,"funcaoExercida") || val(r,"funcao")), 10);
+  makeChart("chartSaudeFuncao", "bar", sfun.map(x=>x[0]), sfun.map(x=>x[1]), "Saúde ocupacional por função");
 
   document.getElementById("r60").textContent = fmt(rep60.length);
   document.getElementById("r65").textContent = fmt(rep65.length);
   document.getElementById("rPerc").textContent = pct(rep65.length,total);
 
-  const rf = topN(countBy(rep65,r=>val(r,"funcaoExercida") || val(r,"funcao")),1);
-  const rg = topN(countBy(rep65,r=>val(r,"gerencia")),1);
+  const rf = topN(countBy(rep65, r => val(r,"funcaoExercida") || val(r,"funcao")), 1);
+  const rg = topN(countBy(rep65, r => val(r,"gerencia")), 1);
   document.getElementById("rFuncao").textContent = rf[0]?.[0] || "-";
   document.getElementById("rGerencia").textContent = rg[0]?.[0] || "-";
 
   const faixas = [
-    ["Até 29", filteredData.filter(r=>num(r,"idade")>0 && num(r,"idade")<=29).length],
-    ["30 a 39", filteredData.filter(r=>num(r,"idade")>=30 && num(r,"idade")<=39).length],
-    ["40 a 49", filteredData.filter(r=>num(r,"idade")>=40 && num(r,"idade")<=49).length],
-    ["50 a 59", filteredData.filter(r=>num(r,"idade")>=50 && num(r,"idade")<=59).length],
-    ["60 a 64", filteredData.filter(r=>num(r,"idade")>=60 && num(r,"idade")<=64).length],
-    ["65+", filteredData.filter(r=>num(r,"idade")>=65).length]
+    ["Até 29", filteredData.filter(r => num(r,"idade") > 0 && num(r,"idade") <= 29).length],
+    ["30 a 39", filteredData.filter(r => num(r,"idade") >= 30 && num(r,"idade") <= 39).length],
+    ["40 a 49", filteredData.filter(r => num(r,"idade") >= 40 && num(r,"idade") <= 49).length],
+    ["50 a 59", filteredData.filter(r => num(r,"idade") >= 50 && num(r,"idade") <= 59).length],
+    ["60 a 64", filteredData.filter(r => num(r,"idade") >= 60 && num(r,"idade") <= 64).length],
+    ["65+", filteredData.filter(r => num(r,"idade") >= 65).length]
   ];
-  makeChart("chartIdade","bar",faixas.map(x=>x[0]),faixas.map(x=>x[1]),"Faixa etária");
+  makeChart("chartIdade", "bar", faixas.map(x=>x[0]), faixas.map(x=>x[1]), "Faixa etária");
 
-  const rgChart = topN(countBy(rep65,r=>val(r,"gerencia")),10);
-  makeChart("chartReposicaoGerencia","bar",rgChart.map(x=>x[0]),rgChart.map(x=>x[1]),"65+ por gerência");
+  const rgChart = topN(countBy(rep65, r => val(r,"gerencia")), 10);
+  makeChart("chartReposicaoGerencia", "bar", rgChart.map(x=>x[0]), rgChart.map(x=>x[1]), "65+ por gerência");
 
-  const gerencias = countBy(filteredData,r=>val(r,"gerencia")).map(([g,q])=>{
-    const subset = filteredData.filter(r=>(val(r,"gerencia") || "Não informado") === g);
+  const gerencias = countBy(filteredData, r => val(r,"gerencia")).map(([g,q]) => {
+    const subset = filteredData.filter(r => (val(r,"gerencia") || "Não informado") === g);
     const s = subset.filter(isSaude).length;
-    const r65 = subset.filter(r=>num(r,"idade")>=65).length;
-    const topFunc = topN(countBy(subset,r=>val(r,"funcaoExercida") || val(r,"funcao")),1)[0]?.[0] || "-";
-    return [g,fmt(q),topFunc,fmt(s),fmt(r65),pct(r65,q)];
+    const r65 = subset.filter(r => num(r,"idade") >= 65).length;
+    const topFunc = topN(countBy(subset, r => val(r,"funcaoExercida") || val(r,"funcao")), 1)[0]?.[0] || "-";
+    const risco = r65 > 0 ? badge(pct(r65,q), "red") : badge("0%", "green");
+    return [safeId(g), fmt(q), safeId(topFunc), fmt(s), fmt(r65), risco];
   });
 
-  renderTable("tblGerencias",gerencias,["Gerência","Efetivo","Função predominante","Saúde ocupacional","65+","% 65+"]);
+  renderTable("tblGerencias", gerencias, ["Gerência","Efetivo","Função predominante","Saúde ocupacional","65+","% 65+"]);
+  renderAnalitico();
 }
 
-document.querySelectorAll(".tab-btn").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
-    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-    btn.classList.add("active");
-    document.getElementById(btn.dataset.tab).classList.add("active");
+function renderAnalitico(){
+  const rows = filteredData.slice(0,500).map(r => [
+    safeId(val(r,"registro") || "-"),
+    safeId(val(r,"nome") || "-"),
+    safeId(val(r,"diretoria") || "-"),
+    safeId(val(r,"coordenacao") || "-"),
+    safeId(val(r,"gerencia") || "-"),
+    safeId(val(r,"setor") || "-"),
+    safeId(val(r,"cargo") || "-"),
+    safeId(val(r,"funcaoExercida") || val(r,"funcao") || "-"),
+    safeId(val(r,"situacao") || "-"),
+    safeId(val(r,"idade") || "-")
+  ]);
 
-    setTimeout(()=>Object.values(charts).forEach(c=>c.resize()),100);
-  });
+  renderTable("tblAnalitico", rows, ["Registro","Nome","Diretoria","Coordenação","Gerência","Setor","Cargo","Função/Encargo","Situação","Idade"]);
+}
+
+/* =========================================================
+   NAVEGAÇÃO
+   ========================================================= */
+function openTab(tabId){
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+
+  const btn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+  const tab = document.getElementById(tabId);
+
+  if(btn) btn.classList.add("active");
+  if(tab) tab.classList.add("active");
+
+  setTimeout(() => Object.values(charts).forEach(c => c.resize()), 120);
+}
+
+window.openTab = openTab;
+
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => openTab(btn.dataset.tab));
 });
 
-["fDiretoria","fCoordenacao","fGerencia","fSetor","fBusca"].forEach(id=>{
-  document.getElementById(id).addEventListener("input",applyFilters);
-  document.getElementById(id).addEventListener("change",applyFilters);
+["fDiretoria","fCoordenacao","fGerencia","fSetor"].forEach(id => {
+  document.getElementById(id).addEventListener("change", applyFilters);
 });
 
-Papa.parse(CSV_URL,{
-  download:true,
-  header:true,
-  skipEmptyLines:true,
-  complete:function(results){
-    rawData = results.data.filter(r=>Object.values(r).some(v=>String(v||"").trim()));
-    filteredData = [...rawData];
+document.getElementById("fBusca").addEventListener("input", applyFilters);
 
-    populateFilters();
-    renderAll();
+/* =========================================================
+   EXPORTAÇÃO
+   ========================================================= */
+function exportCSV(){
+  const headers = ["Registro","Nome","Diretoria","Coordenação","Gerência","Setor","Cargo","Função/Encargo","Situação","Idade"];
+  const rows = filteredData.map(r => [
+    val(r,"registro"), val(r,"nome"), val(r,"diretoria"), val(r,"coordenacao"), val(r,"gerencia"),
+    val(r,"setor"), val(r,"cargo"), val(r,"funcaoExercida") || val(r,"funcao"), val(r,"situacao"), val(r,"idade")
+  ]);
 
-    document.getElementById("loading").style.display = "none";
-    document.getElementById("content").style.display = "block";
-  },
-  error:function(err){
-    document.getElementById("loading").textContent = "Erro ao carregar a base CSV: " + err.message;
+  const csv = Papa.unparse([headers, ...rows], {delimiter:";"});
+  const blob = new Blob(["\uFEFF" + csv], {type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `hub_comlurb_pessoas_${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+window.exportCSV = exportCSV;
+
+/* =========================================================
+   CARREGAMENTO DOS DADOS
+   ========================================================= */
+function showLoading(msg, isError=false){
+  const el = document.getElementById("loading");
+  el.textContent = msg;
+  el.classList.toggle("error-box", isError);
+  el.style.display = "block";
+}
+
+function showContent(){
+  document.getElementById("loading").style.display = "none";
+  document.getElementById("content").style.display = "block";
+}
+
+function processCSV(results){
+  columnCache = {};
+
+  if(results.errors && results.errors.length){
+    console.warn("Avisos PapaParse:", results.errors);
   }
-});
+
+  rawData = (results.data || []).filter(hasAnyData);
+
+  if(!rawData.length){
+    showLoading(
+      "CSV carregou, mas veio vazio.\n\nVerifique se:\n1. A aba correta está publicada;\n2. O gid do link é o da aba R54;\n3. A planilha está publicada como CSV;\n4. Existem dados abaixo do cabeçalho.",
+      true
+    );
+    return;
+  }
+
+  filteredData = [...rawData];
+
+  document.getElementById("lastUpdate").textContent = "Última atualização: " + currentDateTimeBR();
+  document.getElementById("rowCount").textContent = "Linhas: " + fmt(rawData.length);
+
+  console.log("HUB COMLURB | Dados carregados:", rawData.length);
+  console.log("Colunas identificadas:", getColumns());
+  console.log("Primeira linha:", rawData[0]);
+
+  populateFilters();
+  renderAll();
+  showContent();
+}
+
+function loadCSV(){
+  showLoading("Carregando dados da planilha publicada...");
+
+  Papa.parse(CSV_URL, {
+    download:true,
+    header:true,
+    skipEmptyLines:true,
+    transformHeader:h => String(h || "").trim(),
+    complete:processCSV,
+    error:function(err){
+      console.error("Erro ao carregar CSV:", err);
+      showLoading(
+        "Erro ao carregar a base CSV.\n\nPossíveis causas:\n1. Link da planilha não está publicado;\n2. GID da aba incorreto;\n3. Bloqueio temporário do Google Sheets;\n4. Arquivo muito grande ou instável.\n\nDetalhe técnico: " + (err?.message || err),
+        true
+      );
+    }
+  });
+}
+
+loadCSV();
 </script>
 
 </body>
