@@ -32,12 +32,12 @@
     .tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.tabBtn{border:1px solid var(--line);background:rgba(15,23,42,.62);color:#cbd5e1;border-radius:999px;padding:10px 14px;font-size:12px;font-weight:800;cursor:pointer;transition:.22s}.tabBtn:hover,.tabBtn.active{background:linear-gradient(135deg,rgba(56,189,248,.24),rgba(34,211,238,.12));border-color:rgba(56,189,248,.5);color:white;transform:translateY(-1px)}
     .hero{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;margin-top:18px}.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);backdrop-filter:blur(14px)}.heroMain{padding:26px;position:relative;overflow:hidden}.heroMain:before{content:"";position:absolute;right:-120px;top:-120px;width:340px;height:340px;background:radial-gradient(circle,rgba(56,189,248,.22),transparent 68%)}.eyebrow{color:var(--cyan);font-weight:900;text-transform:uppercase;letter-spacing:.18em;font-size:12px;margin-bottom:10px}.heroMain h2{margin:0;font-size:clamp(30px,4vw,58px);line-height:.98;letter-spacing:-2.6px;font-weight:950;max-width:940px}.heroMain p{max-width:980px;color:#b8c6d8;font-size:15px;line-height:1.65;margin:18px 0 0}.heroActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.btn{border:0;border-radius:16px;padding:12px 16px;font-weight:900;cursor:pointer;font-size:13px;transition:.2s}.btnPrimary{background:linear-gradient(135deg,#38bdf8,#22d3ee);color:#031321;box-shadow:0 15px 38px rgba(34,211,238,.18)}.btnGhost{background:rgba(15,23,42,.65);border:1px solid var(--line);color:#e2e8f0}.btn:hover{transform:translateY(-1px)}
     .executiveNote{padding:22px;display:flex;flex-direction:column;gap:13px}.noteTitle{font-size:13px;color:#93c5fd;font-weight:900;text-transform:uppercase;letter-spacing:.16em}.noteBig{font-size:28px;line-height:1.05;font-weight:950;letter-spacing:-1.2px}.noteText{font-size:13px;color:#a9b8ca;line-height:1.6}.riskLegend{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:auto}.riskItem{background:rgba(15,23,42,.62);border:1px solid var(--line);border-radius:16px;padding:12px}.riskItem b{display:block;font-size:18px}.riskItem span{display:block;font-size:11px;color:var(--muted);margin-top:4px}
-    .filters{margin-top:18px;padding:16px;display:grid;grid-template-columns:repeat(5,1fr);gap:10px;align-items:end}.field label{display:block;color:#8ca0bb;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.12em;margin:0 0 7px}select,input{width:100%;background:rgba(5,13,25,.78);border:1px solid rgba(148,163,184,.22);border-radius:14px;color:#e5f0ff;padding:11px 12px;outline:none;font-weight:700;font-size:12px}select:focus,input:focus{border-color:rgba(56,189,248,.72);box-shadow:0 0 0 3px rgba(56,189,248,.1)}
-    .kpis{display:grid;grid-template-columns:repeat(8,1fr);gap:12px;margin-top:18px}.kpi{padding:17px;min-height:128px;position:relative;overflow:hidden}.kpi:after{content:"";position:absolute;right:-40px;bottom:-45px;width:120px;height:120px;border-radius:50%;background:rgba(56,189,248,.08)}.kpi .label{color:#94a3b8;font-size:11px;text-transform:uppercase;letter-spacing:.12em;font-weight:900;min-height:28px}.kpi .value{font-size:30px;font-weight:950;letter-spacing:-1.4px;margin-top:10px}.kpi .sub{color:#a8b4c7;font-size:12px;margin-top:7px;line-height:1.35}.kpi.blue{border-color:rgba(56,189,248,.32)}.kpi.green{border-color:rgba(52,211,153,.32)}.kpi.amber{border-color:rgba(251,191,36,.35)}.kpi.red{border-color:rgba(251,113,133,.34)}.kpi.purple{border-color:rgba(167,139,250,.34)}
+    .filters{margin-top:18px;padding:16px;display:grid;grid-template-columns:repeat(5,1fr);gap:10px;align-items:end}.field label{display:block;color:#8ca0bb;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.12em;margin:0 0 7px}.field small{display:block;margin-top:6px;color:#6f829b;font-size:10px;font-weight:700}select,input{width:100%;background:rgba(5,13,25,.78);border:1px solid rgba(148,163,184,.22);border-radius:14px;color:#e5f0ff;padding:11px 12px;outline:none;font-weight:700;font-size:12px}select:focus,input:focus{border-color:rgba(56,189,248,.72);box-shadow:0 0 0 3px rgba(56,189,248,.1)}select[multiple]{min-height:44px;max-height:116px;overflow:auto;padding:8px}select[multiple] option{padding:7px 8px;border-radius:8px;margin:2px 0}
+    .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-top:18px}.kpi{padding:17px;min-height:128px;position:relative;overflow:hidden}.kpi:after{content:"";position:absolute;right:-40px;bottom:-45px;width:120px;height:120px;border-radius:50%;background:rgba(56,189,248,.08)}.kpi .label{color:#94a3b8;font-size:11px;text-transform:uppercase;letter-spacing:.12em;font-weight:900;min-height:28px}.kpi .value{font-size:30px;font-weight:950;letter-spacing:-1.4px;margin-top:10px}.kpi .sub{color:#a8b4c7;font-size:12px;margin-top:7px;line-height:1.35}.kpi.blue{border-color:rgba(56,189,248,.32)}.kpi.green{border-color:rgba(52,211,153,.32)}.kpi.amber{border-color:rgba(251,191,36,.35)}.kpi.red{border-color:rgba(251,113,133,.34)}.kpi.purple{border-color:rgba(167,139,250,.34)}
     .view{display:none;margin-top:18px}.view.active{display:block}.gridMacro{display:grid;grid-template-columns:1.25fr .75fr;gap:18px}.mapCard{height:680px;position:relative;overflow:hidden}#map{height:100%;width:100%;background:#081427;z-index:1}.mapOverlay{position:absolute;left:18px;top:18px;z-index:420;background:rgba(5,13,25,.82);border:1px solid var(--line);border-radius:18px;padding:14px;backdrop-filter:blur(14px);max-width:360px}.mapOverlay h3{margin:0;font-size:14px}.mapOverlay p{margin:7px 0 0;color:#aab7c8;font-size:12px;line-height:1.45}.mapControls{position:absolute;right:18px;top:18px;z-index:420;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.miniBtn{background:rgba(5,13,25,.86);border:1px solid var(--line);color:#e2e8f0;border-radius:999px;padding:9px 11px;font-weight:900;font-size:11px;cursor:pointer}.miniBtn.active{background:rgba(56,189,248,.25);border-color:rgba(56,189,248,.55)}
     .sideStack{display:grid;gap:18px}.panelHeader{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:18px 18px 0}.panelHeader h3{margin:0;font-size:16px;font-weight:950;letter-spacing:-.4px}.panelHeader p{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.45}.chartBox{padding:14px 16px 18px;height:300px}.chartBox canvas{width:100%!important;height:100%!important}.insights{padding:18px;display:grid;gap:10px}.insight{display:grid;grid-template-columns:12px 1fr;gap:10px;padding:12px;border:1px solid var(--line);border-radius:16px;background:rgba(15,23,42,.48)}.dot{width:10px;height:10px;border-radius:50%;margin-top:4px;background:var(--cyan);box-shadow:0 0 18px rgba(34,211,238,.7)}.insight b{font-size:13px}.insight span{display:block;color:#aab7c8;font-size:12px;line-height:1.45;margin-top:4px}
     .analysisGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.wide{grid-column:span 2}.full{grid-column:1/-1}.tableWrap{padding:16px;overflow:auto;max-height:620px}table{width:100%;border-collapse:collapse;min-width:1400px;font-size:12px}th,td{border-bottom:1px solid rgba(148,163,184,.13);padding:11px 10px;text-align:left;white-space:nowrap}th{position:sticky;top:0;background:#0d1b30;color:#93c5fd;text-transform:uppercase;letter-spacing:.08em;font-size:10px;z-index:2}tr:hover td{background:rgba(56,189,248,.055)}.scoreGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:16px}.scoreCard{padding:16px;border:1px solid var(--line);border-radius:20px;background:rgba(15,23,42,.52)}.scoreCard .rank{font-size:11px;color:#93c5fd;font-weight:900;text-transform:uppercase;letter-spacing:.12em}.scoreCard h4{margin:9px 0 6px;font-size:18px}.scoreCard p{margin:0;color:#aab7c8;font-size:12px;line-height:1.45}.bar{height:8px;background:rgba(148,163,184,.14);border-radius:999px;overflow:hidden;margin-top:12px}.bar i{display:block;height:100%;background:linear-gradient(90deg,#22d3ee,#38bdf8);border-radius:999px}.footer{margin:18px 0 8px;color:#718096;font-size:11px;text-align:center}.debugBox{display:none;margin-top:18px;padding:16px;border:1px solid rgba(251,191,36,.35);background:rgba(251,191,36,.08);border-radius:18px;color:#fde68a;font-size:12px;line-height:1.55;white-space:pre-wrap}.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#081427;color:#e5f0ff;border:1px solid rgba(56,189,248,.2)}.popupTitle{font-weight:900;color:#7dd3fc;margin-bottom:4px}.popupLine{font-size:12px;color:#cbd5e1;margin:3px 0}.popupLine b{color:#fff}.markerGlow{filter:drop-shadow(0 0 8px rgba(34,211,238,.8))}
-    @media(max-width:1400px){.kpis{grid-template-columns:repeat(4,1fr)}}@media(max-width:1300px){.hero,.gridMacro{grid-template-columns:1fr}.filters{grid-template-columns:repeat(3,1fr)}.analysisGrid{grid-template-columns:1fr}.wide{grid-column:auto}.scoreGrid{grid-template-columns:repeat(2,1fr)}}@media(max-width:760px){.shell{padding:10px}.topbar{position:relative;top:0;flex-direction:column;align-items:stretch}.tabs{justify-content:flex-start}.filters{grid-template-columns:1fr}.kpis{grid-template-columns:1fr}.mapCard{height:620px}.heroMain h2{font-size:36px}.scoreGrid{grid-template-columns:1fr}.riskLegend{grid-template-columns:1fr}}
+    @media(max-width:1400px){.kpis{grid-template-columns:repeat(3,1fr)}}@media(max-width:1300px){.hero,.gridMacro{grid-template-columns:1fr}.filters{grid-template-columns:repeat(3,1fr)}.analysisGrid{grid-template-columns:1fr}.wide{grid-column:auto}.scoreGrid{grid-template-columns:repeat(2,1fr)}}@media(max-width:760px){.shell{padding:10px}.topbar{position:relative;top:0;flex-direction:column;align-items:stretch}.tabs{justify-content:flex-start}.filters{grid-template-columns:1fr}.kpis{grid-template-columns:1fr}.mapCard{height:620px}.heroMain h2{font-size:36px}.scoreGrid{grid-template-columns:1fr}.riskLegend{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -55,12 +55,12 @@
         <p>Este painel cruza a R54 com bases territoriais e laudos para revelar concentração de efetivo, deslocamentos, risco de reposição, atuação em EC, fragilidade operacional e oportunidades de redistribuição inteligente.</p>
         <div class="heroActions"><button class="btn btnPrimary" onclick="exportExcel()">Exportar análise Excel</button><button class="btn btnGhost" onclick="resetFilters()">Limpar filtros</button><button class="btn btnGhost" onclick="fitMap()">Centralizar mapa</button><button class="btn btnGhost" onclick="toggleDebug()">Diagnóstico</button></div>
       </div>
-      <aside class="card executiveNote"><div class="noteTitle">Leitura estratégica</div><div class="noteBig">Não é mapa. É radar de vulnerabilidade operacional.</div><div class="noteText">A camada territorial permite enxergar onde a operação está concentrada, onde há deslocamento excessivo, quais áreas dependem de força envelhecida, onde há atuação por EC e onde os laudos podem indicar pressão ocupacional.</div><div class="riskLegend"><div class="riskItem"><b id="riskHigh">0</b><span>risco 65+</span></div><div class="riskItem"><b id="outsideRio">0</b><span>fora do Rio</span></div><div class="riskItem"><b id="geoRate">0%</b><span>georreferenciado</span></div></div></aside>
+      <aside class="card executiveNote"><div class="noteTitle">Leitura estratégica</div><div class="noteBig">Disponibilidade real, pressão de afastamento e atuação por EC em uma única leitura.</div><div class="noteText">A leitura executiva prioriza o que afeta diretamente a capacidade operacional: quem está ativo, quem está afastado, quem atua em EC e onde há risco de reposição por idade. O território fica detalhado na aba territorial.</div></aside>
     </section>
 
-    <section class="card filters"><div class="field"><label>Diretoria</label><select id="fDiretoria"></select></div><div class="field"><label>Coordenação</label><select id="fCoordenacao"></select></div><div class="field"><label>Gerência</label><select id="fGerencia"></select></div><div class="field"><label>Setor</label><select id="fSetor"></select></div><div class="field"><label>Função atuação</label><select id="fFuncao"></select></div></section>
+    <section class="card filters"><div class="field"><label>Diretoria</label><select id="fDiretoria"></select></div><div class="field"><label>Coordenação</label><select id="fCoordenacao"></select></div><div class="field"><label>Gerência</label><select id="fGerencia"></select></div><div class="field"><label>Setor</label><select id="fSetor"></select></div><div class="field"><label>Função atuação</label><select id="fFuncao" multiple></select><small>Use Ctrl para selecionar mais de uma função.</small></div></section>
 
-    <section class="kpis"><div class="card kpi blue"><div class="label">Efetivo filtrado</div><div class="value" id="kTotal">0</div><div class="sub">registros considerados</div></div><div class="card kpi green"><div class="label">Ativos</div><div class="value" id="kAtivos">0</div><div class="sub">força potencial disponível</div></div><div class="card kpi amber"><div class="label">Afastados</div><div class="value" id="kAfastados">0</div><div class="sub">pressão imediata</div></div><div class="card kpi red"><div class="label">Risco 65+</div><div class="value" id="k65">0</div><div class="sub">reposição crítica</div></div><div class="card kpi purple"><div class="label">Média etária</div><div class="value" id="kIdade">0</div><div class="sub">perfil demográfico</div></div><div class="card kpi blue"><div class="label">Fora do Rio</div><div class="value" id="kExternos">0</div><div class="sub">residência externa</div></div><div class="card kpi amber"><div class="label">Atuam com EC</div><div class="value" id="kEC">0</div><div class="sub">pela regra informada</div></div><div class="card kpi red"><div class="label">Com laudo</div><div class="value" id="kLaudos">0</div><div class="sub">base de laudos</div></div></section>
+    <section class="kpis"><div class="card kpi blue"><div class="label">Efetivo filtrado</div><div class="value" id="kTotal">0</div><div class="sub" id="sTotal">registros considerados</div></div><div class="card kpi green"><div class="label">Disponibilidade real</div><div class="value" id="kDisponivel">0</div><div class="sub" id="sDisponivel">ativos - afastados - EC</div></div><div class="card kpi amber"><div class="label">Afastados</div><div class="value" id="kAfastados">0</div><div class="sub" id="sAfastados">pressão imediata</div></div><div class="card kpi red"><div class="label">Risco 65+</div><div class="value" id="k65">0</div><div class="sub" id="s65">reposição crítica</div></div><div class="card kpi purple"><div class="label">Com laudo</div><div class="value" id="kLaudos">0</div><div class="sub" id="sLaudos">base de laudos</div></div><div class="card kpi amber"><div class="label">Atuam com EC</div><div class="value" id="kEC">0</div><div class="sub" id="sEC">pela regra informada</div></div></section>
 
     <div class="debugBox" id="debugBox"></div>
 
@@ -208,6 +208,15 @@ function buildOrgMap(rows){
   return m;
 }
 function isEncarregadoCargo(funcaoCargo){const f=norm(funcaoCargo);return /\bENCARREGADO\s*(I|II|III|IV)\b/.test(f);}
+function defineFuncaoAtuacao(funcaoCargo, funcaoEC){
+  const cargo=norm(funcaoCargo);
+  const ec=norm(funcaoEC);
+  const cargoEhGari=cargo.includes("GARI");
+  const ecEhEncarregado=ec.includes("ENCARREGADO");
+  if(cargoEhGari && ecEhEncarregado){return clean(funcaoCargo)||"Não informado";}
+  if(clean(funcaoEC)){return clean(funcaoEC);}
+  return clean(funcaoCargo)||"Não informado";
+}
 
 function enrichData(){
   enriched=rawR54.map((r,idx)=>{
@@ -244,9 +253,9 @@ function enrichData(){
 
     const risco65=idade!==null&&idade>=65;
     const risco60=idade!==null&&idade>=60;
+    const funcaoAtuacao=defineFuncaoAtuacao(funcao,funcaoEC);
+    const atuaComEC=!!funcaoEC && norm(funcaoAtuacao)===norm(funcaoEC);
     const cargoEncarregado=isEncarregadoCargo(funcao);
-    const atuaComEC=!!funcaoEC&&!cargoEncarregado;
-    const funcaoAtuacao=atuaComEC?funcaoEC:funcao;
     const cargoDiferenteEC=!!funcaoEC&&norm(funcaoEC)!==norm(funcao);
 
     const laudo=laudosMap.get(registroKey);
@@ -260,24 +269,36 @@ function enrichData(){
 }
 
 function uniqueOptions(field,parentData=enriched){return [...new Set(parentData.map(d=>d[field]).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt-BR"));}
-function fillSelect(id,values,current=""){const el=document.getElementById(id);el.innerHTML=`<option value="">Todos</option>`+values.map(v=>`<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");if(current&&values.includes(current))el.value=current;}
+function getSelectedValues(id){return Array.from(document.getElementById(id).selectedOptions||[]).map(o=>o.value).filter(Boolean);}
+function fillSelect(id,values,current=""){
+  const el=document.getElementById(id);
+  const isMultiple=el.hasAttribute("multiple");
+  const selected=isMultiple?(Array.isArray(current)?current:getSelectedValues(id)):[current||el.value].filter(Boolean);
+  el.innerHTML=(isMultiple?"":`<option value="">Todos</option>`)+values.map(v=>`<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
+  if(isMultiple){Array.from(el.options).forEach(o=>{o.selected=selected.includes(o.value);});}
+  else{const keep=selected[0]; if(keep&&values.includes(keep))el.value=keep;}
+}
 function setupFilters(){
   fillSelect("fDiretoria",uniqueOptions("diretoria"));
   fillSelect("fCoordenacao",uniqueOptions("coordenacao"));
   fillSelect("fGerencia",uniqueOptions("gerencia"));
   fillSelect("fSetor",uniqueOptions("setor"));
-  fillSelect("fFuncao",uniqueOptions("funcaoAtuacao"));
+  fillSelect("fFuncao",uniqueOptions("funcaoAtuacao"),[]);
   ["fDiretoria","fCoordenacao","fGerencia","fSetor","fFuncao"].forEach(id=>document.getElementById(id).addEventListener("change",applyFilters));
   const buscaAnalitico=document.getElementById("fBuscaAnalitico");
   if(buscaAnalitico)buscaAnalitico.addEventListener("input",updateTable);
 }
-function keepIfValid(id,values,current){fillSelect(id,values,values.includes(current)?current:"");}
+function keepIfValid(id,values,current){
+  const el=document.getElementById(id);
+  if(el.hasAttribute("multiple")) fillSelect(id,values,(Array.isArray(current)?current:[]).filter(v=>values.includes(v)));
+  else fillSelect(id,values,values.includes(current)?current:"");
+}
 function applyFilters(){
   const diretoria=document.getElementById("fDiretoria").value;
   const coordenacaoAtual=document.getElementById("fCoordenacao").value;
   const gerenciaAtual=document.getElementById("fGerencia").value;
   const setorAtual=document.getElementById("fSetor").value;
-  const funcaoAtual=document.getElementById("fFuncao").value;
+  const funcoesAtuais=getSelectedValues("fFuncao");
 
   const baseDiretoria=enriched.filter(d=>!diretoria||d.diretoria===diretoria);
   keepIfValid("fCoordenacao",uniqueOptions("coordenacao",baseDiretoria),coordenacaoAtual);
@@ -292,18 +313,39 @@ function applyFilters(){
   const setor=document.getElementById("fSetor").value;
 
   const baseSetor=baseGer.filter(d=>!setor||d.setor===setor);
-  keepIfValid("fFuncao",uniqueOptions("funcaoAtuacao",baseSetor),funcaoAtual);
-  const funcao=document.getElementById("fFuncao").value;
+  keepIfValid("fFuncao",uniqueOptions("funcaoAtuacao",baseSetor),funcoesAtuais);
+  const funcoesSelecionadas=getSelectedValues("fFuncao");
 
-  filtered=baseSetor.filter(d=>!funcao||d.funcaoAtuacao===funcao);
+  filtered=baseSetor.filter(d=>!funcoesSelecionadas.length||funcoesSelecionadas.includes(d.funcaoAtuacao));
   updateAll();
 }
-function resetFilters(){["fDiretoria","fCoordenacao","fGerencia","fSetor","fFuncao"].forEach(id=>document.getElementById(id).value="");const busca=document.getElementById("fBuscaAnalitico");if(busca)busca.value="";applyFilters();}
+function resetFilters(){["fDiretoria","fCoordenacao","fGerencia","fSetor"].forEach(id=>document.getElementById(id).value="");Array.from(document.getElementById("fFuncao").options).forEach(o=>o.selected=false);const busca=document.getElementById("fBuscaAnalitico");if(busca)busca.value="";applyFilters();}
 
 function groupCount(arr,field){const m=new Map();arr.forEach(d=>m.set(d[field]||"Não informado",(m.get(d[field]||"Não informado")||0)+1));return [...m.entries()].sort((a,b)=>b[1]-a[1]);}
 function avg(arr,field){const vals=arr.map(d=>d[field]).filter(v=>Number.isFinite(v));return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;}
 
-function updateKPIs(){const total=filtered.length,ativos=filtered.filter(d=>d.ativo).length,afastados=filtered.filter(d=>d.afastado).length,r65=filtered.filter(d=>d.risco65).length,externos=filtered.filter(d=>d.foraRio).length,geo=filtered.filter(d=>d.cRes||d.cTrab).length,ec=filtered.filter(d=>d.atuaComEC).length,laudos=filtered.filter(d=>d.possuiLaudo).length;document.getElementById("kTotal").textContent=fmt(total);document.getElementById("kAtivos").textContent=fmt(ativos);document.getElementById("kAfastados").textContent=fmt(afastados);document.getElementById("k65").textContent=fmt(r65);document.getElementById("kIdade").textContent=avg(filtered,"idade").toFixed(1).replace(".",",");document.getElementById("kExternos").textContent=fmt(externos);document.getElementById("kEC").textContent=fmt(ec);document.getElementById("kLaudos").textContent=fmt(laudos);document.getElementById("riskHigh").textContent=fmt(r65);document.getElementById("outsideRio").textContent=fmt(externos);document.getElementById("geoRate").textContent=pct(geo,total);}
+function setText(id,value){const el=document.getElementById(id);if(el)el.textContent=value;}
+function updateKPIs(){
+  const total=filtered.length;
+  const ativos=filtered.filter(d=>d.ativo).length;
+  const afastados=filtered.filter(d=>d.afastado).length;
+  const r65=filtered.filter(d=>d.risco65).length;
+  const ec=filtered.filter(d=>d.atuaComEC).length;
+  const laudos=filtered.filter(d=>d.possuiLaudo).length;
+  const disponivel=Math.max(0,ativos-afastados-ec);
+  setText("kTotal",fmt(total));
+  setText("kDisponivel",fmt(disponivel));
+  setText("kAfastados",fmt(afastados));
+  setText("k65",fmt(r65));
+  setText("kLaudos",fmt(laudos));
+  setText("kEC",fmt(ec));
+  setText("sTotal","100% do recorte atual");
+  setText("sDisponivel",`${pct(disponivel,total)} do efetivo filtrado`);
+  setText("sAfastados",`${pct(afastados,total)} do efetivo`);
+  setText("s65",`${pct(r65,total)} do efetivo`);
+  setText("sLaudos",`${pct(laudos,total)} do efetivo`);
+  setText("sEC",`${pct(ec,total)} do efetivo`);
+}
 
 function initMap(){map=L.map("map",{zoomControl:false,preferCanvas:true}).setView([-22.9068,-43.1729],10);L.control.zoom({position:"bottomright"}).addTo(map);L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{attribution:"&copy; OpenStreetMap & CartoDB",maxZoom:19}).addTo(map);layerResidencia=L.layerGroup().addTo(map);layerTrabalho=L.layerGroup().addTo(map);layerRisco=L.layerGroup();document.querySelectorAll(".miniBtn[data-layer]").forEach(btn=>btn.addEventListener("click",()=>{const l=btn.dataset.layer;visibleLayers[l]=!visibleLayers[l];btn.classList.toggle("active",visibleLayers[l]);renderMap();}));}
 function circleMarker(lat,lon,color,radius,popupHtml){return L.circleMarker([lat,lon],{radius,color,weight:1.5,opacity:.95,fillColor:color,fillOpacity:.42,className:"markerGlow"}).bindPopup(popupHtml);}
@@ -349,7 +391,7 @@ function updateCharts(){
   const labels=topGer.map(x=>x[0]);
   const gerData=labels.map(g=>filtered.filter(d=>d.gerencia===g));
   charts.chartGerencia=new Chart(ctx,{type:"bar",data:{labels,datasets:[
-    {label:"Disponível",data:gerData.map(a=>a.filter(d=>d.ativo).length),borderWidth:1,borderRadius:8},
+    {label:"Disponível real",data:gerData.map(a=>Math.max(0,a.filter(d=>d.ativo).length-a.filter(d=>d.afastado).length-a.filter(d=>d.atuaComEC).length)),borderWidth:1,borderRadius:8},
     {label:"Afastado",data:gerData.map(a=>a.filter(d=>d.afastado).length),borderWidth:1,borderRadius:8},
     {label:"65+",data:gerData.map(a=>a.filter(d=>d.risco65).length),borderWidth:1,borderRadius:8},
     {label:"Laudo",data:gerData.map(a=>a.filter(d=>d.possuiLaudo).length),borderWidth:1,borderRadius:8},
@@ -366,7 +408,14 @@ function updateCharts(){
   makeChart("chartRisco","bar",riscoGer.map(x=>x[0]),riscoGer.map(x=>x[1]),{indexAxis:"y"});
 }
 
-function updateInsights(){const total=filtered.length,r65=filtered.filter(d=>d.risco65).length,afast=filtered.filter(d=>d.afastado).length,externos=filtered.filter(d=>d.foraRio).length,ec=filtered.filter(d=>d.atuaComEC).length,laudos=filtered.filter(d=>d.possuiLaudo).length;const topGer=groupCount(filtered,"gerencia")[0]||["-",0];const topBairro=groupCount(filtered,"bairroRes").filter(x=>x[0]&&x[0]!=="Não informado")[0]||["-",0];const idadeMedia=avg(filtered,"idade");const insights=[[`Maior concentração gerencial`,`${topGer[0]} concentra ${fmt(topGer[1])} registros no filtro atual, representando ${pct(topGer[1],total)} da base analisada.`],[`Risco de reposição`,`${fmt(r65)} servidores possuem 65 anos ou mais. Esse grupo deve ser tratado como sinal de reposição crítica.`],[`Atuação por EC`,`${fmt(ec)} servidores atuam pela FUNCAO_EC pela regra informada, equivalente a ${pct(ec,total)} do recorte.`],[`Laudos`,`${fmt(laudos)} servidores possuem laudo localizado na base complementar, equivalente a ${pct(laudos,total)}.`],[`Pressão por afastamento`,`${fmt(afast)} registros aparecem como afastados/licenciados ou situação similar, equivalente a ${pct(afast,total)}.`],[`Dependência territorial`,`${fmt(externos)} servidores aparecem fora do município ou vinculados à base de municípios externos.`],[`Polo residencial`,`${topBairro[0]} aparece como principal concentração residencial no recorte atual.`],[`Perfil etário`,`A média etária filtrada é de ${idadeMedia.toFixed(1).replace('.',',')} anos.`]];document.getElementById("autoInsights").innerHTML=insights.map(i=>`<div class="insight"><div class="dot"></div><div><b>${escapeHtml(i[0])}</b><span>${escapeHtml(i[1])}</span></div></div>`).join("");}
+function updateInsights(){
+  const total=filtered.length,r65=filtered.filter(d=>d.risco65).length,afast=filtered.filter(d=>d.afastado).length,externos=filtered.filter(d=>d.foraRio).length,ec=filtered.filter(d=>d.atuaComEC).length,laudos=filtered.filter(d=>d.possuiLaudo).length,ativos=filtered.filter(d=>d.ativo).length;
+  const disponivel=Math.max(0,ativos-afast-ec);
+  const topGer=groupCount(filtered,"gerencia").filter(x=>x[0]!=="Não informado")[0]||["-",0];
+  const topBairro=groupCount(filtered,"bairroRes").filter(x=>x[0]&&x[0]!=="Não informado")[0]||["-",0];
+  const insights=[[`Disponibilidade real`,`${fmt(disponivel)} servidores ficam como capacidade real estimada no recorte (${pct(disponivel,total)}), descontando afastados e atuação em EC.`],[`Maior concentração gerencial`,`${topGer[0]} concentra ${fmt(topGer[1])} registros no filtro atual, representando ${pct(topGer[1],total)} da base analisada.`],[`Risco de reposição`,`${fmt(r65)} servidores possuem 65 anos ou mais (${pct(r65,total)}). Esse grupo deve ser tratado como sinal de reposição crítica.`],[`Atuação por EC`,`${fmt(ec)} servidores atuam pela FUNCAO_EC pela regra definida, equivalente a ${pct(ec,total)} do recorte.`],[`Laudos`,`${fmt(laudos)} servidores possuem laudo localizado na base complementar, equivalente a ${pct(laudos,total)}.`],[`Pressão por afastamento`,`${fmt(afast)} registros aparecem com afastamento na coluna AFASTAMENTO, equivalente a ${pct(afast,total)}.`],[`Polo residencial`,`${topBairro[0]} aparece como principal concentração residencial no recorte atual.`],[`Dependência territorial`,`${fmt(externos)} servidores aparecem fora do município ou vinculados à base de municípios externos.`]];
+  document.getElementById("autoInsights").innerHTML=insights.map(i=>`<div class="insight"><div class="dot"></div><div><b>${escapeHtml(i[0])}</b><span>${escapeHtml(i[1])}</span></div></div>`).join("");
+}
 function updateScores(){const byGer=groupCount(filtered,"gerencia").slice(0,8).map(([ger,total])=>{const arr=filtered.filter(d=>d.gerencia===ger);const r65=arr.filter(d=>d.risco65).length,afast=arr.filter(d=>d.afastado).length,ec=arr.filter(d=>d.atuaComEC).length,laudo=arr.filter(d=>d.possuiLaudo).length;const score=Math.min(100,Math.round((r65/Math.max(1,total))*35+(afast/Math.max(1,total))*25+(ec/Math.max(1,total))*20+(laudo/Math.max(1,total))*10+(avg(arr,"idade")/80)*10));return{ger,total,r65,afast,ec,laudo,score};}).sort((a,b)=>b.score-a.score);document.getElementById("riskScores").innerHTML=byGer.map((x,i)=>`<div class="scoreCard"><div class="rank">#${i+1} vulnerabilidade</div><h4>${escapeHtml(x.ger)}</h4><p>${fmt(x.total)} servidores · ${fmt(x.r65)} com 65+ · ${fmt(x.afast)} afastados · ${fmt(x.ec)} em EC · ${fmt(x.laudo)} com laudo</p><div class="bar"><i style="width:${x.score}%"></i></div></div>`).join("");const byTerr=groupCount(filtered,"bairroRes").filter(x=>x[0]&&x[0]!=="Não informado").slice(0,8);document.getElementById("territoryScores").innerHTML=byTerr.map(([b,t],i)=>{const arr=filtered.filter(d=>d.bairroRes===b);const ext=arr.filter(d=>d.foraRio).length,r65=arr.filter(d=>d.risco65).length;const score=Math.min(100,Math.round((t/Math.max(1,filtered.length))*65+(r65/Math.max(1,t))*35));return`<div class="scoreCard"><div class="rank">#${i+1} território</div><h4>${escapeHtml(b)}</h4><p>${fmt(t)} servidores · ${fmt(r65)} com 65+ · ${fmt(ext)} externos</p><div class="bar"><i style="width:${Math.max(8,score)}%"></i></div></div>`;}).join("");}
 function updateTable(){
   const busca=norm(document.getElementById("fBuscaAnalitico")?.value||"");
@@ -378,11 +427,11 @@ function updateTable(){
 }
 
 function updateAll(){updateKPIs();renderMap();updateCharts();updateInsights();updateScores();updateTable();updateDebug();}
-function exportExcel(){const data=filtered.map(d=>({Registro:d.registro,Nome:d.nome,Diretoria:d.diretoria,Coordenacao:d.coordenacao,Gerencia:d.gerencia,Setor:d.setor,FUNCAOCARGO:d.funcao,FUNCAO_EC:d.funcaoEC,Setor_R54:d.setorR54,AP:d.ap,Funcao_Atuacao:d.funcaoAtuacao,Atua_com_EC:d.atuaComEC?"Sim":"Não",Situacao:d.situacao,Afastamento:d.afastamento,IdadeAnos:d.idade,Bairro_Residencia:d.bairroRes,Bairro_Trabalho:d.bairroTrab,Status_Residencia:d.statusRes,Fora_Rio:d.foraRio?"Sim":"Não",Risco_65:d.risco65?"Sim":"Não",Possui_Laudo:d.possuiLaudo?"Sim":"Não",Qtd_Laudos:d.qtdLaudos,Tipos_Laudos:d.tiposLaudos,Lat_Residencia:d.cRes?.lat||"",Long_Residencia:d.cRes?.lon||"",Lat_Trabalho:d.cTrab?.lat||"",Long_Trabalho:d.cTrab?.lon||""}));const ws=XLSX.utils.json_to_sheet(data);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Analitico Territorial");XLSX.writeFile(wb,"HUB_COMLURB_territorial_analitico.xlsx");}
+function exportExcel(){const data=filtered.map(d=>({Registro:d.registro,Nome:d.nome,Diretoria:d.diretoria,Coordenacao:d.coordenacao,Gerencia:d.gerencia,Setor:d.setor,FUNCAOCARGO:d.funcao,FUNCAO_EC:d.funcaoEC,Setor_R54:d.setorR54,AP:d.ap,Funcao_Atuacao:d.funcaoAtuacao,Atua_com_EC:d.atuaComEC?"Sim":"Não",Disponibilidade_Real:(d.ativo&&!d.afastado&&!d.atuaComEC)?"Sim":"Não",Situacao:d.situacao,Afastamento:d.afastamento,IdadeAnos:d.idade,Bairro_Residencia:d.bairroRes,Bairro_Trabalho:d.bairroTrab,Status_Residencia:d.statusRes,Fora_Rio:d.foraRio?"Sim":"Não",Risco_65:d.risco65?"Sim":"Não",Possui_Laudo:d.possuiLaudo?"Sim":"Não",Qtd_Laudos:d.qtdLaudos,Tipos_Laudos:d.tiposLaudos,Lat_Residencia:d.cRes?.lat||"",Long_Residencia:d.cRes?.lon||"",Lat_Trabalho:d.cTrab?.lat||"",Long_Trabalho:d.cTrab?.lon||""}));const ws=XLSX.utils.json_to_sheet(data);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Analitico Territorial");XLSX.writeFile(wb,"HUB_COMLURB_territorial_analitico.xlsx");}
 function setupTabs(){document.querySelectorAll(".tabBtn").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll(".tabBtn").forEach(b=>b.classList.remove("active"));document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));btn.classList.add("active");document.getElementById(btn.dataset.view).classList.add("active");setTimeout(()=>{if(map)map.invalidateSize();},150);}));}
 function toggleDebug(){const el=document.getElementById("debugBox");el.style.display=el.style.display==="block"?"none":"block";updateDebug();}
 function updateDebug(){const el=document.getElementById("debugBox");if(!el)return;const geoRes=enriched.filter(d=>d.cRes).length,geoTrab=enriched.filter(d=>d.cTrab).length;el.textContent=["DIAGNÓSTICO DE CARGA",...loadReport,"",`R54: ${fmt(rawR54.length)} linhas`,`Laudos: ${fmt(rawLaudos.length)} linhas`,`Master organograma: ${fmt(rawOrg.length)} linhas`,`Setores mapeados no organograma: ${fmt(orgMap.size)}`,`Bairros Rio: ${fmt(coordBairros.size)} coordenadas`,`Locais Trabalho: ${fmt(coordTrabalho.size)} coordenadas`,`Master Coordenadas: ${fmt(coordMaster.size)} coordenadas`,`Municípios Externos: ${fmt(coordExternos.size)} coordenadas`,`Residências geocodificadas: ${fmt(geoRes)}`,`Trabalhos geocodificados: ${fmt(geoTrab)}`].join("\n");}
-function runTests(){console.assert(norm("Função") === "FUNCAO","Teste norm falhou");console.assert(isEncarregadoCargo("Encarregado III")===true,"Teste encarregado III falhou");console.assert(isEncarregadoCargo("Gari")===false,"Teste gari falhou");const fake=buildLaudosMap([{REGISTRO:"123",TIPO:"PNE"},{REGISTRO:"123",TIPO:"Readaptação"}]);console.assert(fake.get("123").qtd===2,"Teste laudos falhou");console.info("Testes básicos do HUB executados.");}
+function runTests(){console.assert(norm("Função") === "FUNCAO","Teste norm falhou");console.assert(isEncarregadoCargo("Encarregado III")===true,"Teste encarregado III falhou");console.assert(isEncarregadoCargo("Gari")===false,"Teste gari falhou");console.assert(defineFuncaoAtuacao("GARI", "ENCARREGADO II")==="GARI","Teste GARI com EC encarregado falhou");console.assert(defineFuncaoAtuacao("AUXILIAR", "ENCARREGADO II")==="ENCARREGADO II","Teste demais cargos com EC falhou");const fake=buildLaudosMap([{REGISTRO:"123",TIPO:"PNE"},{REGISTRO:"123",TIPO:"Readaptação"}]);console.assert(fake.get("123").qtd===2,"Teste laudos falhou");console.info("Testes básicos do HUB executados.");}
 async function boot(){setupTabs();initMap();runTests();try{
   setStatus("Carregando R54...");
   rawR54=await loadCSV(URLS.R54,"R54",true);
