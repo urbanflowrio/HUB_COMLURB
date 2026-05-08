@@ -1,52 +1,53 @@
 <script>
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRE3Q_RdpZOqc4f3O3fQirMQkEXQWyBkiIlXB6LZWgqTZbItGBHAxUHf2-0kEcALDIUfyPeK7GyBQrB/pub?gid=1371643814&single=true&output=csv";
-const ABS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_uEKlKCRt3e-jL73j5_15cOuyuqsNEK0tOyrXlxQmLLCq16VRU2B1bSqYHYNbok-wB-CMaYlo6jH9/pub?output=csv";
 
 let ROWS = [];
 let COL = {};
-let ABS_ROWS = [];
-let ABS_COL = {};
-let ABS_LOADED = false;
 
 const $ = id => document.getElementById(id);
 const clean = v => (v ?? "").toString().trim();
 const norm = v => clean(v).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").toUpperCase();
 const fmtInt = n => (+n || 0).toLocaleString("pt-BR");
 const fmtPct = n => (+n || 0).toLocaleString("pt-BR",{minimumFractionDigits:1,maximumFractionDigits:1}) + "%";
-const isRio = cidade => ["RIO DE JANEIRO","RIO"].includes(norm(cidade));
+
+window.addEventListener("error", e => showError("Erro no painel: " + e.message));
 
 function showError(msg){
   const el = $("status");
-  if(el){ el.style.display = "block"; el.textContent = msg; }
+  if(el){
+    el.style.display = "block";
+    el.textContent = msg;
+  }
 }
+
 function hideError(){
   const el = $("status");
   if(el) el.style.display = "none";
 }
 
 async function fetchCsvText(url){
-  const bust = "cachebuster=" + Date.now();
-  const directUrl = url + (url.includes("?") ? "&" : "?") + bust;
+  const directUrl = url + (url.includes("?") ? "&" : "?") + "cachebuster=" + Date.now();
+
   const attempts = [
     directUrl,
     "https://api.allorigins.win/raw?url=" + encodeURIComponent(directUrl),
-    "https://corsproxy.io/?" + encodeURIComponent(directUrl),
-    "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(directUrl)
+    "https://corsproxy.io/?" + encodeURIComponent(directUrl)
   ];
 
   let lastError = "";
+
   for(const attempt of attempts){
     try{
       const res = await fetch(attempt,{cache:"no-store"});
       if(!res.ok) throw new Error("HTTP " + res.status);
       const text = await res.text();
       if(text && text.trim().length > 20) return text;
-      throw new Error("resposta vazia");
     }catch(e){
-      lastError = e.message || String(e);
+      lastError = e.message;
     }
   }
-  throw new Error(lastError || "falha ao carregar CSV");
+
+  throw new Error(lastError || "não foi possível carregar o CSV");
 }
 
 function splitCSVLine(line){
@@ -55,17 +56,22 @@ function splitCSVLine(line){
   let insideQuotes = false;
 
   for(let i=0;i<line.length;i++){
-    const char = line[i], next = line[i+1];
+    const char = line[i];
+    const next = line[i+1];
+
     if(char === '"' && insideQuotes && next === '"'){
-      current += '"'; i++;
+      current += '"';
+      i++;
     }else if(char === '"'){
       insideQuotes = !insideQuotes;
     }else if(char === "," && !insideQuotes){
-      result.push(current); current = "";
+      result.push(current);
+      current = "";
     }else{
       current += char;
     }
   }
+
   result.push(current);
   return result;
 }
@@ -73,6 +79,7 @@ function splitCSVLine(line){
 function parseCSV(text){
   const lines = text.replace(/\r/g,"").split("\n").filter(l => l.trim());
   const headers = splitCSVLine(lines[0]).map(h => h.trim());
+
   return lines.slice(1).map(line => {
     const values = splitCSVLine(line);
     const obj = {};
@@ -82,17 +89,17 @@ function parseCSV(text){
 }
 
 function pick(headers,names){
-  const mapped = headers.map(h => ({o:h,n:norm(h)}));
+  const mapped = headers.map(h => ({original:h, normalized:norm(h)}));
 
   for(const name of names){
-    const found = mapped.find(h => h.n === norm(name));
-    if(found) return found.o;
+    const found = mapped.find(h => h.normalized === norm(name));
+    if(found) return found.original;
   }
 
   for(const name of names){
-    const nn = norm(name);
-    const found = mapped.find(h => h.n.includes(nn) || nn.includes(h.n));
-    if(found) return found.o;
+    const n = norm(name);
+    const found = mapped.find(h => h.normalized.includes(n) || n.includes(h.normalized));
+    if(found) return found.original;
   }
 
   return null;
@@ -102,7 +109,7 @@ function val(row,col){
   return col ? clean(row[col]) : "";
 }
 
-function numberFrom(v){
+function num(v){
   let s = clean(v).replace(/[^0-9,.-]/g,"");
   if(s.includes(",") && s.includes(".")) s = s.replace(/\./g,"").replace(",",".");
   else s = s.replace(",",".");
@@ -110,57 +117,75 @@ function numberFrom(v){
 }
 
 function idade(row){
-  return numberFrom(val(row,COL.idade));
+  return num(val(row,COL.idade));
+}
+
+function isRio(cidade){
+  const c = norm(cidade);
+  return c === "RIO DE JANEIRO" || c === "RIO";
+}
+
+function cidadeVal(row){
+  return val(row,COL.cidade) || "Não informado";
+}
+
+function bairroVal(row){
+  return val(row,COL.bairro) || "Não informado";
+}
+
+function supVal(row){
+  return val(row,COL.sup) || "Não informado";
 }
 
 function isAfastado(row){
-  const afast = norm(val(row,COL.afast));
-  const tipo = norm(val(row,COL.tipoAfastamento));
-  const codfreq = norm(val(row,COL.codfreq));
-  const situacao = norm(val(row,COL.situacao));
-
-  if(situacao.includes("ATIVO") && !afast && !tipo && !codfreq) return false;
-  if(["ATIVO","NORMAL","TRABALHANDO"].includes(afast)) return false;
-
-  return !!(
-    afast ||
-    tipo ||
-    codfreq ||
-    situacao.includes("AFAST") ||
-    situacao.includes("LICEN") ||
-    situacao.includes("SUSPENS") ||
-    situacao.includes("CEDID")
-  );
-}
-
-function isOperacional(row){
-  const x = norm([
-    val(row,COL.tipo),
-    val(row,COL.tipoSetor),
-    val(row,COL.funcaoCargo),
-    val(row,COL.funcao),
+  const s = norm([
+    val(row,COL.situacao),
+    val(row,COL.afastamento),
+    val(row,COL.tipoAfastamento),
+    val(row,COL.codfreq),
     val(row,COL.descricao)
   ].join(" "));
 
-  return x.includes("OPER") ||
-         x.includes("GARI") ||
-         x.includes("MOTOR") ||
-         x.includes("FISCAL") ||
-         x.includes("AGENTE") ||
-         x.includes("LIMP") ||
-         x.includes("COLETA");
+  if(!s) return false;
+
+  return s.includes("AFAST") ||
+         s.includes("LICEN") ||
+         s.includes("CEDID") ||
+         s.includes("SUSPENS") ||
+         s.includes("INSS") ||
+         s.includes("READAPT") ||
+         s.includes("RESTRI");
 }
 
-function supVal(row){ return val(row,COL.sup) || "Não informado"; }
-function cidadeVal(row){ return val(row,COL.cidadeEnder) || "Não informado"; }
-function bairroVal(row){ return val(row,COL.bairroEnder) || "Não informado"; }
+function isOperacional(row){
+  const s = norm([
+    val(row,COL.funcaoCargo),
+    val(row,COL.funcao),
+    val(row,COL.tipoCargo),
+    val(row,COL.tipoSetor),
+    val(row,COL.descricao)
+  ].join(" "));
+
+  return s.includes("GARI") ||
+         s.includes("MOTOR") ||
+         s.includes("OPER") ||
+         s.includes("COLETA") ||
+         s.includes("LIMP") ||
+         s.includes("FISCAL") ||
+         s.includes("AGENTE");
+}
 
 function groupBy(arr,fn){
   return arr.reduce((acc,row)=>{
     const key = fn(row) || "Não informado";
-    (acc[key] ||= []).push(row);
+    if(!acc[key]) acc[key] = [];
+    acc[key].push(row);
     return acc;
   },{});
+}
+
+function topEntries(obj,limit=10){
+  return Object.entries(obj).sort((a,b)=>b[1]-a[1]).slice(0,limit);
 }
 
 function fillSelect(id,values,label){
@@ -168,21 +193,22 @@ function fillSelect(id,values,label){
   if(!el) return;
 
   const current = el.value;
-  const list = [...new Set(values.filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt-BR"));
+  const unique = [...new Set(values.filter(Boolean))]
+    .sort((a,b)=>a.localeCompare(b,"pt-BR"));
 
   el.innerHTML = `<option value="">${label}</option>` +
-    list.map(v => `<option value="${String(v).replaceAll('"',"&quot;")}">${v}</option>`).join("");
+    unique.map(v => `<option value="${String(v).replaceAll('"',"&quot;")}">${v}</option>`).join("");
 
-  if(list.includes(current)) el.value = current;
+  if(unique.includes(current)) el.value = current;
 }
 
 function currentFilters(){
   return {
-    dir:$("fDir")?.value || "",
-    sup:$("fSupCoord")?.value || "",
-    setor:$("fSetor")?.value || "",
-    cidade:$("fCidade")?.value || "",
-    bairro:$("fBairro")?.value || ""
+    dir: $("fDir")?.value || "",
+    sup: $("fSupCoord")?.value || "",
+    setor: $("fSetor")?.value || "",
+    cidade: $("fCidade")?.value || "",
+    bairro: $("fBairro")?.value || ""
   };
 }
 
@@ -201,142 +227,54 @@ function filteredRows(){
 }
 
 function updateFilters(changed=""){
-  const f = currentFilters();
-
   if(changed === "fDir"){
     if($("fSupCoord")) $("fSupCoord").value = "";
     if($("fSetor")) $("fSetor").value = "";
   }
+
   if(changed === "fSupCoord"){
     if($("fSetor")) $("fSetor").value = "";
   }
 
-  const f2 = currentFilters();
+  const f = currentFilters();
 
-  fillSelect("fDir", ROWS.filter(r=>rowPass(r,f2,"dir")).map(r=>val(r,COL.dir)), "Todas");
-  fillSelect("fSupCoord", ROWS.filter(r=>rowPass(r,f2,"sup")).map(supVal), "Todas");
-  fillSelect("fSetor", ROWS.filter(r=>rowPass(r,f2,"setor")).map(r=>val(r,COL.setor)), "Todos");
-  fillSelect("fCidade", ROWS.filter(r=>rowPass(r,f2,"cidade")).map(cidadeVal), "Todas");
-  fillSelect("fBairro", ROWS.filter(r=>rowPass(r,f2,"bairro")).map(bairroVal), "Todos");
+  fillSelect("fDir", ROWS.filter(r=>rowPass(r,f,"dir")).map(r=>val(r,COL.dir)), "Todas");
+  fillSelect("fSupCoord", ROWS.filter(r=>rowPass(r,f,"sup")).map(supVal), "Todas");
+  fillSelect("fSetor", ROWS.filter(r=>rowPass(r,f,"setor")).map(r=>val(r,COL.setor)), "Todos");
+  fillSelect("fCidade", ROWS.filter(r=>rowPass(r,f,"cidade")).map(cidadeVal), "Todas");
+  fillSelect("fBairro", ROWS.filter(r=>rowPass(r,f,"bairro")).map(bairroVal), "Todos");
 }
 
-function renderDirBars(data,total){
-  const el = $("dirBars");
+function renderBars(id,rows,total,cls=""){
+  const el = $(id);
   if(!el) return;
-
-  const rows = Object.entries(groupBy(data,r=>val(r,COL.dir)))
-    .map(([k,v])=>[k,v.length])
-    .sort((a,b)=>b[1]-a[1])
-    .slice(0,6);
 
   const max = rows[0]?.[1] || 1;
 
-  el.innerHTML = rows.map(([k,v])=>`
+  el.innerHTML = rows.map(([k,v]) => `
     <div class="barRow">
       <span title="${k}">${k}</span>
-      <div class="track"><div class="fill" style="width:${v/max*100}%"></div></div>
+      <div class="track"><div class="fill ${cls}" style="width:${v/max*100}%"></div></div>
       <b class="num">${fmtInt(v)}</b>
       <span class="pct">${fmtPct(total ? v/total*100 : 0)}</span>
-    </div>
-  `).join("") || `<div class="hint">Sem dados.</div>`;
-}
-
-function renderActivityCols(data){
-  const el = $("activityCols");
-  if(!el) return;
-
-  const rows = Object.entries(groupBy(data,r=>val(r,COL.dir)))
-    .map(([k,v])=>{
-      const afast = v.filter(isAfastado).length;
-      const pct = v.length ? (v.length-afast)/v.length*100 : 0;
-      return [k,v.length,pct];
-    })
-    .sort((a,b)=>b[1]-a[1])
-    .slice(0,6);
-
-  el.innerHTML = rows.map(([k,_,p])=>`
-    <div class="colWrap">
-      <div class="colVal ${p<80?"warn":""}">${fmtPct(p)}</div>
-      <div class="col" style="--h:${Math.max(18,p)}%"></div>
-      <div class="colLbl" title="${k}">${k}</div>
     </div>
   `).join("") || `<div class="empty">Sem dados.</div>`;
 }
 
-function renderAlerts(total,pctAfast,pctRisco,pctOper){
-  const el = $("alerts");
-  if(!el) return;
-
-  el.innerHTML = `
-    <div class="alert ${pctAfast>=20?"red":pctAfast>=10?"orange":"green"}">
-      <small>Pressão por afastamento</small>
-      <b>${fmtPct(pctAfast)}</b>
-      <span>empregados afastados no recorte</span>
-    </div>
-    <div class="alert ${pctRisco>=15?"red":pctRisco>=8?"orange":"green"}">
-      <small>Risco 65+</small>
-      <b>${fmtPct(pctRisco)}</b>
-      <span>potencial necessidade de reposição</span>
-    </div>
-    <div class="alert">
-      <small>Perfil operacional</small>
-      <b>${fmtPct(pctOper)}</b>
-      <span>aderência à atividade-fim</span>
-    </div>
-    <div class="alert">
-      <small>Base analisada</small>
-      <b>${fmtInt(total)}</b>
-      <span>empregados no filtro atual</span>
-    </div>
-    <div class="alert green">
-      <small>Laudos</small>
-      <b>—</b>
-      <span>módulo reservado para próxima base</span>
-    </div>
-  `;
-}
-
-function renderRanking(data){
-  const el = $("ranking");
-  if(!el) return;
-
-  const rows = Object.entries(groupBy(data,r=>val(r,COL.setor)))
-    .map(([k,v])=>{
-      const total = v.length;
-      const afast = v.filter(isAfastado).length;
-      const risco = v.filter(r=>idade(r)>=65).length;
-      const score = total ? ((afast/total)*60 + (risco/total)*40) : 0;
-      return {k,total,afast,risco,score};
-    })
-    .filter(x=>x.total>=5)
-    .sort((a,b)=>b.score-a.score)
-    .slice(0,10);
-
-  el.innerHTML = rows.map(r=>`
-    <div class="rank">
-      <div>
-        <b>${r.k}</b>
-        <small>${fmtInt(r.total)} empregados · ${fmtInt(r.afast)} afastados · ${fmtInt(r.risco)} com 65+</small>
-      </div>
-      <span class="statusPill ${r.score>=25?"crit":r.score>=12?"att":"ok"}">${fmtPct(r.score)}</span>
-    </div>
-  `).join("") || `<div class="empty">Sem ranking disponível.</div>`;
-}
-
-function renderPerfil(){
-  const data = filteredRows();
+function renderPerfil(data){
   const total = data.length;
   const afastados = data.filter(isAfastado).length;
   const ativos = total - afastados;
   const operacionais = data.filter(isOperacional).length;
   const administrativos = total - operacionais;
-  const idades = data.map(idade).filter(n=>n>0);
-  const acima65 = idades.filter(n=>n>=65).length;
+
+  const idades = data.map(idade).filter(n => n > 0);
+  const risco65 = idades.filter(n => n >= 65).length;
 
   const pctAtivos = total ? ativos/total*100 : 0;
   const pctAfast = total ? afastados/total*100 : 0;
-  const pctRisco = idades.length ? acima65/idades.length*100 : 0;
   const pctOper = total ? operacionais/total*100 : 0;
+  const pctRisco = idades.length ? risco65/idades.length*100 : 0;
 
   if($("kTotal")) $("kTotal").textContent = fmtInt(total);
   if($("kAtivos")) $("kAtivos").textContent = fmtInt(ativos);
@@ -346,7 +284,7 @@ function renderPerfil(){
 
   if($("nAtivos")) $("nAtivos").textContent = fmtPct(pctAtivos) + " disponíveis";
   if($("nAfast")) $("nAfast").textContent = fmtPct(pctAfast) + " do total";
-  if($("nRisco")) $("nRisco").textContent = idades.length ? fmtInt(acima65) + " empregados com 65 anos ou mais" : "idade não localizada";
+  if($("nRisco")) $("nRisco").textContent = idades.length ? fmtInt(risco65) + " empregados com 65 anos ou mais" : "idade não localizada";
 
   if($("opQtd")) $("opQtd").textContent = fmtInt(operacionais);
   if($("admQtd")) $("admQtd").textContent = fmtInt(administrativos);
@@ -354,43 +292,146 @@ function renderPerfil(){
   if($("donut")) $("donut").style.setProperty("--opPct", pctOper + "%");
   if($("compHint")) $("compHint").textContent = pctOper >= 60 ? "Predominância operacional coerente com a atividade-fim." : "Maior peso relativo administrativo no recorte.";
 
-  renderDirBars(data,total);
-  renderActivityCols(data);
-  renderAlerts(total,pctAfast,pctRisco,pctOper);
-  renderRanking(data);
+  const dirRows = Object.entries(groupBy(data,r=>val(r,COL.dir)))
+    .map(([k,v])=>[k,v.length])
+    .sort((a,b)=>b[1]-a[1])
+    .slice(0,6);
+
+  renderBars("dirBars",dirRows,total);
+
+  const activityRows = Object.entries(groupBy(data,r=>val(r,COL.dir)))
+    .map(([k,v])=>{
+      const af = v.filter(isAfastado).length;
+      const at = v.length - af;
+      return [k,v.length ? at/v.length*100 : 0];
+    })
+    .sort((a,b)=>b[1]-a[1])
+    .slice(0,6);
+
+  const activity = $("activityCols");
+  if(activity){
+    activity.innerHTML = activityRows.map(([k,p])=>`
+      <div class="colWrap">
+        <div class="colVal ${p<80 ? "warn" : ""}">${fmtPct(p)}</div>
+        <div class="col" style="--h:${Math.max(20,p)}%"></div>
+        <div class="colLbl" title="${k}">${k}</div>
+      </div>
+    `).join("") || `<div class="empty">Sem dados.</div>`;
+  }
+
+  const alerts = $("alerts");
+  if(alerts){
+    alerts.innerHTML = `
+      <div class="alert ${pctAfast>=20?"red":pctAfast>=10?"orange":"green"}">
+        <small>Pressão operacional</small>
+        <b>${fmtPct(pctAfast)}</b>
+        <span>afastamento geral no filtro atual</span>
+      </div>
+      <div class="alert ${pctRisco>=15?"red":pctRisco>=8?"orange":"green"}">
+        <small>Risco de reposição</small>
+        <b>${idades.length ? fmtPct(pctRisco) : "N/D"}</b>
+        <span>quadro com 65 anos ou mais</span>
+      </div>
+      <div class="alert green">
+        <small>Estrutura funcional</small>
+        <b>${fmtPct(pctOper)}</b>
+        <span>concentração operacional</span>
+      </div>
+      <div class="alert">
+        <small>Laudos / Restrições</small>
+        <b>—</b>
+        <span>em implantação</span>
+      </div>
+      <div class="alert">
+        <small>Base filtrada</small>
+        <b>${fmtInt(total)}</b>
+        <span>empregados no recorte selecionado</span>
+      </div>
+    `;
+  }
+
+  const ranking = $("ranking");
+  if(ranking){
+    const rows = Object.entries(groupBy(data,r=>val(r,COL.dir)))
+      .map(([k,v])=>{
+        const af = v.filter(isAfastado).length;
+        const at = v.length - af;
+        const pct = v.length ? at/v.length*100 : 0;
+        return {k,total:v.length,ativos:at,afastados:af,pct};
+      })
+      .filter(x=>x.total>=5)
+      .sort((a,b)=>a.pct-b.pct)
+      .slice(0,5);
+
+    ranking.innerHTML = rows.map(r=>`
+      <div class="rank">
+        <div>
+          <b>${r.k}</b>
+          <small>${fmtInt(r.ativos)} ativos · ${fmtInt(r.afastados)} afastados · ${fmtPct(r.pct)} atividade</small>
+        </div>
+        <span class="statusPill ${r.pct<75?"crit":r.pct<85?"att":"ok"}">${r.pct<75?"Crítico":r.pct<85?"Atenção":"Monitorar"}</span>
+      </div>
+    `).join("") || `<div class="empty">Sem ranking disponível.</div>`;
+  }
 }
 
-function renderTerritorial(){
-  const data = filteredRows();
-  const total = data.length;
+function renderTerritorial(data){
+  const geo = data.filter(r => cidadeVal(r) !== "Não informado");
+  const total = geo.length;
+  const fora = geo.filter(r => !isRio(cidadeVal(r))).length;
+  const dentro = total - fora;
 
-  const rio = data.filter(r=>isRio(cidadeVal(r))).length;
-  const fora = total - rio;
-  const pctRio = total ? rio/total*100 : 0;
   const pctFora = total ? fora/total*100 : 0;
+  const pctDentro = total ? dentro/total*100 : 0;
 
-  if($("tTotal")) $("tTotal").textContent = fmtInt(total);
-  if($("tRio")) $("tRio").textContent = fmtPct(pctRio);
-  if($("tFora")) $("tFora").textContent = fmtPct(pctFora);
+  const cidadeCount = {};
+  const bairroCount = {};
+  const bairroRJCount = {};
 
-  const cidades = Object.entries(groupBy(data,cidadeVal)).map(([k,v])=>[k,v.length]).sort((a,b)=>b[1]-a[1]);
-  const bairros = Object.entries(groupBy(data,bairroVal)).map(([k,v])=>[k,v.length]).sort((a,b)=>b[1]-a[1]);
+  geo.forEach(r=>{
+    const c = cidadeVal(r);
+    const b = bairroVal(r);
+    cidadeCount[c] = (cidadeCount[c] || 0) + 1;
+    bairroCount[b] = (bairroCount[b] || 0) + 1;
+    if(isRio(c)) bairroRJCount[b] = (bairroRJCount[b] || 0) + 1;
+  });
 
-  if($("tTopList")){
-    $("tTopList").innerHTML =
-      cidades.slice(0,5).map(([k,v])=>`
-        <div class="miniItem"><div><b>${k}</b><small>Município de moradia</small></div><b>${fmtInt(v)}</b></div>
+  const topCidadeExt = topEntries(Object.fromEntries(Object.entries(cidadeCount).filter(([c])=>!isRio(c))),1)[0];
+  const topBairroRJ = topEntries(bairroRJCount,1)[0] || topEntries(bairroCount,1)[0];
+
+  if($("tForaRioHero")) $("tForaRioHero").textContent = fmtPct(pctFora);
+  if($("tEfetivoGeo")) $("tEfetivoGeo").textContent = fmtInt(total);
+  if($("tDentroRio")) $("tDentroRio").textContent = fmtPct(pctDentro);
+  if($("tTopCidade")) $("tTopCidade").textContent = topCidadeExt ? topCidadeExt[0] : "—";
+  if($("tTopBairro")) $("tTopBairro").textContent = topBairroRJ ? topBairroRJ[0] : "—";
+  if($("tInsight")) $("tInsight").textContent = `${fmtPct(pctFora)} dos empregados com cidade informada residem fora do município do Rio.`;
+
+  const tTopList = $("tTopList");
+  if(tTopList){
+    const cidades = topEntries(cidadeCount,5);
+    const bairros = topEntries(bairroCount,5);
+
+    tTopList.innerHTML =
+      cidades.map(([k,v])=>`
+        <div class="miniItem">
+          <div><b>${k}</b><small>Município de moradia</small></div>
+          <b>${fmtInt(v)}</b>
+        </div>
       `).join("") +
-      bairros.slice(0,5).map(([k,v])=>`
-        <div class="miniItem"><div><b>${k}</b><small>Bairro de moradia</small></div><b>${fmtInt(v)}</b></div>
+      bairros.map(([k,v])=>`
+        <div class="miniItem">
+          <div><b>${k}</b><small>Bairro de moradia</small></div>
+          <b>${fmtInt(v)}</b>
+        </div>
       `).join("");
   }
 
-  renderTerrBars("tCidadeBars", cidades.slice(0,12), total);
-  renderTerrBars("tBairroBars", bairros.slice(0,12), total);
+  renderBars("tCidadeBars",topEntries(cidadeCount,12),total,"green");
+  renderBars("tBairroBars",topEntries(bairroCount,12),total,"green");
 
-  if($("tRankingSetor")){
-    const rows = Object.entries(groupBy(data,r=>val(r,COL.setor)))
+  const tRankingSetor = $("tRankingSetor");
+  if(tRankingSetor){
+    const rows = Object.entries(groupBy(geo,r=>val(r,COL.setor)))
       .map(([k,v])=>{
         const fora = v.filter(r=>!isRio(cidadeVal(r))).length;
         const pct = v.length ? fora/v.length*100 : 0;
@@ -400,33 +441,46 @@ function renderTerritorial(){
       .sort((a,b)=>b.pct-a.pct)
       .slice(0,10);
 
-    $("tRankingSetor").innerHTML = rows.map(r=>`
+    tRankingSetor.innerHTML = rows.map(r=>`
       <div class="rank">
-        <div><b>${r.k}</b><small>${fmtInt(r.fora)} de ${fmtInt(r.total)} empregados residem fora do Rio</small></div>
+        <div>
+          <b>${r.k}</b>
+          <small>${fmtInt(r.fora)} de ${fmtInt(r.total)} empregados residem fora do Rio</small>
+        </div>
         <span class="statusPill ${r.pct>=40?"crit":r.pct>=20?"att":"ok"}">${fmtPct(r.pct)}</span>
       </div>
-    `).join("") || `<div class="empty">Sem risco territorial identificado.</div>`;
+    `).join("") || `<div class="empty">Sem ranking territorial disponível.</div>`;
   }
 
-  if($("tExecutiveRead")){
-    $("tExecutiveRead").innerHTML = `
+  const tExecutiveRead = $("tExecutiveRead");
+  if(tExecutiveRead){
+    tExecutiveRead.innerHTML = `
       <div class="alert ${pctFora>=30?"orange":"green"}">
-        <small>Moradia fora do Rio</small><b>${fmtPct(pctFora)}</b><span>impacto potencial em deslocamento</span>
+        <small>Moradia fora do Rio</small>
+        <b>${fmtPct(pctFora)}</b>
+        <span>impacto potencial em deslocamento</span>
       </div>
       <div class="alert">
-        <small>Maior concentração</small><b>${cidades[0]?.[0] || "—"}</b><span>município com maior volume</span>
+        <small>Maior concentração</small>
+        <b>${topEntries(cidadeCount,1)[0]?.[0] || "—"}</b>
+        <span>município com maior volume</span>
       </div>
       <div class="alert">
-        <small>Bairro destaque</small><b>${bairros[0]?.[0] || "—"}</b><span>bairro mais frequente</span>
+        <small>Bairro destaque</small>
+        <b>${topBairroRJ ? topBairroRJ[0] : "—"}</b>
+        <span>bairro mais frequente</span>
       </div>
       <div class="alert green">
-        <small>Uso gerencial</small><b>Realocação</b><span>apoio à análise casa x setor</span>
+        <small>Uso gerencial</small>
+        <b>Realocação</b>
+        <span>apoio à análise casa x setor</span>
       </div>
     `;
   }
 
-  if($("tTable")){
-    $("tTable").innerHTML = data.slice(0,500).map(r=>{
+  const tTable = $("tTable");
+  if(tTable){
+    tTable.innerHTML = geo.slice(0,500).map(r=>{
       const cidade = cidadeVal(r);
       const risco = isRio(cidade) ? "Baixo" : "Atenção";
       return `
@@ -444,246 +498,68 @@ function renderTerritorial(){
   }
 }
 
-function renderTerrBars(id,rows,total){
-  const el = $(id);
-  if(!el) return;
-
-  const max = rows[0]?.[1] || 1;
-  el.innerHTML = rows.map(([k,v])=>`
-    <div class="barRow">
-      <span title="${k}">${k}</span>
-      <div class="track"><div class="fill green" style="width:${v/max*100}%"></div></div>
-      <b class="num">${fmtInt(v)}</b>
-      <span class="pct">${fmtPct(total ? v/total*100 : 0)}</span>
-    </div>
-  `).join("") || `<div class="empty">Sem dados.</div>`;
+function renderAbsenteismoFake(){
+  if($("aInsight")) $("aInsight").textContent = "Módulo de absenteísmo reservado para conexão com a base específica.";
+  if($("aTotal")) $("aTotal").textContent = "—";
+  if($("aHoras")) $("aHoras").textContent = "—";
+  if($("aGer")) $("aGer").textContent = "—";
+  if($("aNaoGer")) $("aNaoGer").textContent = "—";
+  if($("aRanking")) $("aRanking").innerHTML = `<div class="empty">Base de absenteísmo não conectada neste script.</div>`;
+  if($("aAlerts")) $("aAlerts").innerHTML = `
+    <div class="alert"><small>Status</small><b>Reservado</b><span>aguardando base de absenteísmo</span></div>
+  `;
 }
 
 function render(){
-  renderPerfil();
-  renderTerritorial();
-  renderAbsenteismo();
-  if($("updated")) $("updated").textContent = "Atualizado em: " + new Date().toLocaleString("pt-BR");
-}
+  const data = filteredRows();
 
-/* ABSENTEÍSMO */
-function absPeriods(rows){
-  return [...new Set(rows.map(r=>val(r,ABS_COL.periodo)).filter(Boolean))].sort();
-}
+  renderPerfil(data);
+  renderTerritorial(data);
+  renderAbsenteismoFake();
 
-function fmtHoras(n){
-  return (+n || 0).toLocaleString("pt-BR",{maximumFractionDigits:0});
-}
-
-function absFilterRows(){
-  if(!ABS_LOADED) return [];
-
-  const f = currentFilters();
-  const periodo = $("fAbsPeriodo")?.value || "";
-
-  return ABS_ROWS.filter(r=>{
-    if(periodo && val(r,ABS_COL.periodo) !== periodo) return false;
-    if(f.dir && val(r,ABS_COL.dir) !== f.dir && val(r,ABS_COL.dirPcm) !== f.dir) return false;
-    if(f.sup && val(r,ABS_COL.sup) !== f.sup) return false;
-    if(f.setor && val(r,ABS_COL.setor) !== f.setor && val(r,ABS_COL.setorGerencial) !== f.setor) return false;
-    return true;
-  });
-}
-
-function renderAbsenteismo(){
-  if(!ABS_LOADED) return;
-
-  if($("fAbsPeriodo")){
-    const current = $("fAbsPeriodo").value;
-    const periods = absPeriods(ABS_ROWS);
-    $("fAbsPeriodo").innerHTML = `<option value="">Todos os períodos</option>` +
-      periods.map(p=>`<option value="${p}">${p}</option>`).join("");
-    if(periods.includes(current)) $("fAbsPeriodo").value = current;
-  }
-
-  const baseRows = absFilterRows();
-
-  const totals = baseRows.reduce((acc,r)=>{
-    acc.esperadas += numberFrom(val(r,ABS_COL.esperadas));
-    acc.ger += numberFrom(val(r,ABS_COL.ger));
-    acc.nao += numberFrom(val(r,ABS_COL.nao));
-    acc.geral += numberFrom(val(r,ABS_COL.geral));
-    return acc;
-  },{esperadas:0,ger:0,nao:0,geral:0});
-
-  totals.pctGeral = totals.esperadas ? totals.geral/totals.esperadas*100 : 0;
-  totals.pctGer = totals.esperadas ? totals.ger/totals.esperadas*100 : 0;
-  totals.pctNao = totals.esperadas ? totals.nao/totals.esperadas*100 : 0;
-
-  if($("aTotal")) $("aTotal").textContent = fmtPct(totals.pctGeral);
-  if($("aHoras")) $("aHoras").textContent = fmtHoras(totals.geral);
-  if($("aGer")) $("aGer").textContent = fmtPct(totals.pctGer);
-  if($("aNaoGer")) $("aNaoGer").textContent = fmtPct(totals.pctNao);
-
-  if($("aInsight")){
-    $("aInsight").innerHTML = baseRows.length
-      ? `No recorte atual, foram identificadas <b>${fmtHoras(totals.geral)} horas perdidas</b>, equivalentes a <b>${fmtPct(totals.pctGeral)}</b> das horas esperadas.`
-      : `Sem dados de absenteísmo para o recorte atual.`;
-  }
-
-  const groups = Object.entries(groupBy(baseRows,r=>val(r,ABS_COL.gerencia) || val(r,ABS_COL.setor) || "Não informado"))
-    .map(([nome,rows])=>{
-      const t = rows.reduce((acc,r)=>{
-        acc.esperadas += numberFrom(val(r,ABS_COL.esperadas));
-        acc.ger += numberFrom(val(r,ABS_COL.ger));
-        acc.nao += numberFrom(val(r,ABS_COL.nao));
-        acc.geral += numberFrom(val(r,ABS_COL.geral));
-        return acc;
-      },{esperadas:0,ger:0,nao:0,geral:0});
-      t.nome = nome;
-      t.pctGeral = t.esperadas ? t.geral/t.esperadas*100 : 0;
-      t.pctGer = t.esperadas ? t.ger/t.esperadas*100 : 0;
-      t.pctNao = t.esperadas ? t.nao/t.esperadas*100 : 0;
-      return t;
-    })
-    .filter(g=>g.esperadas>0)
-    .sort((a,b)=>b.pctGeral-a.pctGeral);
-
-  const split = $("aSplit");
-  if(split){
-    const totalAbs = totals.ger + totals.nao || 1;
-    split.innerHTML = `
-      <div class="splitItem">
-        <div class="splitTop"><span>Composição total</span><b>${fmtHoras(totals.geral)} h</b></div>
-        <div class="stack">
-          <div class="stackG" style="width:${totals.ger/totalAbs*100}%"></div>
-          <div class="stackN" style="width:${totals.nao/totalAbs*100}%"></div>
-        </div>
-        <div class="hint" style="margin-top:10px">Gerenciável: ${fmtPct(totals.ger/totalAbs*100)} · Não gerenciável: ${fmtPct(totals.nao/totalAbs*100)}</div>
-      </div>
-    ` + groups.slice(0,5).map(g=>{
-      const t = g.ger + g.nao || 1;
-      return `
-        <div class="splitItem">
-          <div class="splitTop"><span>${g.nome}</span><b>${fmtPct(g.pctGeral)}</b></div>
-          <div class="stack">
-            <div class="stackG" style="width:${g.ger/t*100}%"></div>
-            <div class="stackN" style="width:${g.nao/t*100}%"></div>
-          </div>
-          <div class="hint" style="margin-top:10px">${fmtHoras(g.geral)} h perdidas · ${fmtHoras(g.esperadas)} h esperadas</div>
-        </div>
-      `;
-    }).join("");
-  }
-
-  const rank = $("aRanking");
-  if(rank){
-    rank.innerHTML = groups.slice(0,10).map(g=>`
-      <div class="rank">
-        <div><b>${g.nome}</b><small>${fmtHoras(g.geral)} h perdidas · ${fmtHoras(g.esperadas)} h esperadas · Ger.: ${fmtPct(g.pctGer)} · Não ger.: ${fmtPct(g.pctNao)}</small></div>
-        <span class="statusPill ${g.pctGeral>=10?'crit':g.pctGeral>=6?'att':'ok'}">${fmtPct(g.pctGeral)}</span>
-      </div>
-    `).join("") || `<div class="empty">Sem ranking disponível.</div>`;
-  }
-
-  const alerts = $("aAlerts");
-  if(alerts){
-    const acima6 = groups.filter(g=>g.pctGeral>=6).length;
-    const pred = totals.ger >= totals.nao ? "Gerenciável" : "Não gerenciável";
-
-    alerts.innerHTML = `
-      <div class="alert ${totals.pctGeral>=8?'red':totals.pctGeral>=5?'orange':'green'}">
-        <small>Taxa geral</small><b>${fmtPct(totals.pctGeral)}</b><span>absenteísmo no recorte</span>
-      </div>
-      <div class="alert orange">
-        <small>Unidades em atenção</small><b>${fmtInt(acima6)}</b><span>com taxa igual ou superior a 6%</span>
-      </div>
-      <div class="alert">
-        <small>Predominância</small><b>${pred}</b><span>maior componente das horas perdidas</span>
-      </div>
-      <div class="alert green">
-        <small>Base temporal</small><b>${fmtInt(absPeriods(baseRows).length)}</b><span>períodos encontrados no filtro atual</span>
-      </div>
-      <div class="alert">
-        <small>Próxima evolução</small><b>Custo</b><span>converter horas perdidas em impacto financeiro</span>
-      </div>
-    `;
+  if($("updated")){
+    $("updated").textContent = "Atualizado em: " + new Date().toLocaleString("pt-BR") + " · Fonte: Planilha oficial publicada";
   }
 }
 
-async function loadAbsenteismo(){
-  try{
-    const text = await fetchCsvText(ABS_CSV_URL);
-    const rows = parseCSV(text).filter(row=>Object.values(row).some(v=>clean(v)));
-    if(!rows.length) throw new Error("CSV de absenteísmo vazio.");
-
-    ABS_ROWS = rows;
-    const headers = Object.keys(rows[0]);
-
-    ABS_COL = {
-      periodo:pick(headers,["Período","Periodo"]),
-      dir:pick(headers,["DIRETORIA","Diretoria"]),
-      gerencia:pick(headers,["POR GERÊNCIA","POR GERENCIA","Gerência","Gerencia"]),
-      esperadas:pick(headers,["HORAS ESPERADAS"]),
-      ger:pick(headers,["Gerenciável","Gerenciavel"]),
-      pctGer:pick(headers,["% Gerenciável","% Gerenciavel"]),
-      nao:pick(headers,["Não Gerenciável","Nao Gerenciavel"]),
-      pctNao:pick(headers,["% Não Gerenciável","% Nao Gerenciavel"]),
-      geral:pick(headers,["Geral"]),
-      pctGeral:pick(headers,["% Geral"]),
-      setor:pick(headers,["Setor(PCM)","Setor"]),
-      sup:pick(headers,["SUPER/Coord(PCM)","SUPER Coord PCM","Super/Coord"]),
-      dirPcm:pick(headers,["Diretoria(PCM)"]),
-      setorGerencial:pick(headers,["Setor Gerencial"])
-    };
-
-    ABS_LOADED = true;
-    renderAbsenteismo();
-
-  }catch(err){
-    console.error(err);
-    ABS_LOADED = false;
-    if($("aInsight")) $("aInsight").textContent = "Não foi possível carregar o módulo de absenteísmo: " + err.message;
-  }
-}
-
-/* CARGA PRINCIPAL */
 async function loadData(){
   try{
     hideError();
 
     const text = await fetchCsvText(CSV_URL);
-    const rows = parseCSV(text).filter(row=>Object.values(row).some(v=>clean(v)));
-    if(!rows.length) throw new Error("Nenhuma linha encontrada.");
+    const rows = parseCSV(text).filter(row => Object.values(row).some(v => clean(v)));
+
+    if(!rows.length) throw new Error("CSV carregou, mas veio sem linhas.");
 
     ROWS = rows;
+
     const headers = Object.keys(ROWS[0]);
 
     COL = {
-      coddir:pick(headers,["CODDIR"]),
-      dir:pick(headers,["DIRETORIA","DIR"]),
-      sup:pick(headers,["SUPERINTENDÊNCIA","SUPERINTENDENCIA","COORDENAÇÃO","COORDENACAO","COORD"]),
-      setor:pick(headers,["SETOR","LOTAÇÃO","LOTACAO"]),
-      registro:pick(headers,["REGISTRO","MATRÍCULA","MATRICULA"]),
-      sexo:pick(headers,["SEXO"]),
-      funcaoCargo:pick(headers,["FUNCAOCARGO","FUNÇÃO CARGO","FUNCAO CARGO","CARGO"]),
-      admissao:pick(headers,["ADMISSÃO","ADMISSAO"]),
-      nascimento:pick(headers,["NASCIMENTO"]),
-      funcao:pick(headers,["FUNCAO","FUNÇÃO","FUNÇÃO EXERCIDA","FUNCAO EXERCIDA","EC"]),
-      codfreq:pick(headers,["CODFREQ"]),
-      afast:pick(headers,["AFASTAMENTO"]),
-      tipoAfastamento:pick(headers,["TIPOAFASTAMENTO","TIPO AFASTAMENTO"]),
-      descricao:pick(headers,["DESCRIÇÃO","DESCRICAO"]),
-      tipo:pick(headers,["TIPOCARGO","TIPO CARGO"]),
-      escolaridade:pick(headers,["ESCOLARIDADE"]),
-      bairroEnder:pick(headers,["BAIRROENDER","BAIRRO","BAIRRO_RES","BAIRRO RES"]),
-      cidadeEnder:pick(headers,["CIDADEENDER","CIDADE","MUNICIPIO","MUNICÍPIO","MUNICIPIO_RES"]),
-      idade:pick(headers,["IDADE","IDADEANOS","IDADE ANOS"]),
-      tempoCasaAnos:pick(headers,["TPCASAANOS","TEMPO CASA ANOS"]),
-      jornada:pick(headers,["JORNADA"]),
-      tipoSetor:pick(headers,["TIPOSETOR","TIPO SETOR"]),
-      situacao:pick(headers,["SITUAÇÃO FUNCIONAL","SITUACAO FUNCIONAL","SITUAÇÃO","SITUACAO"])
+      dir: pick(headers,["DIRETORIA","DIR"]),
+      sup: pick(headers,["SUPERINTENDÊNCIA","SUPERINTENDENCIA","COORDENAÇÃO","COORDENACAO","COORD"]),
+      setor: pick(headers,["SETOR","LOTAÇÃO","LOTACAO"]),
+      registro: pick(headers,["REGISTRO","MATRÍCULA","MATRICULA"]),
+      nome: pick(headers,["NOME","NOME DO SERVIDOR","SERVIDOR"]),
+      funcaoCargo: pick(headers,["FUNCAOCARGO","FUNÇÃO CARGO","FUNCAO CARGO","CARGO"]),
+      funcao: pick(headers,["FUNCAO","FUNÇÃO","FUNÇÃO EXERCIDA","FUNCAO EXERCIDA","EC"]),
+      codfreq: pick(headers,["CODFREQ"]),
+      afastamento: pick(headers,["AFASTAMENTO"]),
+      tipoAfastamento: pick(headers,["TIPOAFASTAMENTO","TIPO AFASTAMENTO"]),
+      descricao: pick(headers,["DESCRIÇÃO","DESCRICAO"]),
+      tipoCargo: pick(headers,["TIPOCARGO","TIPO CARGO"]),
+      tipoSetor: pick(headers,["TIPOSETOR","TIPO SETOR"]),
+      bairro: pick(headers,["BAIRROENDER","BAIRRO","BAIRRO_RES","BAIRRO RES"]),
+      cidade: pick(headers,["CIDADEENDER","CIDADE","MUNICIPIO","MUNICÍPIO","MUNICIPIO_RES"]),
+      idade: pick(headers,["IDADE","IDADEANOS","IDADE ANOS"]),
+      situacao: pick(headers,["SITUAÇÃO FUNCIONAL","SITUACAO FUNCIONAL","SITUAÇÃO","SITUACAO"])
     };
 
     if(!COL.dir) throw new Error("Coluna DIRETORIA não localizada.");
     if(!COL.setor) throw new Error("Coluna SETOR não localizada.");
+    if(!COL.idade) showError("Atenção: coluna de idade não localizada. O risco 65+ ficará N/D.");
 
-    updateFilters("");
+    updateFilters();
     render();
 
   }catch(err){
@@ -693,10 +569,10 @@ async function loadData(){
   }
 }
 
-["fDir","fSupCoord","fSetor","fCidade","fBairro","fAbsPeriodo","fAbsVisao"].forEach(id=>{
+["fDir","fSupCoord","fSetor","fCidade","fBairro"].forEach(id=>{
   document.addEventListener("change",e=>{
     if(e.target && e.target.id === id){
-      if(["fDir","fSupCoord","fSetor","fCidade","fBairro"].includes(id)) updateFilters(id);
+      updateFilters(id);
       render();
     }
   });
@@ -706,14 +582,15 @@ document.querySelectorAll(".tabBtn").forEach(btn=>{
   btn.addEventListener("click",()=>{
     document.querySelectorAll(".tabBtn").forEach(b=>b.classList.remove("active"));
     document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+
     btn.classList.add("active");
-    const target = $(btn.dataset.tab);
+
+    const targetId = btn.dataset.tab || btn.dataset.screen;
+    const target = $(targetId);
+
     if(target) target.classList.add("active");
   });
 });
 
-document.addEventListener("DOMContentLoaded",()=>{
-  loadData();
-  loadAbsenteismo();
-});
+document.addEventListener("DOMContentLoaded",loadData);
 </script>
