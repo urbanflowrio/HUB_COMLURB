@@ -1,8 +1,198 @@
-<script>
-const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRE3Q_RdpZOqc4f3O3fQirMQkEXQWyBkiIlXB6LZWgqTZbItGBHAxUHf2-0kEcALDIUfyPeK7GyBQrB/pub?gid=1371643814&single=true&output=csv";
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HUB COMLURB | Pessoas</title>
 
-let ROWS = [];
-let COL = {};
+<style>
+:root{
+  --bg:#06111f;--panel:#0d1f36;--panel2:#0a1b31;--line:#294866;
+  --text:#f7f9ff;--muted:#b8c9de;--blue:#4b86bd;--blue2:#5b9bd5;
+  --orange:#e87535;--green:#78aaa3;--red:#ef6a5d;--yellow:#ffa02b;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
+.app{max-width:1800px;margin:0 auto;padding:28px}
+.header{display:flex;align-items:center;gap:28px;padding:26px;border:1px solid var(--line);border-radius:22px;background:var(--panel2)}
+.logo{width:310px;max-height:82px;object-fit:contain;padding-right:26px;border-right:1px solid rgba(255,255,255,.28)}
+.titleBox{flex:1}
+.eyebrow{font-size:12px;font-weight:900;letter-spacing:.25em;color:#b8d4f2}
+h1{margin:6px 0;font-size:38px}.sub{color:#c7d8ee}
+.status{display:none;margin:14px 0;padding:13px;border:1px solid var(--orange);border-radius:14px;background:#1b2130;color:#ffd4b8;white-space:pre-wrap}
+.navTabs{display:flex;gap:10px;margin:16px 0 0;flex-wrap:wrap}
+.tabBtn{border:1px solid var(--line);background:#0a1b31;color:#dcecff;border-radius:999px;padding:11px 16px;font-weight:900;cursor:pointer}
+.tabBtn.active{background:linear-gradient(90deg,#2f67a5,#4b86bd);border-color:#6fa7d8;color:#fff}
+.screen{display:none}.screen.active{display:block}
+.filters{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:16px 0}
+.field{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px}
+label{display:block;font-size:10px;font-weight:900;letter-spacing:.18em;color:#b8d4f2;margin-bottom:8px}
+select,input{width:100%;background:transparent;color:#fff;border:0;font-weight:800;font-size:15px;outline:none}
+option{background:#0d1f36;color:#fff}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:14px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;min-height:120px;cursor:pointer}
+.kpi.feature{grid-column:span 2;background:linear-gradient(135deg,#0d1f36,#12365c);border-color:#4074a2}
+.kpi .label{font-size:11px;letter-spacing:.16em;color:#b8d4f2;font-weight:900;text-transform:uppercase}
+.kpi .value{font-size:34px;font-weight:950;margin:14px 0 4px}
+.kpi.feature .value{font-size:46px}.kpi .note{color:#c7d8ee;font-size:13px}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.grid2{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}
+.bottom{display:grid;grid-template-columns:1.2fr 1fr;gap:14px;margin-top:14px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:20px;min-height:320px;overflow:hidden}
+.panelHead{padding:18px;border-bottom:1px solid var(--line)}h2{margin:0;font-size:18px}
+.hint{color:#c7d8ee;font-size:13px;margin-top:5px}.body{padding:18px}
+.barRow{display:grid;grid-template-columns:150px 1fr 70px 60px;gap:10px;align-items:center;margin-bottom:12px}
+.track{height:22px;background:#132941;border-radius:4px;overflow:hidden}
+.fill{height:100%;background:linear-gradient(90deg,#2f67a5,#5b9bd5)}
+.fill.orange{background:linear-gradient(90deg,#b95023,#e87535)}
+.fill.green{background:linear-gradient(90deg,#437b76,#78aaa3)}
+.num,.pct{text-align:right;font-weight:800}
+.donutRow{display:grid;grid-template-columns:190px 1fr;gap:22px;align-items:center}
+.donut{width:180px;height:180px;border-radius:50%;background:conic-gradient(var(--blue) 0 var(--opPct),var(--orange) var(--opPct) 100%);position:relative}
+.donut:after{content:"";position:absolute;inset:52px;border-radius:50%;background:var(--panel)}
+.donutCenter{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:950}
+.legendItem{display:grid;grid-template-columns:12px 1fr auto;gap:10px;margin-bottom:18px;align-items:center}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--blue)}.dot.orange{background:var(--orange)}
+.cols{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;height:210px;align-items:end}
+.colWrap{text-align:center;height:100%;display:flex;flex-direction:column;justify-content:flex-end;gap:8px}
+.col{height:var(--h);min-height:32px;background:linear-gradient(180deg,#4b86bd,#1f5791)}
+.colVal{font-weight:900;color:#80d199}.colVal.warn{color:#ffa02b}
+.colLbl{font-size:12px;color:#d9e6f8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.alerts{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.alert{background:#132840;border-radius:16px;padding:14px;border-left:4px solid var(--blue)}
+.alert.orange{border-left-color:var(--orange)}.alert.red{border-left-color:var(--red)}.alert.green{border-left-color:var(--green)}
+.alert small{display:block;color:#a8bdd5;font-size:9px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}
+.alert b{display:block;font-size:22px;margin:8px 0}.alert span{color:#c7d8ee;font-size:12px}
+.rank{display:grid;grid-template-columns:1fr auto;gap:12px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.rank small{display:block;color:#aebfd5;margin-top:4px}
+.statusPill{border:1px solid #345978;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:900;white-space:nowrap}
+.ok{color:#83d99d}.att{color:#ffa02b}.crit{color:#ff7d72}
+.footer{margin-top:16px;color:#aebfd5;font-size:13px}
+.territoryHero{display:grid;grid-template-columns:1.4fr .6fr;gap:14px;margin-bottom:14px}
+.insightBox{background:linear-gradient(135deg,#0d1f36,#0b2748);border:1px solid var(--line);border-radius:20px;padding:22px;min-height:160px}
+.insightBox small{display:block;color:#b8d4f2;font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase}
+.insightBox b{font-size:38px;display:block;margin:10px 0}.insightBox span{color:#c7d8ee;line-height:1.5}
+.matrix{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.matrixCell{background:#132840;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px;min-height:92px}
+.matrixCell small{display:block;color:#a8bdd5;font-size:9px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}
+.matrixCell b{display:block;font-size:24px;margin-top:8px}
+.tableWrap{max-height:520px;overflow:auto}.dataTable{width:100%;border-collapse:collapse}
+.dataTable th{position:sticky;top:0;background:#102844;color:#b8d4f2;text-align:left;font-size:11px;letter-spacing:.12em;text-transform:uppercase;z-index:1}
+.dataTable td,.dataTable th{padding:12px;border-bottom:1px solid rgba(255,255,255,.08)}.dataTable td{color:#eaf3ff}
+.tag{display:inline-flex;border:1px solid #345978;border-radius:999px;padding:5px 9px;font-weight:900;font-size:12px}
+.tag.ok{border-color:#3f7d55}.tag.att{border-color:#8d6a23}.tag.crit{border-color:#8b3f38}
+.mapMock{position:relative;min-height:320px;background:radial-gradient(circle at 25% 35%,rgba(75,134,189,.55),transparent 18%),radial-gradient(circle at 62% 50%,rgba(232,117,53,.45),transparent 16%),radial-gradient(circle at 42% 72%,rgba(120,170,163,.35),transparent 18%),linear-gradient(135deg,#08192d,#102844);border-radius:18px;border:1px solid rgba(255,255,255,.08);overflow:hidden}
+.mapMock:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:34px 34px}
+.mapNote{position:absolute;left:16px;right:16px;bottom:16px;background:rgba(6,17,31,.75);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:13px;color:#d9e6f8}
+.miniList{display:grid;gap:10px}.miniItem{display:grid;grid-template-columns:1fr auto;gap:10px;background:#132840;border-radius:14px;padding:12px}
+.miniItem small{display:block;color:#aebfd5;margin-top:4px}.empty{color:#aebfd5;padding:12px 0}
+.actions{display:flex;justify-content:flex-end;gap:10px;margin:0 0 14px}
+.actionBtn{border:1px solid var(--line);background:#0a1b31;color:#fff;border-radius:12px;padding:10px 14px;font-weight:900;cursor:pointer}
+@media(max-width:1280px){.filters{grid-template-columns:repeat(3,1fr)}.territoryHero,.grid2{grid-template-columns:1fr}.kpi.feature{grid-column:span 1}}
+@media(max-width:1100px){.filters{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}.grid,.bottom{grid-template-columns:1fr}.alerts{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:720px){.app{padding:14px}.header{flex-direction:column;align-items:flex-start}.logo{width:220px;border-right:0;padding-right:0}.kpis,.alerts,.matrix{grid-template-columns:1fr}h1{font-size:32px}.barRow{grid-template-columns:1fr}.num,.pct{text-align:left}.donutRow{grid-template-columns:1fr}}
+</style>
+</head>
+
+<body>
+<div class="app">
+<header class="header">
+  <img class="logo" src="../assets/logos/RIOPREFEITURA Comlurb horizontal monocromatica branco.png" alt="COMLURB" onerror="this.style.display='none'">
+  <div class="titleBox">
+    <div class="eyebrow">HUB COMLURB</div>
+    <h1>Pessoas</h1>
+    <div class="sub">Inteligência Operacional · R54, organograma, perfil funcional e território</div>
+  </div>
+</header>
+
+<div id="status" class="status"></div>
+
+<nav class="navTabs">
+  <button class="tabBtn active" data-tab="perfil">Visão Executiva</button>
+  <button class="tabBtn" data-tab="territorial">Território</button>
+  <button class="tabBtn" data-tab="analitico">Analítico</button>
+</nav>
+
+<section class="filters">
+  <div class="field"><label>Diretoria</label><select id="fDir"><option value="">Todas</option></select></div>
+  <div class="field"><label>Coordenação / Super</label><select id="fSupCoord"><option value="">Todas</option></select></div>
+  <div class="field"><label>Gerência</label><select id="fGerencia"><option value="">Todas</option></select></div>
+  <div class="field"><label>Setor</label><select id="fSetor"><option value="">Todos</option></select></div>
+  <div class="field"><label>Busca</label><input id="fBusca" placeholder="registro, nome, cargo, EC ou bairro"></div>
+</section>
+
+<main id="perfil" class="screen active">
+  <section class="kpis">
+    <div class="kpi feature"><div class="label">Efetivo Total</div><div class="value" id="kTotal">0</div><div class="note">empregados no recorte atual</div></div>
+    <div class="kpi"><div class="label">Ativos</div><div class="value" id="kAtivos">0</div><div class="note" id="nAtivos">—</div></div>
+    <div class="kpi"><div class="label">Afastados</div><div class="value" id="kAfast">0</div><div class="note" id="nAfast">—</div></div>
+    <div class="kpi"><div class="label">Risco 65+</div><div class="value" id="kRisco">0</div><div class="note" id="nRisco">idade maior ou igual a 65 anos</div></div>
+    <div class="kpi"><div class="label">Atuam em EC</div><div class="value" id="kEC">0</div><div class="note" id="nEC">sem Encarregado I a IV</div></div>
+  </section>
+
+  <section class="grid">
+    <div class="panel"><div class="panelHead"><h2>Efetivo por Diretoria</h2><div class="hint">Distribuição do efetivo no recorte selecionado</div></div><div class="body" id="dirBars"></div></div>
+    <div class="panel"><div class="panelHead"><h2>Composição funcional</h2><div class="hint">Função cargo x atuação em EC</div></div><div class="body">
+      <div class="donutRow"><div id="donut" class="donut" style="--opPct:0%"><div class="donutCenter" id="donutPct">0%</div></div>
+      <div><div class="legendItem"><span class="dot"></span><span>Atuam em EC</span><b id="ecQtd">0</b></div><div class="legendItem"><span class="dot orange"></span><span>Atuam na função cargo</span><b id="cargoQtd">0</b></div><div class="hint" id="compHint">—</div></div></div>
+    </div></div>
+    <div class="panel"><div class="panelHead"><h2>Atividade por Diretoria</h2><div class="hint">% de ativos por diretoria</div></div><div class="body"><div id="activityCols" class="cols"></div></div></div>
+  </section>
+
+  <section class="bottom">
+    <div class="panel"><div class="panelHead"><h2>Alertas executivos</h2><div class="hint">Sinais principais do recorte atual</div></div><div class="body"><div id="alerts" class="alerts"></div></div></div>
+    <div class="panel"><div class="panelHead"><h2>Ranking de atenção</h2><div class="hint">Setores com maior pressão por afastamento e reposição</div></div><div class="body" id="ranking"></div></div>
+  </section>
+</main>
+
+<main id="territorial" class="screen">
+  <section class="territoryHero">
+    <div class="insightBox"><small>Leitura territorial</small><b id="tForaRioHero">0%</b><span id="tInsight">Carregando análise territorial...</span></div>
+    <div class="matrix">
+      <div class="matrixCell"><small>Base georreferenciada</small><b id="tEfetivoGeo">0</b></div>
+      <div class="matrixCell"><small>Dentro do Rio</small><b id="tDentroRio">0%</b></div>
+      <div class="matrixCell"><small>Status predominante</small><b id="tStatusRes">—</b></div>
+      <div class="matrixCell"><small>Bairro destaque</small><b id="tTopBairro">—</b></div>
+    </div>
+  </section>
+
+  <section class="grid2">
+    <div class="panel"><div class="panelHead"><h2>Mapa conceitual</h2><div class="hint">Usa BAIRRO_RES, BAIRRO_TRABALHO e coordenadas disponíveis</div></div><div class="body">
+      <div class="mapMock"><div class="mapNote"><b>Distribuição territorial</b><span id="mapNote">Pontos de residência e trabalho serão analisados quando LAT/LONG estiverem preenchidos na base.</span></div></div>
+    </div></div>
+    <div class="panel"><div class="panelHead"><h2>Top concentrações</h2><div class="hint">Bairros de residência e trabalho</div></div><div class="body"><div id="tTopList" class="miniList"></div></div></div>
+  </section>
+
+  <section class="bottom">
+    <div class="panel"><div class="panelHead"><h2>Bairros de residência</h2><div class="hint">BAIRRO_RES</div></div><div class="body" id="tBairroResBars"></div></div>
+    <div class="panel"><div class="panelHead"><h2>Bairros de trabalho</h2><div class="hint">BAIRRO_TRABALHO</div></div><div class="body" id="tBairroTrabBars"></div></div>
+  </section>
+</main>
+
+<main id="analitico" class="screen">
+  <div class="actions"><button class="actionBtn" id="btnExport">Exportar Excel/CSV</button></div>
+  <section class="panel">
+    <div class="panelHead"><h2>Base analítica</h2><div class="hint">R54 enriquecido com organograma oficial pelo SETOR</div></div>
+    <div class="body tableWrap">
+      <table class="dataTable">
+        <thead><tr><th>Registro</th><th>Nome</th><th>Diretoria</th><th>Coordenação</th><th>Gerência</th><th>Setor</th><th>Função Cargo</th><th>Função EC</th><th>Atuação</th><th>Idade</th><th>Bairro Res.</th><th>Bairro Trab.</th><th>Status Res.</th></tr></thead>
+        <tbody id="tTable"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<div id="updated" class="footer">Atualizado em: carregando...</div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+const CSV_R54 = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRE3Q_RdpZOqc4f3O3fQirMQkEXQWyBkiIlXB6LZWgqTZbItGBHAxUHf2-0kEcALDIUfyPeK7GyBQrB/pub?gid=1371643814&single=true&output=csv";
+const CSV_ORG = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTrmMaCLJp2MfkkqRqORG88xbz4d97_-S8sm1B9zXhza1Q8EHS5cPfHZI_TAFz-PdRola-TtAeywnuc/pub?output=csv";
+
+let R54 = [], ORG = [], DATA = [], COL = {}, ORGCOL = {}, ORG_BY_SETOR = new Map();
 
 const $ = id => document.getElementById(id);
 const clean = v => (v ?? "").toString().trim();
@@ -10,615 +200,315 @@ const norm = v => clean(v).normalize("NFD").replace(/[\u0300-\u036f]/g,"").repla
 const fmtInt = n => (+n || 0).toLocaleString("pt-BR");
 const fmtPct = n => (+n || 0).toLocaleString("pt-BR",{minimumFractionDigits:1,maximumFractionDigits:1}) + "%";
 
-window.addEventListener("error", e => showError("Erro no painel: " + e.message));
+window.addEventListener("error", e => showError("Erro no painel: " + e.message + "\nLinha: " + e.lineno));
+window.addEventListener("unhandledrejection", e => showError("Erro ao carregar dados: " + (e.reason?.message || e.reason || e)));
 
 function showError(msg){
   const el = $("status");
-  if(el){
-    el.style.display = "block";
-    el.textContent = msg;
-  }
+  if(el){ el.style.display = "block"; el.textContent = msg; }
 }
+function hideError(){ if($("status")) $("status").style.display = "none"; }
 
-function hideError(){
-  const el = $("status");
-  if(el) el.style.display = "none";
-}
-
-async function fetchCsvText(url){
-  const directUrl = url + (url.includes("?") ? "&" : "?") + "cachebuster=" + Date.now();
-
+async function fetchText(url){
+  const direct = url + (url.includes("?") ? "&" : "?") + "cb=" + Date.now();
   const attempts = [
-    directUrl,
-    "https://api.allorigins.win/raw?url=" + encodeURIComponent(directUrl),
-    "https://corsproxy.io/?" + encodeURIComponent(directUrl)
+    direct,
+    "https://api.allorigins.win/raw?url=" + encodeURIComponent(direct),
+    "https://corsproxy.io/?" + encodeURIComponent(direct)
   ];
-
-  let lastError = "";
-
-  for(const attempt of attempts){
+  let last = "";
+  for(const u of attempts){
     try{
-      const res = await fetch(attempt,{cache:"no-store"});
-      if(!res.ok) throw new Error("HTTP " + res.status);
-      const text = await res.text();
-      if(text && text.trim().length > 20) return text;
-    }catch(e){
-      lastError = e.message;
-    }
+      const r = await fetch(u,{cache:"no-store"});
+      if(!r.ok) throw new Error("HTTP " + r.status);
+      const t = await r.text();
+      if(t.trim().length > 30) return t;
+    }catch(e){ last = e.message; }
   }
-
-  throw new Error(lastError || "não foi possível carregar o CSV");
-}
-
-function splitCSVLine(line){
-  const result = [];
-  let current = "";
-  let insideQuotes = false;
-
-  for(let i=0;i<line.length;i++){
-    const char = line[i];
-    const next = line[i+1];
-
-    if(char === '"' && insideQuotes && next === '"'){
-      current += '"';
-      i++;
-    }else if(char === '"'){
-      insideQuotes = !insideQuotes;
-    }else if(char === "," && !insideQuotes){
-      result.push(current);
-      current = "";
-    }else{
-      current += char;
-    }
-  }
-
-  result.push(current);
-  return result;
+  throw new Error(last || "falha ao buscar CSV");
 }
 
 function parseCSV(text){
-  const lines = text.replace(/\r/g,"").split("\n").filter(l => l.trim());
-  const headers = splitCSVLine(lines[0]).map(h => h.trim());
-
-  return lines.slice(1).map(line => {
-    const values = splitCSVLine(line);
-    const obj = {};
-    headers.forEach((h,i) => obj[h] = values[i] ?? "");
+  const lines = text.replace(/^\uFEFF/,"").replace(/\r/g,"").split("\n").filter(l=>l.trim().length);
+  const sep = (lines[0].match(/;/g)||[]).length > (lines[0].match(/,/g)||[]).length ? ";" : ",";
+  const parseLine = line => {
+    const out=[]; let cur="", q=false;
+    for(let i=0;i<line.length;i++){
+      const ch=line[i], nx=line[i+1];
+      if(ch==='"' && q && nx==='"'){cur+='"';i++;}
+      else if(ch==='"'){q=!q;}
+      else if(ch===sep && !q){out.push(cur);cur="";}
+      else cur+=ch;
+    }
+    out.push(cur); return out.map(x=>x.trim());
+  };
+  const headers = parseLine(lines[0]);
+  return lines.slice(1).map(line=>{
+    const vals = parseLine(line); const obj={};
+    headers.forEach((h,i)=>obj[h]=vals[i]??"");
     return obj;
   });
 }
 
-function pick(headers,names){
-  const mapped = headers.map(h => ({original:h, normalized:norm(h)}));
-
-  for(const name of names){
-    const found = mapped.find(h => h.normalized === norm(name));
-    if(found) return found.original;
-  }
-
-  for(const name of names){
-    const n = norm(name);
-    const found = mapped.find(h => h.normalized.includes(n) || n.includes(h.normalized));
-    if(found) return found.original;
-  }
-
+function pick(headers, names){
+  const hs = headers.map(h=>({o:h,n:norm(h)}));
+  for(const name of names){ const f=hs.find(h=>h.n===norm(name)); if(f) return f.o; }
+  for(const name of names){ const nn=norm(name); const f=hs.find(h=>h.n.includes(nn)||nn.includes(h.n)); if(f) return f.o; }
   return null;
 }
+function v(row,col){ return col ? clean(row[col]) : ""; }
+function numberFrom(x){ const m=clean(x).replace(",",".").match(/-?\d+(\.\d+)?/); return m ? Number(m[0]) : 0; }
+function idade(r){ return numberFrom(v(r,COL.idade)); }
 
-function val(row,col){
-  return col ? clean(row[col]) : "";
+function setupColumns(){
+  const h = Object.keys(R54[0] || {});
+  COL = {
+    registro: pick(h,["REGISTRO","MATRICULA","MATRÍCULA"]),
+    nome: pick(h,["NOME","NOME DO SERVIDOR","SERVIDOR"]),
+    setor: pick(h,["SETOR","LOTACAO","LOTAÇÃO"]),
+    funcaoCargo: pick(h,["FUNCAOCARGO","FUNÇÃO CARGO","FUNCAO CARGO","CARGO"]),
+    funcaoEC: pick(h,["FUNCAO_EC","FUNÇÃO_EC","FUNÇÃO EC","FUNCAO EC","FUNÇÃO EXERCIDA","FUNCAO EXERCIDA"]),
+    situacao: pick(h,["SITUAÇÃO FUNCIONAL","SITUACAO FUNCIONAL","SITUACAO","SITUAÇÃO"]),
+    idade: pick(h,["IDADE","IDADEANOS","IDADE ANOS"]),
+    afast: pick(h,["AFASTAMENTO","TIPOAFASTAMENTO","TIPO AFASTAMENTO","CODFREQ"]),
+    bairroRes: pick(h,["BAIRRO_RES","BAIRRO RES","BAIRROENDER","BAIRRO"]),
+    bairroTrab: pick(h,["BAIRRO_TRABALHO","BAIRRO TRABALHO","BAIRRO_TRAB","BAIRRO TRAB"]),
+    latRes: pick(h,["LAT_RES","LATITUDE_RES","LAT RES","LATITUDE RES"]),
+    lonRes: pick(h,["LON_RES","LONG_RES","LONGITUDE_RES","LON RES","LONGITUDE RES"]),
+    latTrab: pick(h,["LAT_TRAB","LAT_TRABALHO","LATITUDE_TRABALHO","LATITUDE TRABALHO"]),
+    lonTrab: pick(h,["LON_TRAB","LONG_TRAB","LONGITUDE_TRABALHO","LONGITUDE TRABALHO"]),
+    statusRes: pick(h,["STATUS_RES","STATUS RES","STATUS_RESIDENCIA","STATUS RESIDENCIA"])
+  };
+
+  const oh = Object.keys(ORG[0] || {});
+  ORGCOL = {
+    setor: pick(oh,["SETOR","SETOR OFICIAL","LOTAÇÃO","LOTACAO"]),
+    dir: pick(oh,["DIRETORIA","DIR"]),
+    coord: pick(oh,["COORDENAÇÃO","COORDENACAO","SUPERINTENDÊNCIA","SUPERINTENDENCIA","COORD"]),
+    ger: pick(oh,["GERÊNCIA","GERENCIA"])
+  };
+
+  ORG_BY_SETOR = new Map();
+  ORG.forEach(o=>{
+    const setor = norm(v(o,ORGCOL.setor));
+    if(setor) ORG_BY_SETOR.set(setor,o);
+  });
 }
 
-function num(v){
-  let s = clean(v).replace(/[^0-9,.-]/g,"");
-  if(s.includes(",") && s.includes(".")) s = s.replace(/\./g,"").replace(",",".");
-  else s = s.replace(",",".");
-  return parseFloat(s) || 0;
+function enrich(){
+  DATA = R54.map(r=>{
+    const org = ORG_BY_SETOR.get(norm(v(r,COL.setor))) || {};
+    return {r, org};
+  });
 }
 
-function idade(row){
-  return num(val(row,COL.idade));
+function dirVal(x){ return v(x.org,ORGCOL.dir) || "Não informado"; }
+function coordVal(x){ return v(x.org,ORGCOL.coord) || "Não informado"; }
+function gerVal(x){ return v(x.org,ORGCOL.ger) || "Não informado"; }
+function setorVal(x){ return v(x.r,COL.setor) || "Não informado"; }
+function bairroResVal(x){ return v(x.r,COL.bairroRes) || "Não informado"; }
+function bairroTrabVal(x){ return v(x.r,COL.bairroTrab) || "Não informado"; }
+function statusResVal(x){ return v(x.r,COL.statusRes) || "Não informado"; }
+
+function isAfastado(x){
+  const s = norm([v(x.r,COL.situacao), v(x.r,COL.afast)].join(" "));
+  return s.includes("AFAST") || s.includes("LICEN") || s.includes("CEDID") || s.includes("SUSPENS") || s.includes("INSS");
 }
 
-function isRio(cidade){
-  const c = norm(cidade);
-  return c === "RIO DE JANEIRO" || c === "RIO";
+function isEncarregado1234(ec){
+  const e = norm(ec).replace(/\s+/g," ");
+  return e.includes("ENCARREGADO I") || e.includes("ENCARREGADO II") || e.includes("ENCARREGADO III") || e.includes("ENCARREGADO IV") || e === "ENCARREGADO";
 }
 
-function cidadeVal(row){
-  return val(row,COL.cidade) || "Não informado";
+function atuaEmEC(x){
+  const ec = v(x.r,COL.funcaoEC);
+  const cargo = v(x.r,COL.funcaoCargo);
+  if(!ec) return false;
+  if(isEncarregado1234(ec)) return false;
+  return norm(ec) !== norm(cargo);
 }
+function atuacaoLabel(x){ return atuaEmEC(x) ? "Atua em EC" : "Atua na função cargo"; }
 
-function bairroVal(row){
-  return val(row,COL.bairro) || "Não informado";
-}
-
-function supVal(row){
-  return val(row,COL.sup) || "Não informado";
-}
-
-function isAfastado(row){
-  const s = norm([
-    val(row,COL.situacao),
-    val(row,COL.afastamento),
-    val(row,COL.tipoAfastamento),
-    val(row,COL.codfreq),
-    val(row,COL.descricao)
-  ].join(" "));
-
-  if(!s) return false;
-
-  return s.includes("AFAST") ||
-         s.includes("LICEN") ||
-         s.includes("CEDID") ||
-         s.includes("SUSPENS") ||
-         s.includes("INSS") ||
-         s.includes("READAPT") ||
-         s.includes("RESTRI");
-}
-
-function isOperacional(row){
-  const s = norm([
-    val(row,COL.funcaoCargo),
-    val(row,COL.funcao),
-    val(row,COL.tipoCargo),
-    val(row,COL.tipoSetor),
-    val(row,COL.descricao)
-  ].join(" "));
-
-  return s.includes("GARI") ||
-         s.includes("MOTOR") ||
-         s.includes("OPER") ||
-         s.includes("COLETA") ||
-         s.includes("LIMP") ||
-         s.includes("FISCAL") ||
-         s.includes("AGENTE");
-}
-
-function groupBy(arr,fn){
-  return arr.reduce((acc,row)=>{
-    const key = fn(row) || "Não informado";
-    if(!acc[key]) acc[key] = [];
-    acc[key].push(row);
-    return acc;
-  },{});
-}
-
-function topEntries(obj,limit=10){
-  return Object.entries(obj).sort((a,b)=>b[1]-a[1]).slice(0,limit);
-}
-
-function fillSelect(id,values,label){
-  const el = $(id);
-  if(!el) return;
-
-  const current = el.value;
-  const unique = [...new Set(values.filter(Boolean))]
-    .sort((a,b)=>a.localeCompare(b,"pt-BR"));
-
-  el.innerHTML = `<option value="">${label}</option>` +
-    unique.map(v => `<option value="${String(v).replaceAll('"',"&quot;")}">${v}</option>`).join("");
-
-  if(unique.includes(current)) el.value = current;
+function group(arr, fn){
+  const m = new Map();
+  arr.forEach(x=>{
+    const k = fn(x) || "Não informado";
+    m.set(k,(m.get(k)||0)+1);
+  });
+  return [...m.entries()].sort((a,b)=>b[1]-a[1]);
 }
 
 function currentFilters(){
   return {
-    dir: $("fDir")?.value || "",
-    sup: $("fSupCoord")?.value || "",
-    setor: $("fSetor")?.value || "",
-    cidade: $("fCidade")?.value || "",
-    bairro: $("fBairro")?.value || ""
+    dir:$("fDir").value, coord:$("fSupCoord").value, ger:$("fGerencia").value,
+    setor:$("fSetor").value, busca:norm($("fBusca").value)
   };
 }
-
-function rowPass(row,f,ignore=""){
-  if(ignore !== "dir" && f.dir && val(row,COL.dir) !== f.dir) return false;
-  if(ignore !== "sup" && f.sup && supVal(row) !== f.sup) return false;
-  if(ignore !== "setor" && f.setor && val(row,COL.setor) !== f.setor) return false;
-  if(ignore !== "cidade" && f.cidade && cidadeVal(row) !== f.cidade) return false;
-  if(ignore !== "bairro" && f.bairro && bairroVal(row) !== f.bairro) return false;
+function rowPass(x,f,ignore=""){
+  if(ignore!=="dir" && f.dir && dirVal(x)!==f.dir) return false;
+  if(ignore!=="coord" && f.coord && coordVal(x)!==f.coord) return false;
+  if(ignore!=="ger" && f.ger && gerVal(x)!==f.ger) return false;
+  if(ignore!=="setor" && f.setor && setorVal(x)!==f.setor) return false;
+  if(f.busca){
+    const txt = norm([v(x.r,COL.registro),v(x.r,COL.nome),setorVal(x),v(x.r,COL.funcaoCargo),v(x.r,COL.funcaoEC),bairroResVal(x),bairroTrabVal(x)].join(" "));
+    if(!txt.includes(f.busca)) return false;
+  }
   return true;
 }
+function filtered(){ const f=currentFilters(); return DATA.filter(x=>rowPass(x,f)); }
 
-function filteredRows(){
-  const f = currentFilters();
-  return ROWS.filter(r => rowPass(r,f));
+function fillSelect(id, values, label){
+  const el=$(id); const cur=el.value;
+  const vals=[...new Set(values.filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt-BR"));
+  el.innerHTML = `<option value="">${label}</option>` + vals.map(v=>`<option value="${String(v).replaceAll('"',"&quot;")}">${v}</option>`).join("");
+  if(vals.includes(cur)) el.value=cur;
+}
+function updateFilters(changed){
+  if(changed==="fDir"){ $("fSupCoord").value=""; $("fGerencia").value=""; $("fSetor").value=""; }
+  if(changed==="fSupCoord"){ $("fGerencia").value=""; $("fSetor").value=""; }
+  if(changed==="fGerencia"){ $("fSetor").value=""; }
+  const f=currentFilters();
+  fillSelect("fDir", DATA.filter(x=>rowPass(x,f,"dir")).map(dirVal), "Todas");
+  fillSelect("fSupCoord", DATA.filter(x=>rowPass(x,f,"coord")).map(coordVal), "Todas");
+  fillSelect("fGerencia", DATA.filter(x=>rowPass(x,f,"ger")).map(gerVal), "Todas");
+  fillSelect("fSetor", DATA.filter(x=>rowPass(x,f,"setor")).map(setorVal), "Todos");
 }
 
-function updateFilters(changed=""){
-  if(changed === "fDir"){
-    if($("fSupCoord")) $("fSupCoord").value = "";
-    if($("fSetor")) $("fSetor").value = "";
-  }
-
-  if(changed === "fSupCoord"){
-    if($("fSetor")) $("fSetor").value = "";
-  }
-
-  const f = currentFilters();
-
-  fillSelect("fDir", ROWS.filter(r=>rowPass(r,f,"dir")).map(r=>val(r,COL.dir)), "Todas");
-  fillSelect("fSupCoord", ROWS.filter(r=>rowPass(r,f,"sup")).map(supVal), "Todas");
-  fillSelect("fSetor", ROWS.filter(r=>rowPass(r,f,"setor")).map(r=>val(r,COL.setor)), "Todos");
-  fillSelect("fCidade", ROWS.filter(r=>rowPass(r,f,"cidade")).map(cidadeVal), "Todas");
-  fillSelect("fBairro", ROWS.filter(r=>rowPass(r,f,"bairro")).map(bairroVal), "Todos");
-}
-
-function renderBars(id,rows,total,cls=""){
-  const el = $(id);
-  if(!el) return;
-
-  const max = rows[0]?.[1] || 1;
-
-  el.innerHTML = rows.map(([k,v]) => `
+function renderBars(id, rows, total, cls=""){
+  const el=$(id); if(!el) return;
+  const max=rows[0]?.[1]||1;
+  el.innerHTML = rows.map(([k,n])=>`
     <div class="barRow">
       <span title="${k}">${k}</span>
-      <div class="track"><div class="fill ${cls}" style="width:${v/max*100}%"></div></div>
-      <b class="num">${fmtInt(v)}</b>
-      <span class="pct">${fmtPct(total ? v/total*100 : 0)}</span>
-    </div>
-  `).join("") || `<div class="empty">Sem dados.</div>`;
-}
-
-function renderPerfil(data){
-  const total = data.length;
-  const afastados = data.filter(isAfastado).length;
-  const ativos = total - afastados;
-  const operacionais = data.filter(isOperacional).length;
-  const administrativos = total - operacionais;
-
-  const idades = data.map(idade).filter(n => n > 0);
-  const risco65 = idades.filter(n => n >= 65).length;
-
-  const pctAtivos = total ? ativos/total*100 : 0;
-  const pctAfast = total ? afastados/total*100 : 0;
-  const pctOper = total ? operacionais/total*100 : 0;
-  const pctRisco = idades.length ? risco65/idades.length*100 : 0;
-
-  if($("kTotal")) $("kTotal").textContent = fmtInt(total);
-  if($("kAtivos")) $("kAtivos").textContent = fmtInt(ativos);
-  if($("kAfast")) $("kAfast").textContent = fmtInt(afastados);
-  if($("kRisco")) $("kRisco").textContent = idades.length ? fmtPct(pctRisco) : "N/D";
-  if($("kLaudos")) $("kLaudos").textContent = "—";
-
-  if($("nAtivos")) $("nAtivos").textContent = fmtPct(pctAtivos) + " disponíveis";
-  if($("nAfast")) $("nAfast").textContent = fmtPct(pctAfast) + " do total";
-  if($("nRisco")) $("nRisco").textContent = idades.length ? fmtInt(risco65) + " empregados com 65 anos ou mais" : "idade não localizada";
-
-  if($("opQtd")) $("opQtd").textContent = fmtInt(operacionais);
-  if($("admQtd")) $("admQtd").textContent = fmtInt(administrativos);
-  if($("donutPct")) $("donutPct").textContent = fmtPct(pctOper);
-  if($("donut")) $("donut").style.setProperty("--opPct", pctOper + "%");
-  if($("compHint")) $("compHint").textContent = pctOper >= 60 ? "Predominância operacional coerente com a atividade-fim." : "Maior peso relativo administrativo no recorte.";
-
-  const dirRows = Object.entries(groupBy(data,r=>val(r,COL.dir)))
-    .map(([k,v])=>[k,v.length])
-    .sort((a,b)=>b[1]-a[1])
-    .slice(0,6);
-
-  renderBars("dirBars",dirRows,total);
-
-  const activityRows = Object.entries(groupBy(data,r=>val(r,COL.dir)))
-    .map(([k,v])=>{
-      const af = v.filter(isAfastado).length;
-      const at = v.length - af;
-      return [k,v.length ? at/v.length*100 : 0];
-    })
-    .sort((a,b)=>b[1]-a[1])
-    .slice(0,6);
-
-  const activity = $("activityCols");
-  if(activity){
-    activity.innerHTML = activityRows.map(([k,p])=>`
-      <div class="colWrap">
-        <div class="colVal ${p<80 ? "warn" : ""}">${fmtPct(p)}</div>
-        <div class="col" style="--h:${Math.max(20,p)}%"></div>
-        <div class="colLbl" title="${k}">${k}</div>
-      </div>
-    `).join("") || `<div class="empty">Sem dados.</div>`;
-  }
-
-  const alerts = $("alerts");
-  if(alerts){
-    alerts.innerHTML = `
-      <div class="alert ${pctAfast>=20?"red":pctAfast>=10?"orange":"green"}">
-        <small>Pressão operacional</small>
-        <b>${fmtPct(pctAfast)}</b>
-        <span>afastamento geral no filtro atual</span>
-      </div>
-      <div class="alert ${pctRisco>=15?"red":pctRisco>=8?"orange":"green"}">
-        <small>Risco de reposição</small>
-        <b>${idades.length ? fmtPct(pctRisco) : "N/D"}</b>
-        <span>quadro com 65 anos ou mais</span>
-      </div>
-      <div class="alert green">
-        <small>Estrutura funcional</small>
-        <b>${fmtPct(pctOper)}</b>
-        <span>concentração operacional</span>
-      </div>
-      <div class="alert">
-        <small>Laudos / Restrições</small>
-        <b>—</b>
-        <span>em implantação</span>
-      </div>
-      <div class="alert">
-        <small>Base filtrada</small>
-        <b>${fmtInt(total)}</b>
-        <span>empregados no recorte selecionado</span>
-      </div>
-    `;
-  }
-
-  const ranking = $("ranking");
-  if(ranking){
-    const rows = Object.entries(groupBy(data,r=>val(r,COL.dir)))
-      .map(([k,v])=>{
-        const af = v.filter(isAfastado).length;
-        const at = v.length - af;
-        const pct = v.length ? at/v.length*100 : 0;
-        return {k,total:v.length,ativos:at,afastados:af,pct};
-      })
-      .filter(x=>x.total>=5)
-      .sort((a,b)=>a.pct-b.pct)
-      .slice(0,5);
-
-    ranking.innerHTML = rows.map(r=>`
-      <div class="rank">
-        <div>
-          <b>${r.k}</b>
-          <small>${fmtInt(r.ativos)} ativos · ${fmtInt(r.afastados)} afastados · ${fmtPct(r.pct)} atividade</small>
-        </div>
-        <span class="statusPill ${r.pct<75?"crit":r.pct<85?"att":"ok"}">${r.pct<75?"Crítico":r.pct<85?"Atenção":"Monitorar"}</span>
-      </div>
-    `).join("") || `<div class="empty">Sem ranking disponível.</div>`;
-  }
-}
-
-function renderTerritorial(data){
-  const geo = data.filter(r => cidadeVal(r) !== "Não informado");
-  const total = geo.length;
-  const fora = geo.filter(r => !isRio(cidadeVal(r))).length;
-  const dentro = total - fora;
-
-  const pctFora = total ? fora/total*100 : 0;
-  const pctDentro = total ? dentro/total*100 : 0;
-
-  const cidadeCount = {};
-  const bairroCount = {};
-  const bairroRJCount = {};
-
-  geo.forEach(r=>{
-    const c = cidadeVal(r);
-    const b = bairroVal(r);
-    cidadeCount[c] = (cidadeCount[c] || 0) + 1;
-    bairroCount[b] = (bairroCount[b] || 0) + 1;
-    if(isRio(c)) bairroRJCount[b] = (bairroRJCount[b] || 0) + 1;
-  });
-
-  const topCidadeExt = topEntries(Object.fromEntries(Object.entries(cidadeCount).filter(([c])=>!isRio(c))),1)[0];
-  const topBairroRJ = topEntries(bairroRJCount,1)[0] || topEntries(bairroCount,1)[0];
-
-  if($("tForaRioHero")) $("tForaRioHero").textContent = fmtPct(pctFora);
-  if($("tEfetivoGeo")) $("tEfetivoGeo").textContent = fmtInt(total);
-  if($("tDentroRio")) $("tDentroRio").textContent = fmtPct(pctDentro);
-  if($("tTopCidade")) $("tTopCidade").textContent = topCidadeExt ? topCidadeExt[0] : "—";
-  if($("tTopBairro")) $("tTopBairro").textContent = topBairroRJ ? topBairroRJ[0] : "—";
-  if($("tInsight")) $("tInsight").textContent = `${fmtPct(pctFora)} dos empregados com cidade informada residem fora do município do Rio.`;
-
-  const tTopList = $("tTopList");
-  if(tTopList){
-    const cidades = topEntries(cidadeCount,5);
-    const bairros = topEntries(bairroCount,5);
-
-    tTopList.innerHTML =
-      cidades.map(([k,v])=>`
-        <div class="miniItem">
-          <div><b>${k}</b><small>Município de moradia</small></div>
-          <b>${fmtInt(v)}</b>
-        </div>
-      `).join("") +
-      bairros.map(([k,v])=>`
-        <div class="miniItem">
-          <div><b>${k}</b><small>Bairro de moradia</small></div>
-          <b>${fmtInt(v)}</b>
-        </div>
-      `).join("");
-  }
-
-  renderBars("tCidadeBars",topEntries(cidadeCount,12),total,"green");
-  renderBars("tBairroBars",topEntries(bairroCount,12),total,"green");
-
-  const tRankingSetor = $("tRankingSetor");
-  if(tRankingSetor){
-    const rows = Object.entries(groupBy(geo,r=>val(r,COL.setor)))
-      .map(([k,v])=>{
-        const fora = v.filter(r=>!isRio(cidadeVal(r))).length;
-        const pct = v.length ? fora/v.length*100 : 0;
-        return {k,total:v.length,fora,pct};
-      })
-      .filter(x=>x.total>=5)
-      .sort((a,b)=>b.pct-a.pct)
-      .slice(0,10);
-
-    tRankingSetor.innerHTML = rows.map(r=>`
-      <div class="rank">
-        <div>
-          <b>${r.k}</b>
-          <small>${fmtInt(r.fora)} de ${fmtInt(r.total)} empregados residem fora do Rio</small>
-        </div>
-        <span class="statusPill ${r.pct>=40?"crit":r.pct>=20?"att":"ok"}">${fmtPct(r.pct)}</span>
-      </div>
-    `).join("") || `<div class="empty">Sem ranking territorial disponível.</div>`;
-  }
-
-  const tExecutiveRead = $("tExecutiveRead");
-  if(tExecutiveRead){
-    tExecutiveRead.innerHTML = `
-      <div class="alert ${pctFora>=30?"orange":"green"}">
-        <small>Moradia fora do Rio</small>
-        <b>${fmtPct(pctFora)}</b>
-        <span>impacto potencial em deslocamento</span>
-      </div>
-      <div class="alert">
-        <small>Maior concentração</small>
-        <b>${topEntries(cidadeCount,1)[0]?.[0] || "—"}</b>
-        <span>município com maior volume</span>
-      </div>
-      <div class="alert">
-        <small>Bairro destaque</small>
-        <b>${topBairroRJ ? topBairroRJ[0] : "—"}</b>
-        <span>bairro mais frequente</span>
-      </div>
-      <div class="alert green">
-        <small>Uso gerencial</small>
-        <b>Realocação</b>
-        <span>apoio à análise casa x setor</span>
-      </div>
-    `;
-  }
-
-  const tTable = $("tTable");
-  if(tTable){
-    tTable.innerHTML = geo.slice(0,500).map(r=>{
-      const cidade = cidadeVal(r);
-      const risco = isRio(cidade) ? "Baixo" : "Atenção";
-      return `
-        <tr>
-          <td>${val(r,COL.dir)}</td>
-          <td>${supVal(r)}</td>
-          <td>${val(r,COL.setor)}</td>
-          <td>${cidade}</td>
-          <td>${bairroVal(r)}</td>
-          <td>${isAfastado(r) ? "Afastado" : "Ativo"}</td>
-          <td><span class="tag ${risco==="Atenção"?"att":"ok"}">${risco}</span></td>
-        </tr>
-      `;
-    }).join("");
-  }
-}
-
-function renderAbsenteismoFake(){
-  if($("aInsight")) $("aInsight").textContent = "Módulo de absenteísmo reservado para conexão com a base específica.";
-  if($("aTotal")) $("aTotal").textContent = "—";
-  if($("aHoras")) $("aHoras").textContent = "—";
-  if($("aGer")) $("aGer").textContent = "—";
-  if($("aNaoGer")) $("aNaoGer").textContent = "—";
-  if($("aRanking")) $("aRanking").innerHTML = `<div class="empty">Base de absenteísmo não conectada neste script.</div>`;
-  if($("aAlerts")) $("aAlerts").innerHTML = `
-    <div class="alert"><small>Status</small><b>Reservado</b><span>aguardando base de absenteísmo</span></div>
-  `;
+      <div class="track"><div class="fill ${cls}" style="width:${n/max*100}%"></div></div>
+      <b class="num">${fmtInt(n)}</b>
+      <span class="pct">${fmtPct(total?n/total*100:0)}</span>
+    </div>`).join("") || `<div class="empty">Sem dados.</div>`;
 }
 
 function render(){
-  const data = filteredRows();
+  const data = filtered();
+  const total = data.length, afast = data.filter(isAfastado).length, ativos=total-afast;
+  const ec = data.filter(atuaEmEC).length, cargo = total-ec;
+  const idades = data.map(x=>idade(x.r)).filter(n=>n>0);
+  const risco65 = idades.filter(n=>n>=65).length;
+  const pctAtivos=total?ativos/total*100:0, pctAfast=total?afast/total*100:0, pctEC=total?ec/total*100:0, pctRisco=idades.length?risco65/idades.length*100:0;
 
-  renderPerfil(data);
-  renderTerritorial(data);
-  renderAbsenteismoFake();
+  $("kTotal").textContent=fmtInt(total);
+  $("kAtivos").textContent=fmtInt(ativos);
+  $("kAfast").textContent=fmtInt(afast);
+  $("kRisco").textContent=idades.length?fmtPct(pctRisco):"N/D";
+  $("kEC").textContent=fmtInt(ec);
+  $("nAtivos").textContent=fmtPct(pctAtivos)+" disponíveis";
+  $("nAfast").textContent=fmtPct(pctAfast)+" do total";
+  $("nRisco").textContent=fmtInt(risco65)+" empregados com 65+";
+  $("nEC").textContent=fmtPct(pctEC)+" do recorte";
 
-  if($("updated")){
-    $("updated").textContent = "Atualizado em: " + new Date().toLocaleString("pt-BR") + " · Fonte: Planilha oficial publicada";
-  }
+  renderBars("dirBars", group(data,dirVal).slice(0,6), total);
+  $("donut").style.setProperty("--opPct", pctEC+"%");
+  $("donutPct").textContent=fmtPct(pctEC);
+  $("ecQtd").textContent=fmtInt(ec);
+  $("cargoQtd").textContent=fmtInt(cargo);
+  $("compHint").textContent="EC calculado por FUNCAO_EC, desconsiderando Encarregado I, II, III e IV como desvio de função.";
+
+  const act = group(data,dirVal).slice(0,6).map(([k])=>{
+    const rows=data.filter(x=>dirVal(x)===k), at=rows.filter(x=>!isAfastado(x)).length;
+    return [k, rows.length?at/rows.length*100:0];
+  }).sort((a,b)=>b[1]-a[1]);
+  $("activityCols").innerHTML = act.map(([k,p])=>`
+    <div class="colWrap"><div class="colVal ${p<80?"warn":""}">${fmtPct(p)}</div><div class="col" style="--h:${Math.max(20,p)}%"></div><div class="colLbl" title="${k}">${k}</div></div>
+  `).join("");
+
+  $("alerts").innerHTML = `
+    <div class="alert ${pctAfast>=20?"red":pctAfast>=10?"orange":"green"}"><small>Pressão operacional</small><b>${fmtPct(pctAfast)}</b><span>afastamento no recorte</span></div>
+    <div class="alert ${pctRisco>=15?"red":pctRisco>=8?"orange":"green"}"><small>Risco de reposição</small><b>${idades.length?fmtPct(pctRisco):"N/D"}</b><span>idade maior ou igual a 65 anos</span></div>
+    <div class="alert"><small>Atuação em EC</small><b>${fmtPct(pctEC)}</b><span>cargos atuando por EC</span></div>
+    <div class="alert green"><small>Organograma</small><b>${ORG_BY_SETOR.size}</b><span>setores mapeados na planilha oficial</span></div>
+    <div class="alert"><small>Base filtrada</small><b>${fmtInt(total)}</b><span>empregados no recorte</span></div>`;
+
+  const rank = Object.entries(Object.groupBy ? {} : {});
+  const rowsRank = [...new Set(data.map(setorVal))].map(s=>{
+    const rows=data.filter(x=>setorVal(x)===s), af=rows.filter(isAfastado).length, r65=rows.filter(x=>idade(x.r)>=65).length;
+    const score=rows.length?((af/rows.length)*60+(r65/rows.length)*40):0;
+    return {s,total:rows.length,af,r65,score};
+  }).filter(x=>x.total>=3).sort((a,b)=>b.score-a.score).slice(0,8);
+  $("ranking").innerHTML = rowsRank.map(r=>`
+    <div class="rank"><div><b>${r.s}</b><small>${fmtInt(r.total)} empregados · ${fmtInt(r.af)} afastados · ${fmtInt(r.r65)} com 65+</small></div><span class="statusPill ${r.score>=25?"crit":r.score>=12?"att":"ok"}">${fmtPct(r.score)}</span></div>
+  `).join("") || `<div class="empty">Sem ranking disponível.</div>`;
+
+  renderTerritory(data,total);
+  renderTable(data);
+  $("updated").textContent="Atualizado em: "+new Date().toLocaleString("pt-BR")+" · Fonte: R54 + Planilha oficial de organograma";
 }
 
-async function loadData(){
-  try{
-    hideError();
+function renderTerritory(data,total){
+  const geo = data.filter(x=>bairroResVal(x)!=="Não informado" || bairroTrabVal(x)!=="Não informado");
+  const statusRows = group(geo,statusResVal);
+  const statusPred = statusRows[0]?.[0] || "—";
+  const fora = geo.filter(x=>!["RIO","RIO DE JANEIRO","DENTRO DO RIO","RJ"].some(s=>norm(statusResVal(x)).includes(s)) && norm(statusResVal(x)).includes("FORA")).length;
+  const pctFora = geo.length?fora/geo.length*100:0;
+  const latResCount = geo.filter(x=>numberFrom(v(x.r,COL.latRes)) && numberFrom(v(x.r,COL.lonRes))).length;
+  const latTrabCount = geo.filter(x=>numberFrom(v(x.r,COL.latTrab)) && numberFrom(v(x.r,COL.lonTrab))).length;
 
-    const text = await fetchCsvText(CSV_URL);
-    const rows = parseCSV(text).filter(row => Object.values(row).some(v => clean(v)));
+  $("tForaRioHero").textContent = fmtPct(pctFora);
+  $("tEfetivoGeo").textContent = fmtInt(geo.length);
+  $("tDentroRio").textContent = fmtPct(geo.length?(100-pctFora):0);
+  $("tStatusRes").textContent = statusPred;
+  $("tTopBairro").textContent = group(geo,bairroResVal)[0]?.[0] || "—";
+  $("tInsight").textContent = `Foram localizados ${fmtInt(geo.length)} registros com bairro de residência/trabalho. Coordenadas de residência: ${fmtInt(latResCount)}; coordenadas de trabalho: ${fmtInt(latTrabCount)}.`;
+  $("mapNote").textContent = `Pontos disponíveis: ${fmtInt(latResCount)} residência e ${fmtInt(latTrabCount)} trabalho.`;
 
-    if(!rows.length) throw new Error("CSV carregou, mas veio sem linhas.");
+  $("tTopList").innerHTML =
+    group(geo,bairroResVal).slice(0,5).map(([k,n])=>`<div class="miniItem"><div><b>${k}</b><small>Bairro de residência</small></div><b>${fmtInt(n)}</b></div>`).join("") +
+    group(geo,bairroTrabVal).slice(0,5).map(([k,n])=>`<div class="miniItem"><div><b>${k}</b><small>Bairro de trabalho</small></div><b>${fmtInt(n)}</b></div>`).join("");
 
-    ROWS = rows;
-
-    const headers = Object.keys(ROWS[0]);
-
-    COL = {
-      dir: pick(headers,["DIRETORIA","DIR"]),
-      sup: pick(headers,["SUPERINTENDÊNCIA","SUPERINTENDENCIA","COORDENAÇÃO","COORDENACAO","COORD"]),
-      setor: pick(headers,["SETOR","LOTAÇÃO","LOTACAO"]),
-      registro: pick(headers,["REGISTRO","MATRÍCULA","MATRICULA"]),
-      nome: pick(headers,["NOME","NOME DO SERVIDOR","SERVIDOR"]),
-      funcaoCargo: pick(headers,["FUNCAOCARGO","FUNÇÃO CARGO","FUNCAO CARGO","CARGO"]),
-      funcao: pick(headers,["FUNCAO","FUNÇÃO","FUNÇÃO EXERCIDA","FUNCAO EXERCIDA","EC"]),
-      codfreq: pick(headers,["CODFREQ"]),
-      afastamento: pick(headers,["AFASTAMENTO"]),
-      tipoAfastamento: pick(headers,["TIPOAFASTAMENTO","TIPO AFASTAMENTO"]),
-      descricao: pick(headers,["DESCRIÇÃO","DESCRICAO"]),
-      tipoCargo: pick(headers,["TIPOCARGO","TIPO CARGO"]),
-      tipoSetor: pick(headers,["TIPOSETOR","TIPO SETOR"]),
-      bairro: pick(headers,["BAIRROENDER","BAIRRO","BAIRRO_RES","BAIRRO RES"]),
-      cidade: pick(headers,["CIDADEENDER","CIDADE","MUNICIPIO","MUNICÍPIO","MUNICIPIO_RES"]),
-      idade: pick(headers,["IDADE","IDADEANOS","IDADE ANOS"]),
-      situacao: pick(headers,["SITUAÇÃO FUNCIONAL","SITUACAO FUNCIONAL","SITUAÇÃO","SITUACAO"])
-    };
-
-    if(!COL.dir) throw new Error("Coluna DIRETORIA não localizada.");
-    if(!COL.setor) throw new Error("Coluna SETOR não localizada.");
-    if(!COL.idade) showError("Atenção: coluna de idade não localizada. O risco 65+ ficará N/D.");
-
-    updateFilters();
-    render();
-
-  }catch(err){
-    console.error(err);
-    showError("Não foi possível carregar os dados via CSV publicado. Erro: " + err.message);
-    if($("updated")) $("updated").textContent = "Atualizado em: erro no carregamento";
-  }
+  renderBars("tBairroResBars", group(geo,bairroResVal).slice(0,12), geo.length, "green");
+  renderBars("tBairroTrabBars", group(geo,bairroTrabVal).slice(0,12), geo.length, "orange");
 }
 
-["fDir","fSupCoord","fSetor","fCidade","fBairro"].forEach(id=>{
-  document.addEventListener("change",e=>{
-    if(e.target && e.target.id === id){
-      updateFilters(id);
-      render();
-    }
-  });
-});
+function renderTable(data){
+  $("tTable").innerHTML = data.slice(0,700).map(x=>`
+    <tr>
+      <td>${v(x.r,COL.registro)}</td><td>${v(x.r,COL.nome)}</td><td>${dirVal(x)}</td><td>${coordVal(x)}</td><td>${gerVal(x)}</td><td>${setorVal(x)}</td>
+      <td>${v(x.r,COL.funcaoCargo)}</td><td>${v(x.r,COL.funcaoEC)}</td><td><span class="tag ${atuaEmEC(x)?"att":"ok"}">${atuacaoLabel(x)}</span></td>
+      <td>${idade(x.r)||""}</td><td>${bairroResVal(x)}</td><td>${bairroTrabVal(x)}</td><td>${statusResVal(x)}</td>
+    </tr>`).join("");
+}
 
-document.querySelectorAll(".tabBtn").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    document.querySelectorAll(".tabBtn").forEach(b=>b.classList.remove("active"));
-    document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+function exportCSV(){
+  const data=filtered();
+  const headers=["Registro","Nome","Diretoria","Coordenação","Gerência","Setor","Função Cargo","Função EC","Atuação","Idade","Bairro Res","Bairro Trabalho","Status Res"];
+  const rows=data.map(x=>[v(x.r,COL.registro),v(x.r,COL.nome),dirVal(x),coordVal(x),gerVal(x),setorVal(x),v(x.r,COL.funcaoCargo),v(x.r,COL.funcaoEC),atuacaoLabel(x),idade(x.r)||"",bairroResVal(x),bairroTrabVal(x),statusResVal(x)]);
+  const csv=[headers,...rows].map(r=>r.map(c=>`"${String(c).replaceAll('"','""')}"`).join(";")).join("\n");
+  const blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="hub_comlurb_pessoas.csv"; a.click();
+}
 
-    btn.classList.add("active");
+document.querySelectorAll(".tabBtn").forEach(btn=>btn.addEventListener("click",()=>{
+  document.querySelectorAll(".tabBtn").forEach(b=>b.classList.remove("active"));
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  btn.classList.add("active"); $(btn.dataset.tab).classList.add("active");
+}));
+["fDir","fSupCoord","fGerencia","fSetor"].forEach(id=>$(id).addEventListener("change",()=>{updateFilters(id);render();}));
+$("fBusca").addEventListener("input",render);
+$("btnExport").addEventListener("click",exportCSV);
 
-    const targetId = btn.dataset.tab || btn.dataset.screen;
-    const target = $(targetId);
-
-    if(target) target.classList.add("active");
-  });
-});
-
-document.addEventListener("DOMContentLoaded",loadData);
+async function init(){
+  hideError();
+  const [r54txt, orgtxt] = await Promise.all([fetchText(CSV_R54), fetchText(CSV_ORG)]);
+  R54 = parseCSV(r54txt).filter(r=>Object.values(r).some(v=>clean(v)));
+  ORG = parseCSV(orgtxt).filter(r=>Object.values(r).some(v=>clean(v)));
+  if(!R54.length) throw new Error("R54 veio vazio.");
+  if(!ORG.length) throw new Error("Organograma veio vazio.");
+  setupColumns();
+  if(!COL.setor) throw new Error("Coluna SETOR não localizada no R54.");
+  if(!ORGCOL.setor) throw new Error("Coluna SETOR não localizada no organograma.");
+  enrich();
+  updateFilters();
+  render();
+}
+init();
+})();
 </script>
-
-<script>
-document.body.style.display = "block";
-
-window.onerror = function(message, source, lineno, colno, error) {
-  document.body.innerHTML = `
-    <div style="
-      background:#06111f;
-      color:white;
-      font-family:Arial;
-      padding:30px;
-      min-height:100vh;
-    ">
-      <h1 style="color:#ff6b35">Erro encontrado no painel</h1>
-      <p><b>Mensagem:</b> ${message}</p>
-      <p><b>Linha:</b> ${lineno}</p>
-      <p><b>Coluna:</b> ${colno}</p>
-      <pre style="
-        background:#0d1f36;
-        padding:20px;
-        border-radius:12px;
-        white-space:pre-wrap;
-        color:#b8d4f2;
-      ">${error && error.stack ? error.stack : "Sem stack detalhado"}</pre>
-    </div>
-  `;
-};
-</script>
+</body>
+</html>
