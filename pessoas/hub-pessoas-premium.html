@@ -1,457 +1,719 @@
-<!doctype html>
-<html lang="pt-br">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HUB COMLURB | Pessoas</title>
-
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
-
-<style>
-:root{
-  --bg:#06111f;--panel:#0d1f36;--panel2:#0a1b31;--line:#294866;
-  --text:#f7f9ff;--muted:#b8c9de;--blue:#4b86bd;--blue2:#5b9bd5;
-  --orange:#e87535;--green:#78aaa3;--red:#ef6a5d;--yellow:#ffa02b;
-}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
-.app{max-width:1800px;margin:0 auto;padding:28px}
-.header{display:flex;align-items:center;gap:28px;padding:26px;border:1px solid var(--line);border-radius:22px;background:var(--panel2)}
-.logo{width:310px;max-height:82px;object-fit:contain;padding-right:26px;border-right:1px solid rgba(255,255,255,.28)}
-.titleBox{flex:1}
-.eyebrow{font-size:12px;font-weight:900;letter-spacing:.25em;color:#b8d4f2}
-h1{margin:6px 0;font-size:38px}
-.sub{color:#c7d8ee}
-
-.status{display:none;margin:14px 0;padding:13px;border:1px solid var(--orange);border-radius:14px;background:#1b2130;color:#ffd4b8}
-
-.navTabs{display:flex;gap:10px;margin:16px 0 0;flex-wrap:wrap}
-.tabBtn{border:1px solid var(--line);background:#0a1b31;color:#dcecff;border-radius:999px;padding:11px 16px;font-weight:900;cursor:pointer}
-.tabBtn.active{background:linear-gradient(90deg,#2f67a5,#4b86bd);border-color:#6fa7d8;color:#fff}
-
-.filters{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:16px 0}
-.field{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px}
-label{display:block;font-size:10px;font-weight:900;letter-spacing:.18em;color:#b8d4f2;margin-bottom:8px}
-select,input{width:100%;background:transparent;color:#fff;border:0;font-weight:800;font-size:15px;outline:0}
-option{background:#0d1f36}
-
-.screen{display:none}.screen.active{display:block}
-.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:14px}
-.kpi{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;min-height:120px;cursor:pointer}
-.kpi.feature{grid-column:span 2;background:linear-gradient(135deg,#0d1f36,#12365c);border-color:#4074a2}
-.kpi .label{font-size:11px;letter-spacing:.16em;color:#b8d4f2;font-weight:900;text-transform:uppercase}
-.kpi .value{font-size:34px;font-weight:950;margin:14px 0 4px}
-.kpi.feature .value{font-size:46px}
-.kpi .note{color:#c7d8ee;font-size:13px}
-
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:20px;min-height:330px;overflow:hidden}
-.panelHead{padding:18px;border-bottom:1px solid var(--line)}
-h2{margin:0;font-size:18px}
-.hint{color:#c7d8ee;font-size:13px;margin-top:5px}
-.body{padding:18px}
-.chart{height:330px}
-
-.barRow{display:grid;grid-template-columns:180px 1fr 75px 60px;gap:10px;align-items:center;margin-bottom:12px}
-.track{height:22px;background:#132941;border-radius:4px;overflow:hidden}
-.fill{height:100%;background:linear-gradient(90deg,#2f67a5,#5b9bd5)}
-.fill.orange{background:linear-gradient(90deg,#b95023,#e87535)}
-.num,.pct{text-align:right;font-weight:800}
-
-.rank{display:grid;grid-template-columns:1fr auto;gap:12px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.08)}
-.rank small{display:block;color:#aebfd5;margin-top:4px}
-.statusPill{border:1px solid #345978;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:900;white-space:nowrap}
-.ok{color:#83d99d}.att{color:#ffa02b}.crit{color:#ff7d72}
-
-.actions{display:flex;justify-content:flex-end;gap:10px;margin:0 0 14px}
-.actionBtn{border:1px solid var(--line);background:#0a1b31;color:#fff;border-radius:12px;padding:10px 14px;font-weight:900;cursor:pointer}
-.actionBtn:hover{border-color:#5b9bd5}
-
-.tableWrap{max-height:560px;overflow:auto}
-table{width:100%;border-collapse:collapse}
-th{position:sticky;top:0;background:#102844;color:#b8d4f2;text-align:left;font-size:11px;letter-spacing:.12em;text-transform:uppercase;z-index:1}
-td,th{padding:12px;border-bottom:1px solid rgba(255,255,255,.08)}
-td{color:#eaf3ff}
-.footer{margin-top:16px;color:#aebfd5;font-size:13px}
-
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:999;padding:30px}
-.modalBox{background:#081b31;border:1px solid var(--line);border-radius:22px;max-width:1400px;margin:auto;max-height:88vh;overflow:hidden}
-.modalHead{display:flex;justify-content:space-between;align-items:center;padding:18px;border-bottom:1px solid var(--line)}
-.close{background:transparent;color:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer}
-
-@media(max-width:1280px){.filters{grid-template-columns:repeat(2,1fr)}.kpis{grid-template-columns:repeat(2,1fr)}.kpi.feature{grid-column:span 1}.grid,.grid3{grid-template-columns:1fr}}
-@media(max-width:720px){.app{padding:14px}.header{flex-direction:column;align-items:flex-start}.logo{width:220px;border-right:0;padding-right:0}.filters,.kpis{grid-template-columns:1fr}h1{font-size:30px}.barRow{grid-template-columns:1fr}.num,.pct{text-align:left}}
-</style>
-</head>
-
-<body>
-<div class="app">
-
-<header class="header">
-  <img class="logo" src="../assets/logos/RIOPREFEITURA Comlurb horizontal monocromatica branco.png" alt="COMLURB">
-  <div class="titleBox">
-    <div class="eyebrow">HUB COMLURB</div>
-    <h1>Pessoas</h1>
-    <div class="sub">Inteligência Operacional · Perfil funcional, disponibilidade e risco de reposição</div>
-  </div>
-</header>
-
-<div id="status" class="status"></div>
-
-<nav class="navTabs">
-  <button class="tabBtn active" data-screen="exec">Visão Executiva</button>
-  <button class="tabBtn" data-screen="perfil">Perfil Funcional</button>
-  <button class="tabBtn" data-screen="analitico">Analítico</button>
-</nav>
-
-<section class="filters">
-  <div class="field"><label>Diretoria</label><select id="fDir"></select></div>
-  <div class="field"><label>Coordenação</label><select id="fCoord"></select></div>
-  <div class="field"><label>Gerência</label><select id="fGer"></select></div>
-  <div class="field"><label>Setor</label><select id="fSetor"></select></div>
-  <div class="field"><label>Buscar</label><input id="fBusca" placeholder="nome, registro, cargo ou função"></div>
-</section>
-
-<main id="exec" class="screen active">
-  <section class="kpis">
-    <div class="kpi feature" onclick="explode('total')">
-      <div class="label">Efetivo Total</div>
-      <div class="value" id="kTotal">0</div>
-      <div class="note">servidores no recorte atual</div>
-    </div>
-    <div class="kpi" onclick="explode('ativos')">
-      <div class="label">Ativos</div>
-      <div class="value" id="kAtivos">0</div>
-      <div class="note" id="nAtivos">—</div>
-    </div>
-    <div class="kpi" onclick="explode('afastados')">
-      <div class="label">Afastados</div>
-      <div class="value" id="kAfastados">0</div>
-      <div class="note" id="nAfastados">—</div>
-    </div>
-    <div class="kpi" onclick="explode('risco65')">
-      <div class="label">Risco 65+</div>
-      <div class="value" id="kRisco65">0</div>
-      <div class="note">idade maior ou igual a 65 anos</div>
-    </div>
-    <div class="kpi" onclick="explode('ec')">
-      <div class="label">Com Função/EC</div>
-      <div class="value" id="kEC">0</div>
-      <div class="note">função exercida informada</div>
-    </div>
-  </section>
-
-  <section class="grid">
-    <div class="panel"><div class="panelHead"><h2>Efetivo por Diretoria</h2><div class="hint">Distribuição do efetivo no recorte selecionado</div></div><div class="body" id="dirBars"></div></div>
-    <div class="panel"><div class="panelHead"><h2>Situação Funcional</h2><div class="hint">Ativos, afastados e demais situações identificadas</div></div><div class="body"><div id="chartSituacao" class="chart"></div></div></div>
-  </section>
-
-  <section class="grid" style="margin-top:14px">
-    <div class="panel"><div class="panelHead"><h2>Risco de Reposição por Gerência</h2><div class="hint">Maiores volumes de servidores com 65 anos ou mais</div></div><div class="body" id="riscoRanking"></div></div>
-    <div class="panel"><div class="panelHead"><h2>Leitura Executiva</h2><div class="hint">Resumo automático do recorte atual</div></div><div class="body" id="insights"></div></div>
-  </section>
-</main>
-
-<main id="perfil" class="screen">
-  <section class="grid">
-    <div class="panel"><div class="panelHead"><h2>Funções Exercidas</h2><div class="hint">Top funções/EC — sem transformar função em número</div></div><div class="body"><div id="chartFuncao" class="chart"></div></div></div>
-    <div class="panel"><div class="panelHead"><h2>Cargos</h2><div class="hint">Principais cargos do recorte</div></div><div class="body"><div id="chartCargo" class="chart"></div></div></div>
-  </section>
-  <section class="grid" style="margin-top:14px">
-    <div class="panel"><div class="panelHead"><h2>Faixa Etária</h2><div class="hint">Distribuição por idade</div></div><div class="body"><div id="chartIdade" class="chart"></div></div></div>
-    <div class="panel"><div class="panelHead"><h2>Gerências</h2><div class="hint">Top gerências por efetivo</div></div><div class="body"><div id="chartGerencia" class="chart"></div></div></div>
-  </section>
-</main>
-
-<main id="analitico" class="screen">
-  <div class="actions">
-    <button class="actionBtn" onclick="exportCSV()">Exportar Excel/CSV</button>
-  </div>
-  <section class="panel">
-    <div class="panelHead"><h2>Base Analítica</h2><div class="hint">Registros filtrados conforme seleção atual</div></div>
-    <div class="body tableWrap"><table id="tbl"></table></div>
-  </section>
-</main>
-
-<div id="updated" class="footer">Atualizado em: carregando...</div>
-</div>
-
-<div id="modal" class="modal">
-  <div class="modalBox">
-    <div class="modalHead">
-      <h2 id="modalTitle">Detalhamento</h2>
-      <button class="close" onclick="closeModal()">Fechar</button>
-    </div>
-    <div class="body tableWrap"><table id="modalTable"></table></div>
-  </div>
-</div>
-
 <script>
-const CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRE3Q_RdpZOqc4f3O3fQirMQkEXQWyBkiIlXB6LZWgqTZbItGBHAxUHf2-0kEcALDIUfyPeK7GyBQrB/pub?gid=1371643814&single=true&output=csv";
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRE3Q_RdpZOqc4f3O3fQirMQkEXQWyBkiIlXB6LZWgqTZbItGBHAxUHf2-0kEcALDIUfyPeK7GyBQrB/pub?gid=1371643814&single=true&output=csv";
+const ABS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_uEKlKCRt3e-jL73j5_15cOuyuqsNEK0tOyrXlxQmLLCq16VRU2B1bSqYHYNbok-wB-CMaYlo6jH9/pub?output=csv";
 
-let ROWS=[],DATA=[],COL={},charts={};
+let ROWS = [];
+let COL = {};
+let ABS_ROWS = [];
+let ABS_COL = {};
+let ABS_LOADED = false;
 
-const $=id=>document.getElementById(id);
-const clean=v=>(v??"").toString().trim();
-const norm=v=>clean(v).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").toUpperCase();
-const fmt=n=>(+n||0).toLocaleString("pt-BR");
-const pct=n=>(+n||0).toLocaleString("pt-BR",{minimumFractionDigits:1,maximumFractionDigits:1})+"%";
+const $ = id => document.getElementById(id);
+const clean = v => (v ?? "").toString().trim();
+const norm = v => clean(v).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").toUpperCase();
+const fmtInt = n => (+n || 0).toLocaleString("pt-BR");
+const fmtPct = n => (+n || 0).toLocaleString("pt-BR",{minimumFractionDigits:1,maximumFractionDigits:1}) + "%";
+const isRio = cidade => ["RIO DE JANEIRO","RIO"].includes(norm(cidade));
 
-function showError(msg){$("status").style.display="block";$("status").textContent=msg}
+function showError(msg){
+  const el = $("status");
+  if(el){ el.style.display = "block"; el.textContent = msg; }
+}
+function hideError(){
+  const el = $("status");
+  if(el) el.style.display = "none";
+}
+
+async function fetchCsvText(url){
+  const bust = "cachebuster=" + Date.now();
+  const directUrl = url + (url.includes("?") ? "&" : "?") + bust;
+  const attempts = [
+    directUrl,
+    "https://api.allorigins.win/raw?url=" + encodeURIComponent(directUrl),
+    "https://corsproxy.io/?" + encodeURIComponent(directUrl),
+    "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(directUrl)
+  ];
+
+  let lastError = "";
+  for(const attempt of attempts){
+    try{
+      const res = await fetch(attempt,{cache:"no-store"});
+      if(!res.ok) throw new Error("HTTP " + res.status);
+      const text = await res.text();
+      if(text && text.trim().length > 20) return text;
+      throw new Error("resposta vazia");
+    }catch(e){
+      lastError = e.message || String(e);
+    }
+  }
+  throw new Error(lastError || "falha ao carregar CSV");
+}
+
+function splitCSVLine(line){
+  const result = [];
+  let current = "";
+  let insideQuotes = false;
+
+  for(let i=0;i<line.length;i++){
+    const char = line[i], next = line[i+1];
+    if(char === '"' && insideQuotes && next === '"'){
+      current += '"'; i++;
+    }else if(char === '"'){
+      insideQuotes = !insideQuotes;
+    }else if(char === "," && !insideQuotes){
+      result.push(current); current = "";
+    }else{
+      current += char;
+    }
+  }
+  result.push(current);
+  return result;
+}
+
+function parseCSV(text){
+  const lines = text.replace(/\r/g,"").split("\n").filter(l => l.trim());
+  const headers = splitCSVLine(lines[0]).map(h => h.trim());
+  return lines.slice(1).map(line => {
+    const values = splitCSVLine(line);
+    const obj = {};
+    headers.forEach((h,i) => obj[h] = values[i] ?? "");
+    return obj;
+  });
+}
 
 function pick(headers,names){
-  const hs=headers.map(h=>({o:h,n:norm(h)}));
+  const mapped = headers.map(h => ({o:h,n:norm(h)}));
+
   for(const name of names){
-    const exact=hs.find(h=>h.n===norm(name));
-    if(exact)return exact.o;
+    const found = mapped.find(h => h.n === norm(name));
+    if(found) return found.o;
   }
+
   for(const name of names){
-    const partial=hs.find(h=>h.n.includes(norm(name))||norm(name).includes(h.n));
-    if(partial)return partial.o;
+    const nn = norm(name);
+    const found = mapped.find(h => h.n.includes(nn) || nn.includes(h.n));
+    if(found) return found.o;
   }
+
   return null;
 }
 
-function getCols(){
-  const h=Object.keys(ROWS[0]||{});
-  COL={
-    registro:pick(h,["REGISTRO","MATRICULA","MATRÍCULA"]),
-    nome:pick(h,["NOME","NOME DO SERVIDOR","SERVIDOR"]),
-    dir:pick(h,["DIRETORIA","DIR"]),
-    coord:pick(h,["COORDENAÇÃO","COORDENACAO","COORD"]),
-    ger:pick(h,["GERÊNCIA","GERENCIA"]),
-    setor:pick(h,["SETOR","LOTAÇÃO","LOTACAO"]),
-    cargo:pick(h,["CARGO","FUNÇÃO CARGO","FUNCAO CARGO"]),
-    funcao:pick(h,["FUNÇÃO EXERCIDA","FUNCAO EXERCIDA","FUNÇÃO/EC","FUNCAO_EC","EC"]),
-    situacao:pick(h,["SITUAÇÃO FUNCIONAL","SITUACAO FUNCIONAL","SITUAÇÃO","SITUACAO"]),
-    idade:pick(h,["IDADE","IDADEANOS","IDADE ANOS"])
-  };
+function val(row,col){
+  return col ? clean(row[col]) : "";
 }
 
-function v(r,c){return COL[c]?clean(r[COL[c]]):""}
-function idade(r){
-  const x=v(r,"idade").replace(",",".").match(/\d+/);
-  return x?Number(x[0]):0;
-}
-function isAfastado(r){
-  const s=norm(v(r,"situacao"));
-  return s.includes("AFAST")||s.includes("LICEN")||s.includes("CEDID")||s.includes("SUSPENS")||s.includes("INATIVO");
-}
-function isAtivo(r){
-  const s=norm(v(r,"situacao"));
-  if(!s)return !isAfastado(r);
-  return s.includes("ATIVO")&&!isAfastado(r);
-}
-function temEC(r){
-  const f=norm(v(r,"funcao"));
-  return f && !["NAO INFORMADO","SEM FUNCAO","SEM FUNÇÃO","-"].includes(f);
-}
-function group(data,getter){
-  const o={};
-  data.forEach(r=>{
-    const k=clean(getter(r))||"Não informado";
-    o[k]=(o[k]||0)+1;
-  });
-  return Object.entries(o).sort((a,b)=>b[1]-a[1]);
+function numberFrom(v){
+  let s = clean(v).replace(/[^0-9,.-]/g,"");
+  if(s.includes(",") && s.includes(".")) s = s.replace(/\./g,"").replace(",",".");
+  else s = s.replace(",",".");
+  return parseFloat(s) || 0;
 }
 
-function setSelect(id,values,label){
-  const el=$(id), cur=el.value;
-  el.innerHTML=`<option value="">${label}</option>`;
-  values.forEach(x=>{
-    const op=document.createElement("option");
-    op.value=x;op.textContent=x;el.appendChild(op);
-  });
-  if(values.includes(cur))el.value=cur;
+function idade(row){
+  return numberFrom(val(row,COL.idade));
 }
 
-function filters(){
+function isAfastado(row){
+  const afast = norm(val(row,COL.afast));
+  const tipo = norm(val(row,COL.tipoAfastamento));
+  const codfreq = norm(val(row,COL.codfreq));
+  const situacao = norm(val(row,COL.situacao));
+
+  if(situacao.includes("ATIVO") && !afast && !tipo && !codfreq) return false;
+  if(["ATIVO","NORMAL","TRABALHANDO"].includes(afast)) return false;
+
+  return !!(
+    afast ||
+    tipo ||
+    codfreq ||
+    situacao.includes("AFAST") ||
+    situacao.includes("LICEN") ||
+    situacao.includes("SUSPENS") ||
+    situacao.includes("CEDID")
+  );
+}
+
+function isOperacional(row){
+  const x = norm([
+    val(row,COL.tipo),
+    val(row,COL.tipoSetor),
+    val(row,COL.funcaoCargo),
+    val(row,COL.funcao),
+    val(row,COL.descricao)
+  ].join(" "));
+
+  return x.includes("OPER") ||
+         x.includes("GARI") ||
+         x.includes("MOTOR") ||
+         x.includes("FISCAL") ||
+         x.includes("AGENTE") ||
+         x.includes("LIMP") ||
+         x.includes("COLETA");
+}
+
+function supVal(row){ return val(row,COL.sup) || "Não informado"; }
+function cidadeVal(row){ return val(row,COL.cidadeEnder) || "Não informado"; }
+function bairroVal(row){ return val(row,COL.bairroEnder) || "Não informado"; }
+
+function groupBy(arr,fn){
+  return arr.reduce((acc,row)=>{
+    const key = fn(row) || "Não informado";
+    (acc[key] ||= []).push(row);
+    return acc;
+  },{});
+}
+
+function fillSelect(id,values,label){
+  const el = $(id);
+  if(!el) return;
+
+  const current = el.value;
+  const list = [...new Set(values.filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt-BR"));
+
+  el.innerHTML = `<option value="">${label}</option>` +
+    list.map(v => `<option value="${String(v).replaceAll('"',"&quot;")}">${v}</option>`).join("");
+
+  if(list.includes(current)) el.value = current;
+}
+
+function currentFilters(){
   return {
-    dir:$("fDir").value,coord:$("fCoord").value,ger:$("fGer").value,setor:$("fSetor").value,busca:norm($("fBusca").value)
+    dir:$("fDir")?.value || "",
+    sup:$("fSupCoord")?.value || "",
+    setor:$("fSetor")?.value || "",
+    cidade:$("fCidade")?.value || "",
+    bairro:$("fBairro")?.value || ""
   };
 }
 
-function pass(r,f,ignore){
-  if(ignore!=="dir"&&f.dir&&v(r,"dir")!==f.dir)return false;
-  if(ignore!=="coord"&&f.coord&&v(r,"coord")!==f.coord)return false;
-  if(ignore!=="ger"&&f.ger&&v(r,"ger")!==f.ger)return false;
-  if(ignore!=="setor"&&f.setor&&v(r,"setor")!==f.setor)return false;
-  if(f.busca){
-    const txt=norm([v(r,"registro"),v(r,"nome"),v(r,"cargo"),v(r,"funcao"),v(r,"setor")].join(" "));
-    if(!txt.includes(f.busca))return false;
-  }
+function rowPass(row,f,ignore=""){
+  if(ignore !== "dir" && f.dir && val(row,COL.dir) !== f.dir) return false;
+  if(ignore !== "sup" && f.sup && supVal(row) !== f.sup) return false;
+  if(ignore !== "setor" && f.setor && val(row,COL.setor) !== f.setor) return false;
+  if(ignore !== "cidade" && f.cidade && cidadeVal(row) !== f.cidade) return false;
+  if(ignore !== "bairro" && f.bairro && bairroVal(row) !== f.bairro) return false;
   return true;
 }
 
-function populateFilters(){
-  const f=filters();
-  setSelect("fDir",[...new Set(ROWS.filter(r=>pass(r,f,"dir")).map(r=>v(r,"dir")).filter(Boolean))].sort(),"Todas as diretorias");
-  setSelect("fCoord",[...new Set(ROWS.filter(r=>pass(r,f,"coord")).map(r=>v(r,"coord")).filter(Boolean))].sort(),"Todas as coordenações");
-  setSelect("fGer",[...new Set(ROWS.filter(r=>pass(r,f,"ger")).map(r=>v(r,"ger")).filter(Boolean))].sort(),"Todas as gerências");
-  setSelect("fSetor",[...new Set(ROWS.filter(r=>pass(r,f,"setor")).map(r=>v(r,"setor")).filter(Boolean))].sort(),"Todos os setores");
+function filteredRows(){
+  const f = currentFilters();
+  return ROWS.filter(r => rowPass(r,f));
 }
 
-function applyFilters(){
-  const f=filters();
-  DATA=ROWS.filter(r=>pass(r,f));
-  populateFilters();
-  render();
+function updateFilters(changed=""){
+  const f = currentFilters();
+
+  if(changed === "fDir"){
+    if($("fSupCoord")) $("fSupCoord").value = "";
+    if($("fSetor")) $("fSetor").value = "";
+  }
+  if(changed === "fSupCoord"){
+    if($("fSetor")) $("fSetor").value = "";
+  }
+
+  const f2 = currentFilters();
+
+  fillSelect("fDir", ROWS.filter(r=>rowPass(r,f2,"dir")).map(r=>val(r,COL.dir)), "Todas");
+  fillSelect("fSupCoord", ROWS.filter(r=>rowPass(r,f2,"sup")).map(supVal), "Todas");
+  fillSelect("fSetor", ROWS.filter(r=>rowPass(r,f2,"setor")).map(r=>val(r,COL.setor)), "Todos");
+  fillSelect("fCidade", ROWS.filter(r=>rowPass(r,f2,"cidade")).map(cidadeVal), "Todas");
+  fillSelect("fBairro", ROWS.filter(r=>rowPass(r,f2,"bairro")).map(bairroVal), "Todos");
 }
 
-function chart(id,type,rows){
-  if(!charts[id])charts[id]=echarts.init($(id));
-  const names=rows.map(x=>x[0]), vals=rows.map(x=>x[1]);
-  charts[id].setOption({
-    backgroundColor:"transparent",
-    tooltip:{trigger:"axis"},
-    grid:{left:120,right:20,top:20,bottom:30},
-    xAxis:{type:"value",axisLabel:{color:"#b8c9de"},splitLine:{lineStyle:{color:"rgba(255,255,255,.08)"}}},
-    yAxis:{type:"category",data:names.reverse(),axisLabel:{color:"#eaf3ff",width:110,overflow:"truncate"}},
-    series:[{type:"bar",data:vals.reverse(),barWidth:18,itemStyle:{color:"#5b9bd5",borderRadius:[0,6,6,0]}}],
-    textStyle:{fontFamily:"Segoe UI"}
-  });
-}
+function renderDirBars(data,total){
+  const el = $("dirBars");
+  if(!el) return;
 
-function pie(id,rows){
-  if(!charts[id])charts[id]=echarts.init($(id));
-  charts[id].setOption({
-    tooltip:{trigger:"item"},
-    legend:{bottom:0,textStyle:{color:"#c7d8ee"}},
-    series:[{type:"pie",radius:["45%","70%"],data:rows.map(x=>({name:x[0],value:x[1]})),label:{color:"#fff"}}]
-  });
-}
+  const rows = Object.entries(groupBy(data,r=>val(r,COL.dir)))
+    .map(([k,v])=>[k,v.length])
+    .sort((a,b)=>b[1]-a[1])
+    .slice(0,6);
 
-function renderBars(id,rows,total,cls=""){
-  const max=rows[0]?.[1]||1;
-  $(id).innerHTML=rows.map(([k,n])=>`
+  const max = rows[0]?.[1] || 1;
+
+  el.innerHTML = rows.map(([k,v])=>`
     <div class="barRow">
       <span title="${k}">${k}</span>
-      <div class="track"><div class="fill ${cls}" style="width:${(n/max)*100}%"></div></div>
-      <b class="num">${fmt(n)}</b>
-      <span class="pct">${pct(total?n/total*100:0)}</span>
-    </div>`).join("") || `<div class="hint">Sem dados.</div>`;
+      <div class="track"><div class="fill" style="width:${v/max*100}%"></div></div>
+      <b class="num">${fmtInt(v)}</b>
+      <span class="pct">${fmtPct(total ? v/total*100 : 0)}</span>
+    </div>
+  `).join("") || `<div class="hint">Sem dados.</div>`;
+}
+
+function renderActivityCols(data){
+  const el = $("activityCols");
+  if(!el) return;
+
+  const rows = Object.entries(groupBy(data,r=>val(r,COL.dir)))
+    .map(([k,v])=>{
+      const afast = v.filter(isAfastado).length;
+      const pct = v.length ? (v.length-afast)/v.length*100 : 0;
+      return [k,v.length,pct];
+    })
+    .sort((a,b)=>b[1]-a[1])
+    .slice(0,6);
+
+  el.innerHTML = rows.map(([k,_,p])=>`
+    <div class="colWrap">
+      <div class="colVal ${p<80?"warn":""}">${fmtPct(p)}</div>
+      <div class="col" style="--h:${Math.max(18,p)}%"></div>
+      <div class="colLbl" title="${k}">${k}</div>
+    </div>
+  `).join("") || `<div class="empty">Sem dados.</div>`;
+}
+
+function renderAlerts(total,pctAfast,pctRisco,pctOper){
+  const el = $("alerts");
+  if(!el) return;
+
+  el.innerHTML = `
+    <div class="alert ${pctAfast>=20?"red":pctAfast>=10?"orange":"green"}">
+      <small>Pressão por afastamento</small>
+      <b>${fmtPct(pctAfast)}</b>
+      <span>empregados afastados no recorte</span>
+    </div>
+    <div class="alert ${pctRisco>=15?"red":pctRisco>=8?"orange":"green"}">
+      <small>Risco 65+</small>
+      <b>${fmtPct(pctRisco)}</b>
+      <span>potencial necessidade de reposição</span>
+    </div>
+    <div class="alert">
+      <small>Perfil operacional</small>
+      <b>${fmtPct(pctOper)}</b>
+      <span>aderência à atividade-fim</span>
+    </div>
+    <div class="alert">
+      <small>Base analisada</small>
+      <b>${fmtInt(total)}</b>
+      <span>empregados no filtro atual</span>
+    </div>
+    <div class="alert green">
+      <small>Laudos</small>
+      <b>—</b>
+      <span>módulo reservado para próxima base</span>
+    </div>
+  `;
+}
+
+function renderRanking(data){
+  const el = $("ranking");
+  if(!el) return;
+
+  const rows = Object.entries(groupBy(data,r=>val(r,COL.setor)))
+    .map(([k,v])=>{
+      const total = v.length;
+      const afast = v.filter(isAfastado).length;
+      const risco = v.filter(r=>idade(r)>=65).length;
+      const score = total ? ((afast/total)*60 + (risco/total)*40) : 0;
+      return {k,total,afast,risco,score};
+    })
+    .filter(x=>x.total>=5)
+    .sort((a,b)=>b.score-a.score)
+    .slice(0,10);
+
+  el.innerHTML = rows.map(r=>`
+    <div class="rank">
+      <div>
+        <b>${r.k}</b>
+        <small>${fmtInt(r.total)} empregados · ${fmtInt(r.afast)} afastados · ${fmtInt(r.risco)} com 65+</small>
+      </div>
+      <span class="statusPill ${r.score>=25?"crit":r.score>=12?"att":"ok"}">${fmtPct(r.score)}</span>
+    </div>
+  `).join("") || `<div class="empty">Sem ranking disponível.</div>`;
+}
+
+function renderPerfil(){
+  const data = filteredRows();
+  const total = data.length;
+  const afastados = data.filter(isAfastado).length;
+  const ativos = total - afastados;
+  const operacionais = data.filter(isOperacional).length;
+  const administrativos = total - operacionais;
+  const idades = data.map(idade).filter(n=>n>0);
+  const acima65 = idades.filter(n=>n>=65).length;
+
+  const pctAtivos = total ? ativos/total*100 : 0;
+  const pctAfast = total ? afastados/total*100 : 0;
+  const pctRisco = idades.length ? acima65/idades.length*100 : 0;
+  const pctOper = total ? operacionais/total*100 : 0;
+
+  if($("kTotal")) $("kTotal").textContent = fmtInt(total);
+  if($("kAtivos")) $("kAtivos").textContent = fmtInt(ativos);
+  if($("kAfast")) $("kAfast").textContent = fmtInt(afastados);
+  if($("kRisco")) $("kRisco").textContent = idades.length ? fmtPct(pctRisco) : "N/D";
+  if($("kLaudos")) $("kLaudos").textContent = "—";
+
+  if($("nAtivos")) $("nAtivos").textContent = fmtPct(pctAtivos) + " disponíveis";
+  if($("nAfast")) $("nAfast").textContent = fmtPct(pctAfast) + " do total";
+  if($("nRisco")) $("nRisco").textContent = idades.length ? fmtInt(acima65) + " empregados com 65 anos ou mais" : "idade não localizada";
+
+  if($("opQtd")) $("opQtd").textContent = fmtInt(operacionais);
+  if($("admQtd")) $("admQtd").textContent = fmtInt(administrativos);
+  if($("donutPct")) $("donutPct").textContent = fmtPct(pctOper);
+  if($("donut")) $("donut").style.setProperty("--opPct", pctOper + "%");
+  if($("compHint")) $("compHint").textContent = pctOper >= 60 ? "Predominância operacional coerente com a atividade-fim." : "Maior peso relativo administrativo no recorte.";
+
+  renderDirBars(data,total);
+  renderActivityCols(data);
+  renderAlerts(total,pctAfast,pctRisco,pctOper);
+  renderRanking(data);
+}
+
+function renderTerritorial(){
+  const data = filteredRows();
+  const total = data.length;
+
+  const rio = data.filter(r=>isRio(cidadeVal(r))).length;
+  const fora = total - rio;
+  const pctRio = total ? rio/total*100 : 0;
+  const pctFora = total ? fora/total*100 : 0;
+
+  if($("tTotal")) $("tTotal").textContent = fmtInt(total);
+  if($("tRio")) $("tRio").textContent = fmtPct(pctRio);
+  if($("tFora")) $("tFora").textContent = fmtPct(pctFora);
+
+  const cidades = Object.entries(groupBy(data,cidadeVal)).map(([k,v])=>[k,v.length]).sort((a,b)=>b[1]-a[1]);
+  const bairros = Object.entries(groupBy(data,bairroVal)).map(([k,v])=>[k,v.length]).sort((a,b)=>b[1]-a[1]);
+
+  if($("tTopList")){
+    $("tTopList").innerHTML =
+      cidades.slice(0,5).map(([k,v])=>`
+        <div class="miniItem"><div><b>${k}</b><small>Município de moradia</small></div><b>${fmtInt(v)}</b></div>
+      `).join("") +
+      bairros.slice(0,5).map(([k,v])=>`
+        <div class="miniItem"><div><b>${k}</b><small>Bairro de moradia</small></div><b>${fmtInt(v)}</b></div>
+      `).join("");
+  }
+
+  renderTerrBars("tCidadeBars", cidades.slice(0,12), total);
+  renderTerrBars("tBairroBars", bairros.slice(0,12), total);
+
+  if($("tRankingSetor")){
+    const rows = Object.entries(groupBy(data,r=>val(r,COL.setor)))
+      .map(([k,v])=>{
+        const fora = v.filter(r=>!isRio(cidadeVal(r))).length;
+        const pct = v.length ? fora/v.length*100 : 0;
+        return {k,total:v.length,fora,pct};
+      })
+      .filter(x=>x.total>=5)
+      .sort((a,b)=>b.pct-a.pct)
+      .slice(0,10);
+
+    $("tRankingSetor").innerHTML = rows.map(r=>`
+      <div class="rank">
+        <div><b>${r.k}</b><small>${fmtInt(r.fora)} de ${fmtInt(r.total)} empregados residem fora do Rio</small></div>
+        <span class="statusPill ${r.pct>=40?"crit":r.pct>=20?"att":"ok"}">${fmtPct(r.pct)}</span>
+      </div>
+    `).join("") || `<div class="empty">Sem risco territorial identificado.</div>`;
+  }
+
+  if($("tExecutiveRead")){
+    $("tExecutiveRead").innerHTML = `
+      <div class="alert ${pctFora>=30?"orange":"green"}">
+        <small>Moradia fora do Rio</small><b>${fmtPct(pctFora)}</b><span>impacto potencial em deslocamento</span>
+      </div>
+      <div class="alert">
+        <small>Maior concentração</small><b>${cidades[0]?.[0] || "—"}</b><span>município com maior volume</span>
+      </div>
+      <div class="alert">
+        <small>Bairro destaque</small><b>${bairros[0]?.[0] || "—"}</b><span>bairro mais frequente</span>
+      </div>
+      <div class="alert green">
+        <small>Uso gerencial</small><b>Realocação</b><span>apoio à análise casa x setor</span>
+      </div>
+    `;
+  }
+
+  if($("tTable")){
+    $("tTable").innerHTML = data.slice(0,500).map(r=>{
+      const cidade = cidadeVal(r);
+      const risco = isRio(cidade) ? "Baixo" : "Atenção";
+      return `
+        <tr>
+          <td>${val(r,COL.dir)}</td>
+          <td>${supVal(r)}</td>
+          <td>${val(r,COL.setor)}</td>
+          <td>${cidade}</td>
+          <td>${bairroVal(r)}</td>
+          <td>${isAfastado(r) ? "Afastado" : "Ativo"}</td>
+          <td><span class="tag ${risco==="Atenção"?"att":"ok"}">${risco}</span></td>
+        </tr>
+      `;
+    }).join("");
+  }
+}
+
+function renderTerrBars(id,rows,total){
+  const el = $(id);
+  if(!el) return;
+
+  const max = rows[0]?.[1] || 1;
+  el.innerHTML = rows.map(([k,v])=>`
+    <div class="barRow">
+      <span title="${k}">${k}</span>
+      <div class="track"><div class="fill green" style="width:${v/max*100}%"></div></div>
+      <b class="num">${fmtInt(v)}</b>
+      <span class="pct">${fmtPct(total ? v/total*100 : 0)}</span>
+    </div>
+  `).join("") || `<div class="empty">Sem dados.</div>`;
 }
 
 function render(){
-  const total=DATA.length;
-  const ativos=DATA.filter(isAtivo).length;
-  const afast=DATA.filter(isAfastado).length;
-  const risco=DATA.filter(r=>idade(r)>=65).length;
-  const ec=DATA.filter(temEC).length;
-
-  $("kTotal").textContent=fmt(total);
-  $("kAtivos").textContent=fmt(ativos);
-  $("kAfastados").textContent=fmt(afast);
-  $("kRisco65").textContent=fmt(risco);
-  $("kEC").textContent=fmt(ec);
-  $("nAtivos").textContent=total?pct(ativos/total*100)+" do total":"—";
-  $("nAfastados").textContent=total?pct(afast/total*100)+" do total":"—";
-
-  renderBars("dirBars",group(DATA,r=>v(r,"dir")).slice(0,8),total);
-  pie("chartSituacao",group(DATA,r=>v(r,"situacao")).slice(0,8));
-
-  const riscoGer=group(DATA.filter(r=>idade(r)>=65),r=>v(r,"ger")).slice(0,10);
-  $("riscoRanking").innerHTML=riscoGer.map(([g,n])=>`
-    <div class="rank"><div><b>${g}</b><small>${fmt(n)} servidor(es) com 65 anos ou mais</small></div><span class="statusPill ${n>=10?'crit':n>=5?'att':'ok'}">${fmt(n)}</span></div>
-  `).join("") || `<div class="hint">Sem risco 65+ identificado no recorte.</div>`;
-
-  const topDir=group(DATA,r=>v(r,"dir"))[0]?.[0]||"—";
-  const topGer=group(DATA,r=>v(r,"ger"))[0]?.[0]||"—";
-  $("insights").innerHTML=`
-    <div class="rank"><div><b>Maior concentração</b><small>${topDir}</small></div></div>
-    <div class="rank"><div><b>Gerência com maior efetivo</b><small>${topGer}</small></div></div>
-    <div class="rank"><div><b>Disponibilidade</b><small>${pct(total?ativos/total*100:0)} do efetivo está ativo no recorte.</small></div></div>
-    <div class="rank"><div><b>Reposição</b><small>${fmt(risco)} servidor(es) estão na faixa 65+.</small></div></div>
-  `;
-
-  chart("chartFuncao","bar",group(DATA,r=>v(r,"funcao")).slice(0,12));
-  chart("chartCargo","bar",group(DATA,r=>v(r,"cargo")).slice(0,12));
-  chart("chartGerencia","bar",group(DATA,r=>v(r,"ger")).slice(0,12));
-
-  const faixas=[
-    ["Até 29",DATA.filter(r=>idade(r)>0&&idade(r)<=29).length],
-    ["30-39",DATA.filter(r=>idade(r)>=30&&idade(r)<=39).length],
-    ["40-49",DATA.filter(r=>idade(r)>=40&&idade(r)<=49).length],
-    ["50-59",DATA.filter(r=>idade(r)>=50&&idade(r)<=59).length],
-    ["60-64",DATA.filter(r=>idade(r)>=60&&idade(r)<=64).length],
-    ["65+",risco]
-  ];
-  chart("chartIdade","bar",faixas);
-
-  renderTable("tbl",DATA.slice(0,500));
-  $("updated").textContent="Atualizado em: "+new Date().toLocaleString("pt-BR");
-  setTimeout(()=>Object.values(charts).forEach(c=>c.resize()),100);
+  renderPerfil();
+  renderTerritorial();
+  renderAbsenteismo();
+  if($("updated")) $("updated").textContent = "Atualizado em: " + new Date().toLocaleString("pt-BR");
 }
 
-function tableCols(){
-  return [
-    ["registro","Registro"],["nome","Nome"],["dir","Diretoria"],["coord","Coordenação"],
-    ["ger","Gerência"],["setor","Setor"],["cargo","Cargo"],["funcao","Função exercida"],
-    ["situacao","Situação"],["idade","Idade"]
-  ];
+/* ABSENTEÍSMO */
+function absPeriods(rows){
+  return [...new Set(rows.map(r=>val(r,ABS_COL.periodo)).filter(Boolean))].sort();
 }
 
-function renderTable(id,data){
-  const cols=tableCols();
-  $(id).innerHTML=`
-    <thead><tr>${cols.map(c=>`<th>${c[1]}</th>`).join("")}</tr></thead>
-    <tbody>${data.map(r=>`<tr>${cols.map(c=>`<td>${c[0]==="idade"?idade(r)||"":v(r,c[0])}</td>`).join("")}</tr>`).join("")}</tbody>`;
+function fmtHoras(n){
+  return (+n || 0).toLocaleString("pt-BR",{maximumFractionDigits:0});
 }
 
-function explode(tipo){
-  let data=DATA,title="Detalhamento";
-  if(tipo==="ativos"){data=DATA.filter(isAtivo);title="Ativos";}
-  if(tipo==="afastados"){data=DATA.filter(isAfastado);title="Afastados";}
-  if(tipo==="risco65"){data=DATA.filter(r=>idade(r)>=65);title="Risco de Reposição 65+";}
-  if(tipo==="ec"){data=DATA.filter(temEC);title="Servidores com Função/EC";}
-  if(tipo==="total"){title="Efetivo Total";}
-  $("modalTitle").textContent=title+" · "+fmt(data.length)+" registro(s)";
-  renderTable("modalTable",data);
-  $("modal").style.display="block";
-}
-function closeModal(){$("modal").style.display="none"}
+function absFilterRows(){
+  if(!ABS_LOADED) return [];
 
-function exportCSV(){
-  const cols=tableCols();
-  const linhas=[cols.map(c=>c[1]).join(";")].concat(DATA.map(r=>cols.map(c=>{
-    const val=c[0]==="idade"?(idade(r)||""):v(r,c[0]);
-    return `"${String(val).replaceAll('"','""')}"`;
-  }).join(";")));
-  const blob=new Blob(["\ufeff"+linhas.join("\n")],{type:"text/csv;charset=utf-8"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="hub_comlurb_pessoas_filtrado.csv";
-  a.click();
+  const f = currentFilters();
+  const periodo = $("fAbsPeriodo")?.value || "";
+
+  return ABS_ROWS.filter(r=>{
+    if(periodo && val(r,ABS_COL.periodo) !== periodo) return false;
+    if(f.dir && val(r,ABS_COL.dir) !== f.dir && val(r,ABS_COL.dirPcm) !== f.dir) return false;
+    if(f.sup && val(r,ABS_COL.sup) !== f.sup) return false;
+    if(f.setor && val(r,ABS_COL.setor) !== f.setor && val(r,ABS_COL.setorGerencial) !== f.setor) return false;
+    return true;
+  });
 }
+
+function renderAbsenteismo(){
+  if(!ABS_LOADED) return;
+
+  if($("fAbsPeriodo")){
+    const current = $("fAbsPeriodo").value;
+    const periods = absPeriods(ABS_ROWS);
+    $("fAbsPeriodo").innerHTML = `<option value="">Todos os períodos</option>` +
+      periods.map(p=>`<option value="${p}">${p}</option>`).join("");
+    if(periods.includes(current)) $("fAbsPeriodo").value = current;
+  }
+
+  const baseRows = absFilterRows();
+
+  const totals = baseRows.reduce((acc,r)=>{
+    acc.esperadas += numberFrom(val(r,ABS_COL.esperadas));
+    acc.ger += numberFrom(val(r,ABS_COL.ger));
+    acc.nao += numberFrom(val(r,ABS_COL.nao));
+    acc.geral += numberFrom(val(r,ABS_COL.geral));
+    return acc;
+  },{esperadas:0,ger:0,nao:0,geral:0});
+
+  totals.pctGeral = totals.esperadas ? totals.geral/totals.esperadas*100 : 0;
+  totals.pctGer = totals.esperadas ? totals.ger/totals.esperadas*100 : 0;
+  totals.pctNao = totals.esperadas ? totals.nao/totals.esperadas*100 : 0;
+
+  if($("aTotal")) $("aTotal").textContent = fmtPct(totals.pctGeral);
+  if($("aHoras")) $("aHoras").textContent = fmtHoras(totals.geral);
+  if($("aGer")) $("aGer").textContent = fmtPct(totals.pctGer);
+  if($("aNaoGer")) $("aNaoGer").textContent = fmtPct(totals.pctNao);
+
+  if($("aInsight")){
+    $("aInsight").innerHTML = baseRows.length
+      ? `No recorte atual, foram identificadas <b>${fmtHoras(totals.geral)} horas perdidas</b>, equivalentes a <b>${fmtPct(totals.pctGeral)}</b> das horas esperadas.`
+      : `Sem dados de absenteísmo para o recorte atual.`;
+  }
+
+  const groups = Object.entries(groupBy(baseRows,r=>val(r,ABS_COL.gerencia) || val(r,ABS_COL.setor) || "Não informado"))
+    .map(([nome,rows])=>{
+      const t = rows.reduce((acc,r)=>{
+        acc.esperadas += numberFrom(val(r,ABS_COL.esperadas));
+        acc.ger += numberFrom(val(r,ABS_COL.ger));
+        acc.nao += numberFrom(val(r,ABS_COL.nao));
+        acc.geral += numberFrom(val(r,ABS_COL.geral));
+        return acc;
+      },{esperadas:0,ger:0,nao:0,geral:0});
+      t.nome = nome;
+      t.pctGeral = t.esperadas ? t.geral/t.esperadas*100 : 0;
+      t.pctGer = t.esperadas ? t.ger/t.esperadas*100 : 0;
+      t.pctNao = t.esperadas ? t.nao/t.esperadas*100 : 0;
+      return t;
+    })
+    .filter(g=>g.esperadas>0)
+    .sort((a,b)=>b.pctGeral-a.pctGeral);
+
+  const split = $("aSplit");
+  if(split){
+    const totalAbs = totals.ger + totals.nao || 1;
+    split.innerHTML = `
+      <div class="splitItem">
+        <div class="splitTop"><span>Composição total</span><b>${fmtHoras(totals.geral)} h</b></div>
+        <div class="stack">
+          <div class="stackG" style="width:${totals.ger/totalAbs*100}%"></div>
+          <div class="stackN" style="width:${totals.nao/totalAbs*100}%"></div>
+        </div>
+        <div class="hint" style="margin-top:10px">Gerenciável: ${fmtPct(totals.ger/totalAbs*100)} · Não gerenciável: ${fmtPct(totals.nao/totalAbs*100)}</div>
+      </div>
+    ` + groups.slice(0,5).map(g=>{
+      const t = g.ger + g.nao || 1;
+      return `
+        <div class="splitItem">
+          <div class="splitTop"><span>${g.nome}</span><b>${fmtPct(g.pctGeral)}</b></div>
+          <div class="stack">
+            <div class="stackG" style="width:${g.ger/t*100}%"></div>
+            <div class="stackN" style="width:${g.nao/t*100}%"></div>
+          </div>
+          <div class="hint" style="margin-top:10px">${fmtHoras(g.geral)} h perdidas · ${fmtHoras(g.esperadas)} h esperadas</div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  const rank = $("aRanking");
+  if(rank){
+    rank.innerHTML = groups.slice(0,10).map(g=>`
+      <div class="rank">
+        <div><b>${g.nome}</b><small>${fmtHoras(g.geral)} h perdidas · ${fmtHoras(g.esperadas)} h esperadas · Ger.: ${fmtPct(g.pctGer)} · Não ger.: ${fmtPct(g.pctNao)}</small></div>
+        <span class="statusPill ${g.pctGeral>=10?'crit':g.pctGeral>=6?'att':'ok'}">${fmtPct(g.pctGeral)}</span>
+      </div>
+    `).join("") || `<div class="empty">Sem ranking disponível.</div>`;
+  }
+
+  const alerts = $("aAlerts");
+  if(alerts){
+    const acima6 = groups.filter(g=>g.pctGeral>=6).length;
+    const pred = totals.ger >= totals.nao ? "Gerenciável" : "Não gerenciável";
+
+    alerts.innerHTML = `
+      <div class="alert ${totals.pctGeral>=8?'red':totals.pctGeral>=5?'orange':'green'}">
+        <small>Taxa geral</small><b>${fmtPct(totals.pctGeral)}</b><span>absenteísmo no recorte</span>
+      </div>
+      <div class="alert orange">
+        <small>Unidades em atenção</small><b>${fmtInt(acima6)}</b><span>com taxa igual ou superior a 6%</span>
+      </div>
+      <div class="alert">
+        <small>Predominância</small><b>${pred}</b><span>maior componente das horas perdidas</span>
+      </div>
+      <div class="alert green">
+        <small>Base temporal</small><b>${fmtInt(absPeriods(baseRows).length)}</b><span>períodos encontrados no filtro atual</span>
+      </div>
+      <div class="alert">
+        <small>Próxima evolução</small><b>Custo</b><span>converter horas perdidas em impacto financeiro</span>
+      </div>
+    `;
+  }
+}
+
+async function loadAbsenteismo(){
+  try{
+    const text = await fetchCsvText(ABS_CSV_URL);
+    const rows = parseCSV(text).filter(row=>Object.values(row).some(v=>clean(v)));
+    if(!rows.length) throw new Error("CSV de absenteísmo vazio.");
+
+    ABS_ROWS = rows;
+    const headers = Object.keys(rows[0]);
+
+    ABS_COL = {
+      periodo:pick(headers,["Período","Periodo"]),
+      dir:pick(headers,["DIRETORIA","Diretoria"]),
+      gerencia:pick(headers,["POR GERÊNCIA","POR GERENCIA","Gerência","Gerencia"]),
+      esperadas:pick(headers,["HORAS ESPERADAS"]),
+      ger:pick(headers,["Gerenciável","Gerenciavel"]),
+      pctGer:pick(headers,["% Gerenciável","% Gerenciavel"]),
+      nao:pick(headers,["Não Gerenciável","Nao Gerenciavel"]),
+      pctNao:pick(headers,["% Não Gerenciável","% Nao Gerenciavel"]),
+      geral:pick(headers,["Geral"]),
+      pctGeral:pick(headers,["% Geral"]),
+      setor:pick(headers,["Setor(PCM)","Setor"]),
+      sup:pick(headers,["SUPER/Coord(PCM)","SUPER Coord PCM","Super/Coord"]),
+      dirPcm:pick(headers,["Diretoria(PCM)"]),
+      setorGerencial:pick(headers,["Setor Gerencial"])
+    };
+
+    ABS_LOADED = true;
+    renderAbsenteismo();
+
+  }catch(err){
+    console.error(err);
+    ABS_LOADED = false;
+    if($("aInsight")) $("aInsight").textContent = "Não foi possível carregar o módulo de absenteísmo: " + err.message;
+  }
+}
+
+/* CARGA PRINCIPAL */
+async function loadData(){
+  try{
+    hideError();
+
+    const text = await fetchCsvText(CSV_URL);
+    const rows = parseCSV(text).filter(row=>Object.values(row).some(v=>clean(v)));
+    if(!rows.length) throw new Error("Nenhuma linha encontrada.");
+
+    ROWS = rows;
+    const headers = Object.keys(ROWS[0]);
+
+    COL = {
+      coddir:pick(headers,["CODDIR"]),
+      dir:pick(headers,["DIRETORIA","DIR"]),
+      sup:pick(headers,["SUPERINTENDÊNCIA","SUPERINTENDENCIA","COORDENAÇÃO","COORDENACAO","COORD"]),
+      setor:pick(headers,["SETOR","LOTAÇÃO","LOTACAO"]),
+      registro:pick(headers,["REGISTRO","MATRÍCULA","MATRICULA"]),
+      sexo:pick(headers,["SEXO"]),
+      funcaoCargo:pick(headers,["FUNCAOCARGO","FUNÇÃO CARGO","FUNCAO CARGO","CARGO"]),
+      admissao:pick(headers,["ADMISSÃO","ADMISSAO"]),
+      nascimento:pick(headers,["NASCIMENTO"]),
+      funcao:pick(headers,["FUNCAO","FUNÇÃO","FUNÇÃO EXERCIDA","FUNCAO EXERCIDA","EC"]),
+      codfreq:pick(headers,["CODFREQ"]),
+      afast:pick(headers,["AFASTAMENTO"]),
+      tipoAfastamento:pick(headers,["TIPOAFASTAMENTO","TIPO AFASTAMENTO"]),
+      descricao:pick(headers,["DESCRIÇÃO","DESCRICAO"]),
+      tipo:pick(headers,["TIPOCARGO","TIPO CARGO"]),
+      escolaridade:pick(headers,["ESCOLARIDADE"]),
+      bairroEnder:pick(headers,["BAIRROENDER","BAIRRO","BAIRRO_RES","BAIRRO RES"]),
+      cidadeEnder:pick(headers,["CIDADEENDER","CIDADE","MUNICIPIO","MUNICÍPIO","MUNICIPIO_RES"]),
+      idade:pick(headers,["IDADE","IDADEANOS","IDADE ANOS"]),
+      tempoCasaAnos:pick(headers,["TPCASAANOS","TEMPO CASA ANOS"]),
+      jornada:pick(headers,["JORNADA"]),
+      tipoSetor:pick(headers,["TIPOSETOR","TIPO SETOR"]),
+      situacao:pick(headers,["SITUAÇÃO FUNCIONAL","SITUACAO FUNCIONAL","SITUAÇÃO","SITUACAO"])
+    };
+
+    if(!COL.dir) throw new Error("Coluna DIRETORIA não localizada.");
+    if(!COL.setor) throw new Error("Coluna SETOR não localizada.");
+
+    updateFilters("");
+    render();
+
+  }catch(err){
+    console.error(err);
+    showError("Não foi possível carregar os dados via CSV publicado. Erro: " + err.message);
+    if($("updated")) $("updated").textContent = "Atualizado em: erro no carregamento";
+  }
+}
+
+["fDir","fSupCoord","fSetor","fCidade","fBairro","fAbsPeriodo","fAbsVisao"].forEach(id=>{
+  document.addEventListener("change",e=>{
+    if(e.target && e.target.id === id){
+      if(["fDir","fSupCoord","fSetor","fCidade","fBairro"].includes(id)) updateFilters(id);
+      render();
+    }
+  });
+});
 
 document.querySelectorAll(".tabBtn").forEach(btn=>{
-  btn.onclick=()=>{
+  btn.addEventListener("click",()=>{
     document.querySelectorAll(".tabBtn").forEach(b=>b.classList.remove("active"));
     document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
     btn.classList.add("active");
-    $(btn.dataset.screen).classList.add("active");
-    setTimeout(()=>Object.values(charts).forEach(c=>c.resize()),100);
-  }
+    const target = $(btn.dataset.tab);
+    if(target) target.classList.add("active");
+  });
 });
 
-["fDir","fCoord","fGer","fSetor"].forEach(id=>$(id).addEventListener("change",applyFilters));
-$("fBusca").addEventListener("input",applyFilters);
-
-Papa.parse(CSV_URL,{
-  download:true,header:true,skipEmptyLines:true,
-  complete:res=>{
-    ROWS=(res.data||[]).filter(r=>Object.values(r).some(v=>clean(v)));
-    getCols();
-    DATA=[...ROWS];
-    populateFilters();
-    render();
-  },
-  error:e=>showError("Erro ao carregar CSV: "+e.message)
+document.addEventListener("DOMContentLoaded",()=>{
+  loadData();
+  loadAbsenteismo();
 });
-
-window.addEventListener("resize",()=>Object.values(charts).forEach(c=>c.resize()));
 </script>
-</body>
-</html>
