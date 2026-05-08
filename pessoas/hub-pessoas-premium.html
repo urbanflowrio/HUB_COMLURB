@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HUB COMLURB | Pessoas - Premium</title>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+:root{--bg:#050c15;--card:#0f243a;--text:#f8fafc;--text-sec:#cbd5e1;--muted:#94a3b8;--line:rgba(255,255,255,.08);--line-strong:rgba(255,255,255,.15);--accent:#38bdf8;--accent-glow:rgba(56,189,248,.25);--success:#22c55e;--warning:#f59e0b;--danger:#ef4444}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:radial-gradient(ellipse at top,rgba(56,189,248,.08),transparent 50%),radial-gradient(ellipse at bottom right,rgba(34,197,94,.04),transparent 50%),linear-gradient(180deg,#04090f 0%,#0a1628 50%,#050c15 100%);color:var(--text);min-height:100vh;overflow-x:hidden;line-height:1.6;-webkit-font-smoothing:antialiased}
+.topbar{padding:28px 40px;background:rgba(7,17,31,.92);backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid var(--line-strong);position:sticky;top:0;z-index:100;box-shadow:0 8px 32px rgba(0,0,0,.24)}
+.brand-row{display:flex;align-items:center;gap:32px;flex-wrap:wrap}
+.logo-comlurb{height:52px;width:auto;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(56,189,248,.18));transition:all .3s ease}
+.logo-comlurb:hover{filter:drop-shadow(0 6px 16px rgba(56,189,248,.32));transform:translateY(-2px)}
+.header-content h1{font-size:32px;font-weight:900;letter-spacing:-1.2px;background:linear-gradient(135deg,#f8fafc 0%,#cbd5e1 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.subtitle-system{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1.8px;color:var(--accent);margin-bottom:12px;text-shadow:0 0 20px var(--accent-glow)}
+.header-desc{font-size:15px;color:var(--text-sec);line-height:1.5;max-width:780px}
+.status-bar{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.status-badge{padding:8px 14px;background:rgba(56,189,248,.10);border:1px solid rgba(56,189,248,.20);border-radius:8px;font-size:12px;font-weight:600;color:var(--accent);letter-spacing:.3px;transition:all .25s ease}
+.status-badge:hover{background:rgba(56,189,248,.16);transform:translateY(-1px)}
+.tabs-container{padding:20px 40px;border-bottom:1px solid var(--line);background:rgba(10,22,40,.60);backdrop-filter:blur(10px);position:sticky;top:120px;z-index:90}
+.tabs{display:flex;gap:12px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{padding:12px 20px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:12px;color:var(--text-sec);font-size:13px;font-weight:700;letter-spacing:.4px;cursor:pointer;transition:all .3s cubic-bezier(.4,0,.2,1);white-space:nowrap;position:relative;overflow:hidden}
+.tab-btn span{position:relative;z-index:1}
+.tab-btn:hover{border-color:rgba(56,189,248,.40);transform:translateY(-2px);box-shadow:0 8px 24px rgba(56,189,248,.12)}
+.tab-btn.active{background:linear-gradient(135deg,#0284c7,#38bdf8);border-color:transparent;color:white;box-shadow:0 10px 32px rgba(56,189,248,.28),inset 0 1px 0 rgba(255,255,255,.20)}
+.filters{padding:24px 40px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;background:rgba(15,36,58,.40);border-bottom:1px solid var(--line)}
+.filter-wrapper{position:relative}
+.filter-wrapper::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(56,189,248,.08),transparent);border-radius:14px;opacity:0;transition:opacity .3s ease;pointer-events:none}
+.filter-wrapper:focus-within::before{opacity:1}
+select,input{width:100%;padding:14px 16px;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:12px;color:var(--text);font-size:14px;font-weight:500;font-family:inherit;outline:none;transition:all .3s ease}
+select:hover,input:hover{border-color:rgba(56,189,248,.30);background:rgba(255,255,255,.08)}
+select:focus,input:focus{border-color:var(--accent);background:rgba(255,255,255,.10);box-shadow:0 0 0 3px var(--accent-glow)}
+option{background:#0f172a;color:white;padding:8px}
+main{padding:32px 40px 60px;max-width:1920px;margin:0 auto}
+.tab-content{display:none;animation:fadeIn .4s ease}
+.tab-content.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-bottom:32px}
+.kpi-card{position:relative;padding:24px;background:linear-gradient(145deg,rgba(15,36,58,.85),rgba(19,47,74,.65));border:1px solid var(--line-strong);border-radius:20px;cursor:pointer;transition:all .35s cubic-bezier(.4,0,.2,1);overflow:hidden}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--success));opacity:0;transition:opacity .35s ease}
+.kpi-card::after{content:'';position:absolute;inset:-100%;background:radial-gradient(circle,rgba(56,189,248,.15),transparent 70%);opacity:0;transition:all .5s ease}
+.kpi-card:hover{transform:translateY(-6px);border-color:rgba(56,189,248,.40);box-shadow:0 20px 60px rgba(0,0,0,.30),0 0 40px var(--accent-glow),inset 0 1px 0 rgba(255,255,255,.10)}
+.kpi-card:hover::before{opacity:1}
+.kpi-card:hover::after{opacity:1;inset:0}
+.kpi-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:12px;position:relative;z-index:1}
+.kpi-value{font-size:42px;font-weight:900;letter-spacing:-2px;background:linear-gradient(135deg,#f8fafc,#cbd5e1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;margin-bottom:10px;position:relative;z-index:1}
+.kpi-sub{font-size:13px;color:var(--text-sec);font-weight:500;position:relative;z-index:1}
+.section-header{display:flex;justify-content:space-between;align-items:flex-end;margin:48px 0 24px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.section-header h2{font-size:24px;font-weight:800;letter-spacing:-.8px;color:var(--text)}
+.section-header p{font-size:14px;color:var(--muted);margin-top:6px}
+.chart-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(480px,1fr));gap:24px;margin-bottom:32px}
+.chart-card{background:linear-gradient(145deg,rgba(15,36,58,.70),rgba(19,47,74,.50));border:1px solid var(--line-strong);border-radius:24px;padding:28px;box-shadow:0 12px 48px rgba(0,0,0,.20);transition:all .3s ease;position:relative;overflow:hidden}
+.chart-card::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(56,189,248,.08),transparent 50%);opacity:0;transition:opacity .5s ease}
+.chart-card:hover{border-color:rgba(56,189,248,.25);box-shadow:0 16px 64px rgba(0,0,0,.28);transform:translateY(-4px)}
+.chart-card:hover::before{opacity:1}
+.chart-title{font-size:16px;font-weight:700;color:var(--text-sec);margin-bottom:20px;letter-spacing:-.3px}
+.chart-container{height:380px;position:relative;z-index:1}
+.table-card{background:linear-gradient(145deg,rgba(15,36,58,.70),rgba(19,47,74,.50));border:1px solid var(--line-strong);border-radius:24px;padding:28px;box-shadow:0 12px 48px rgba(0,0,0,.20);overflow:hidden}
+.table-wrapper{overflow-x:auto;border-radius:12px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead{background:rgba(56,189,248,.08);position:sticky;top:0;z-index:10}
+th{padding:14px 16px;text-align:left;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--accent);border-bottom:2px solid rgba(56,189,248,.20)}
+td{padding:14px 16px;border-bottom:1px solid var(--line);color:var(--text-sec);font-weight:500}
+tbody tr{transition:all .2s ease}
+tbody tr:hover{background:rgba(56,189,248,.06)}
+.badge{display:inline-flex;align-items:center;padding:6px 12px;border-radius:8px;font-size:11px;font-weight:700;letter-spacing:.5px;white-space:nowrap}
+.badge-blue{background:rgba(56,189,248,.15);color:#bae6fd;border:1px solid rgba(56,189,248,.30)}
+.badge-green{background:rgba(34,197,94,.15);color:#bbf7d0;border:1px solid rgba(34,197,94,.30)}
+.badge-yellow{background:rgba(245,158,11,.15);color:#fef08a;border:1px solid rgba(245,158,11,.30)}
+.badge-red{background:rgba(239,68,68,.15);color:#fecdd3;border:1px solid rgba(239,68,68,.30)}
+.map-container{height:600px;border-radius:24px;overflow:hidden;box-shadow:0 20px 64px rgba(0,0,0,.30),0 0 40px var(--accent-glow);border:1px solid var(--line-strong);margin-bottom:24px}
+#map{height:100%;width:100%}
+.leaflet-popup-content-wrapper{background:rgba(15,36,58,.95);backdrop-filter:blur(12px);color:var(--text);border-radius:12px;border:1px solid var(--line-strong)}
+.leaflet-popup-tip{background:rgba(15,36,58,.95)}
+.loading-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:24px}
+.spinner{width:64px;height:64px;border:4px solid rgba(56,189,248,.15);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:16px;color:var(--muted);font-weight:600}
+.error-box{padding:24px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.30);border-radius:16px;color:var(--danger);line-height:1.6}
+.toolbar{display:flex;justify-content:flex-end;gap:12px;margin-bottom:20px}
+.btn-action{padding:12px 20px;background:linear-gradient(135deg,rgba(56,189,248,.15),rgba(34,197,94,.10));border:1px solid rgba(56,189,248,.30);border-radius:12px;color:var(--accent);font-size:13px;font-weight:700;cursor:pointer;transition:all .3s ease;letter-spacing:.4px}
+.btn-action:hover{background:linear-gradient(135deg,rgba(56,189,248,.25),rgba(34,197,94,.15));transform:translateY(-2px);box-shadow:0 8px 24px var(--accent-glow)}
+@media(max-width:1200px){.chart-grid{grid-template-columns:1fr}}
+@media(max-width:768px){.topbar,.tabs-container,.filters,main{padding-left:20px;padding-right:20px}.header-content h1{font-size:24px}.kpi-grid{grid-template-columns:1fr}.chart-container{height:320px}.map-container{height:400px}.tabs{gap:8px}.tab-btn{padding:10px 16px;font-size:12px}}
+</style>
+</head>
+<body>
+<header class="topbar">
+<div class="brand-row">
+<img src="../assets/logos/RIOPREFEITURA Comlurb horizontal monocromatica branco.png" alt="COMLURB" class="logo-comlurb" onerror="this.style.display='none'">
+<div class="header-content">
+<div class="subtitle-system">Inteligência Operacional</div>
+<h1>HUB COMLURB — Pessoas</h1>
+<p class="header-desc">Painel executivo desenvolvido para transformar bases operacionais em leitura visual, rápida e orientada à decisão. Análise integrada de perfil funcional, distribuição territorial, saúde ocupacional e risco de reposição.</p>
+<div class="status-bar">
+<div class="status-badge">📊 Base oficial publicada</div>
+<div class="status-badge" id="lastUpdate">⏱️ Carregando...</div>
+<div class="status-badge" id="rowCount">📝 Linhas: -</div>
+</div>
+</div>
+</div>
+</header>
+<nav class="tabs-container">
+<div class="tabs">
+<button class="tab-btn active" data-tab="executiva"><span>Visão Executiva</span></button>
+<button class="tab-btn" data-tab="perfil"><span>Perfil Funcional</span></button>
+<button class="tab-btn" data-tab="territorial"><span>Análise Territorial</span></button>
+<button class="tab-btn" data-tab="saude"><span>Saúde Ocupacional</span></button>
+<button class="tab-btn" data-tab="reposicao"><span>Risco de Reposição</span></button>
+<button class="tab-btn" data-tab="gerencias"><span>Gerências</span></button>
+<button class="tab-btn" data-tab="analitico"><span>Base Analítica</span></button>
+</div>
+</nav>
+<section class="filters">
+<div class="filter-wrapper"><select id="fDiretoria"><option value="">Todas as diretorias</option></select></div>
+<div class="filter-wrapper"><select id="fCoordenacao"><option value="">Todas as coordenações</option></select></div>
+<div class="filter-wrapper"><select id="fGerencia"><option value="">Todas as gerências</option></select></div>
+<div class="filter-wrapper"><select id="fSetor"><option value="">Todos os setores</option></select></div>
+<div class="filter-wrapper"><input id="fBusca" placeholder="🔍 Buscar servidor, cargo, função..."></div>
+</section>
+<div id="loading" class="loading-screen">
+<div class="spinner"></div>
+<div class="loading-text">Carregando inteligência operacional...</div>
+</div>
+<main id="content" style="display:none">
+<section id="executiva" class="tab-content active">
+<div class="kpi-grid">
+<div class="kpi-card" onclick="openTab('analitico')"><div class="kpi-label">Efetivo Total</div><div class="kpi-value" id="kEfetivo">0</div><div class="kpi-sub">servidores na seleção</div></div>
+<div class="kpi-card" onclick="openTab('gerencias')"><div class="kpi-label">Gerências Ativas</div><div class="kpi-value" id="kGerencias">0</div><div class="kpi-sub">com efetivo alocado</div></div>
+<div class="kpi-card" onclick="openTab('perfil')"><div class="kpi-label">Funções/ECs</div><div class="kpi-value" id="kFuncoes">0</div><div class="kpi-sub">encargos ativos</div></div>
+<div class="kpi-card" onclick="openTab('saude')"><div class="kpi-label">Saúde Ocupacional</div><div class="kpi-value" id="kSaude">0</div><div class="kpi-sub">registros agregados</div></div>
+<div class="kpi-card" onclick="openTab('reposicao')"><div class="kpi-label">Risco 65+</div><div class="kpi-value" id="kReposicao">0</div><div class="kpi-sub">aposentadoria iminente</div></div>
+</div>
+<div class="section-header"><div><h2>Distribuição Executiva</h2><p>Leitura consolidada por diretoria, coordenação e situação funcional</p></div></div>
+<div class="chart-grid">
+<div class="chart-card"><div class="chart-title">Efetivo por Diretoria</div><div id="chartDiretoria" class="chart-container"></div></div>
+<div class="chart-card"><div class="chart-title">Situação Funcional</div><div id="chartSituacao" class="chart-container"></div></div>
+</div>
+<div class="chart-grid">
+<div class="chart-card"><div class="chart-title">Top 15 Coordenações</div><div id="chartCoordenacao" class="chart-container"></div></div>
+<div class="chart-card"><div class="chart-title">Distribuição por Cargo</div><div id="chartCargo" class="chart-container"></div></div>
+</div>
+</section>
+<section id="perfil" class="tab-content">
+<div class="section-header"><div><h2>Análise de Perfil Funcional</h2><p>Função Cargo vs EC | Distribuição de encargos e funções exercidas</p></div></div>
+<div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+<div class="kpi-card"><div class="kpi-label">Com EC Ativo</div><div class="kpi-value" id="pEC">0</div><div class="kpi-sub">servidores em EC</div></div>
+<div class="kpi-card"><div class="kpi-label">Função Cargo</div><div class="kpi-value" id="pFuncaoCargo">0</div><div class="kpi-sub">atuam na função cargo</div></div>
+<div class="kpi-card"><div class="kpi-label">Encarregados</div><div class="kpi-value" id="pEncarregados">0</div><div class="kpi-sub">I, II, III, IV</div></div>
+<div class="kpi-card"><div class="kpi-label">Funções Únicas</div><div class="kpi-value" id="pFuncoesUnicas">0</div><div class="kpi-sub">diferentes identificadas</div></div>
+</div>
+<div class="chart-grid">
+<div class="chart-card"><div class="chart-title">Top 15 Funções Exercidas / EC</div><div id="chartFuncaoExercida" class="chart-container"></div></div>
+<div class="chart-card"><div class="chart-title">Função Cargo vs EC</div><div id="chartFuncaoCargo" class="chart-container"></div></div>
+</div>
+<div class="table-card"><h3 style="margin-bottom:20px;font-size:18px">Detalhamento Função Cargo vs EC</h3><div class="table-wrapper"><table id="tblFuncoes"></table></div></div>
+</section>
+<section id="territorial" class="tab-content">
+<div class="section-header"><div><h2>Distribuição Territorial</h2><p>Mapa de calor: residência vs local de trabalho | Bairros com maior concentração</p></div></div>
+<div class="kpi-grid" style="grid-template-columns:repeat(3,1fr)">
+<div class="kpi-card"><div class="kpi-label">Bairros Residência</div><div class="kpi-value" id="tBairrosRes">0</div><div class="kpi-sub">diferentes identificados</div></div>
+<div class="kpi-card"><div class="kpi-label">Bairros Trabalho</div><div class="kpi-value" id="tBairrosTrab">0</div><div class="kpi-sub">locais operacionais</div></div>
+<div class="kpi-card"><div class="kpi-label">Maior Concentração</div><div class="kpi-value" id="tBairroTop" style="font-size:22px">-</div><div class="kpi-sub">bairro predominante</div></div>
+</div>
+<div class="map-container"><div id="map"></div></div>
+<div class="chart-grid">
+<div class="chart-card"><div class="chart-title">Top 15 Bairros (Residência)</div><div id="chartBairroRes" class="chart-container"></div></div>
+<div class="chart-card"><div class="chart-title">Top 15 Bairros (Trabalho)</div><div id="chartBairroTrab" class="chart-container"></div></div>
+</div>
+</section>
+<section id="saude" class="tab-content">
+<div class="section-header"><div><h2>Saúde Ocupacional Agregada</h2><p>Visão consolidada sem exposição nominal | Restrições e laudos por função e gerência</p></div></div>
+<div class="kpi-grid">
+<div class="kpi-card"><div class="kpi-label">Total Agregado</div><div class="kpi-value" id="sTotal">0</div><div class="kpi-sub">registros identificados</div></div>
+<div class="kpi-card"><div class="kpi-label">% do Efetivo</div><div class="kpi-value" id="sPerc">0%</div><div class="kpi-sub">sobre seleção atual</div></div>
+<div class="kpi-card"><div class="kpi-label">Gerências Impactadas</div><div class="kpi-value" id="sGerencias">0</div><div class="kpi-sub">com registros</div></div>
+<div class="kpi-card"><div class="kpi-label">Função Mais Impactada</div><div class="kpi-value" id="sFuncao" style="font-size:20px">-</div><div class="kpi-sub">maior concentração</div></div>
+<div class="kpi-card"><div class="kpi-label">Status Predominante</div><div class="kpi-value" id="sStatus" style="font-size:20px">-</div><div class="kpi-sub">mais frequente</div></div>
+</div>
+<div class="chart-grid">
+<div class="chart-card"><div class="chart-title">Saúde Ocupacional por Gerência</div><div id="chartSaudeGerencia" class="chart-container"></div></div>
+<div class="chart-card"><div class="chart-title">Saúde Ocupacional por Função/EC</div><div id="chartSaudeFuncao" class="chart-container"></div></div>
+</div>
+</section>
+<section id="reposicao" class="tab-content">
+<div class="section-header"><div><h2>Risco de Reposição</h2><p>Envelhecimento do efetivo | Faixas etárias críticas | Concentração 65+</p></div></div>
+<div class="kpi-grid">
+<div class="kpi-card"><div class="kpi-label">60 Anos ou Mais</div><div class="kpi-value" id="r60">0</div><div class="kpi-sub">atenção médio prazo</div></div>
+<div class="kpi-card"><div class="kpi-label">65 Anos ou Mais</div><div class="kpi-value" id="r65">0</div><div class="kpi-sub">risco crítico iminente</div></div>
+<div class="kpi-card"><div class="kpi-label">% 65+</div><div class="kpi-value" id="rPerc">0%</div><div class="kpi-sub">sobre efetivo filtrado</div></div>
+<div class="kpi-card"><div class="kpi-label">Função Crítica</div><div class="kpi-value" id="rFuncao" style="font-size:20px">-</div><div class="kpi-sub">maior concentração 65+</div></div>
+<div class="kpi-card"><div class="kpi-label">Gerência Crítica</div><div class="kpi-value" id="rGerencia" style="font-size:20px">-</div><div class="kpi-sub">maior concentração 65+</div></div>
+</div>
+<div class="chart-grid">
+<div class="chart-card"><div class="chart-title">Pirâmide Etária</div><div id="chartIdade" class="chart-container"></div></div>
+<div class="chart-card"><div class="chart-title">65+ por Gerência</div><div id="chartReposicaoGerencia" class="chart-container"></div></div>
+</div>
+</section>
+<section id="gerencias" class="tab-content">
+<div class="section-header"><div><h2>Consolidado por Gerência</h2><p>Leitura executiva: efetivo, função predominante, saúde e risco 65+</p></div></div>
+<div class="table-card"><div class="table-wrapper"><table id="tblGerencias"></table></div></div>
+</section>
+<section id="analitico" class="tab-content">
+<div class="section-header"><div><h2>Base Analítica Nominal</h2><p>Consulta detalhada restrita ao perfil funcional | Saúde ocupacional permanece agregada</p></div></div>
+<div class="toolbar"><button class="btn-action" onclick="exportCSV()">📥 Exportar Excel/CSV</button></div>
+<div class="table-card"><div class="table-wrapper"><table id="tblAnalitico"></table></div></div>
+</section>
+</main>
+<script>
+const CONFIG={CSV_PESSOAS:"https://docs.google.com/spreadsheets/d/e/2PACX-1vRE3Q_RdpZOqc4f3O3fQirMQkEXQWyBkiIlXB6LZWgqTZbItGBHAxUHf2-0kEcALDIUfyPeK7GyBQrB/pub?gid=1371643814&single=true&output=csv"};
+let rawData=[],filteredData=[],map=null,charts={};
+const aliases={registro:["REGISTRO","MATRICULA","MATRÍCULA","ID"],nome:["NOME","SERVIDOR"],diretoria:["DIRETORIA","DIR"],coordenacao:["COORDENAÇÃO","COORDENACAO","COORD"],gerencia:["GERÊNCIA","GERENCIA","GER"],setor:["SETOR","LOTAÇÃO","LOTACAO"],cargo:["CARGO","FUNCAOCARGO","FUNÇÃO CARGO"],funcao:["FUNÇÃO","FUNCAO","FUNÇÃO DE ORIGEM"],funcaoEC:["FUNÇÃO EXERCIDA","FUNCAO EXERCIDA","FUNCAO_EC","EC","ENCARGO"],situacao:["SITUAÇÃO FUNCIONAL","SITUACAO","STATUS"],idade:["IDADEANOS","IDADE"],bairroRes:["BAIRRO_RES","BAIRRO RESIDENCIA"],bairroTrab:["BAIRRO_TRABALHO","BAIRRO LOTAÇÃO"],latRes:["LAT_RES","LATITUDE_RES"],lonRes:["LON_RES","LONGITUDE_RES"],latTrab:["LAT_TRAB","LAT_TRABALHO"],lonTrab:["LON_TRAB","LON_TRABALHO"],statusRes:["STATUS_RES"],saude:["SAÚDE","SAUDE","LAUDO","RESTRIÇÃO"]};
+const columnCache={};
+function norm(v){return String(v??"").trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").toUpperCase()}
+function clean(v){return String(v??"").trim()}
+function fmt(n){return Number(n||0).toLocaleString("pt-BR")}
+function pct(a,b){return b?((a/b)*100).toFixed(1).replace(".",",")+"%":"0%"}
+function safe(v){return String(v??"").replace(/[&<>'"]/g,s=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[s]))}
+function parseNum(v){const n=String(v??"").replace(/\./g,"").replace(",",".").replace(/[^\d.-]/g,"");return Number(n)||0}
+function findCol(field){if(columnCache[field])return columnCache[field];const cols=Object.keys(rawData[0]||{});const keys=aliases[field]||[field];const ncols=cols.map(c=>({original:c,normalized:norm(c)}));const nkeys=keys.map(k=>norm(k));for(const k of nkeys){const exact=ncols.find(c=>c.normalized===k);if(exact){columnCache[field]=exact.original;return exact.original}}for(const k of nkeys){const starts=ncols.find(c=>c.normalized.startsWith(k));if(starts){columnCache[field]=starts.original;return starts.original}}const loose=ncols.find(c=>nkeys.some(k=>c.normalized.includes(k)));columnCache[field]=loose?loose.original:null;return columnCache[field]}
+function val(row,field){const col=findCol(field);return col?clean(row[col]):""}
+function num(row,field){return parseNum(val(row,field))}
+function countBy(data,getter){const map={};data.forEach(r=>{const k=clean(getter(r))||"Não informado";map[k]=(map[k]||0)+1});return Object.entries(map).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],"pt-BR"))}
+function topN(arr,n=10){return arr.slice(0,n)}
+function uniqueValues(data,field){return[...new Set(data.map(r=>val(r,field)).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt-BR"))}
+function hasData(row){return Object.values(row||{}).some(v=>clean(v))}
+function hasSaude(row){const cols=Object.keys(row||{}).filter(c=>["SAUDE","LAUDO","RESTRICAO","RESTRIÇÃO"].some(k=>norm(c).includes(norm(k))));return cols.some(c=>{const v=norm(row[c]);if(!v)return false;const neg=["NAO","NÃO","0","FALSE","N","SEM"];return!neg.some(n=>v.includes(n))})}
+function isEC(row){const ec=norm(val(row,"funcaoEC"));const cargo=norm(val(row,"cargo"));if(ec.includes("ENCARREGADO")&&/[I]{1,3}V?/.test(ec))return false;return ec&&ec!==cargo}
+function setSelect(id,values,label){const el=document.getElementById(id);const current=el.value;el.innerHTML=`<option value="">${label}</option>`;values.forEach(v=>{const opt=document.createElement("option");opt.value=v;opt.textContent=v;el.appendChild(opt)});if(values.includes(current))el.value=current}
+function getFilters(){return{diretoria:document.getElementById("fDiretoria").value,coordenacao:document.getElementById("fCoordenacao").value,gerencia:document.getElementById("fGerencia").value,setor:document.getElementById("fSetor").value,busca:norm(document.getElementById("fBusca").value)}}
+function filterForOptions(level){const f=getFilters();return rawData.filter(r=>{if(level!=="diretoria"&&f.diretoria&&val(r,"diretoria")!==f.diretoria)return false;if(level!=="coordenacao"&&f.coordenacao&&val(r,"coordenacao")!==f.coordenacao)return false;if(level!=="gerencia"&&f.gerencia&&val(r,"gerencia")!==f.gerencia)return false;if(level!=="setor"&&f.setor&&val(r,"setor")!==f.setor)return false;return true})}
+function populateFilters(){setSelect("fDiretoria",uniqueValues(filterForOptions("diretoria"),"diretoria"),"Todas as diretorias");setSelect("fCoordenacao",uniqueValues(filterForOptions("coordenacao"),"coordenacao"),"Todas as coordenações");setSelect("fGerencia",uniqueValues(filterForOptions("gerencia"),"gerencia"),"Todas as gerências");setSelect("fSetor",uniqueValues(filterForOptions("setor"),"setor"),"Todos os setores")}
+function applyFilters(){const f=getFilters();filteredData=rawData.filter(r=>{if(f.diretoria&&val(r,"diretoria")!==f.diretoria)return false;if(f.coordenacao&&val(r,"coordenacao")!==f.coordenacao)return false;if(f.gerencia&&val(r,"gerencia")!==f.gerencia)return false;if(f.setor&&val(r,"setor")!==f.setor)return false;if(f.busca){const blob=norm([val(r,"registro"),val(r,"nome"),val(r,"cargo"),val(r,"funcao"),val(r,"funcaoEC"),val(r,"situacao")].join(" "));if(!blob.includes(f.busca))return false}return true});populateFilters();renderAll()}
+function destroyChart(id){if(charts[id]){charts[id].dispose();delete charts[id]}}
+function makeBarChart(id,data){destroyChart(id);const el=document.getElementById(id);if(!el)return;const chart=echarts.init(el);charts[id]=chart;chart.setOption({tooltip:{trigger:'axis',backgroundColor:'rgba(15,36,58,.95)',borderColor:'rgba(56,189,248,.30)',textStyle:{color:'#f8fafc'}},grid:{left:'3%',right:'4%',bottom:'3%',containLabel:true},xAxis:{type:'value',axisLine:{lineStyle:{color:'rgba(255,255,255,.10)'}},axisLabel:{color:'#94a3b8'},splitLine:{lineStyle:{color:'rgba(255,255,255,.05)'}}},yAxis:{type:'category',data:data.map(x=>x[0]),axisLine:{lineStyle:{color:'rgba(255,255,255,.10)'}},axisLabel:{color:'#cbd5e1',fontSize:12}},series:[{type:'bar',data:data.map(x=>x[1]),itemStyle:{color:new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#38bdf8'},{offset:1,color:'#22c55e'}]),borderRadius:[0,8,8,0]},label:{show:true,position:'right',color:'#cbd5e1',fontSize:11,fontWeight:600}}]})}
+function makePieChart(id,data){destroyChart(id);const el=document.getElementById(id);if(!el)return;const chart=echarts.init(el);charts[id]=chart;chart.setOption({tooltip:{trigger:'item',backgroundColor:'rgba(15,36,58,.95)',borderColor:'rgba(56,189,248,.30)',textStyle:{color:'#f8fafc'}},legend:{orient:'vertical',right:10,top:'center',textStyle:{color:'#cbd5e1',fontSize:11}},series:[{type:'pie',radius:['45%','70%'],center:['40%','50%'],data:data.map(x=>({name:x[0],value:x[1]})),itemStyle:{borderRadius:8,borderColor:'rgba(7,17,31,.80)',borderWidth:2},label:{color:'#cbd5e1',fontSize:11,fontWeight:600}}]})}
+function renderAll(){const total=filteredData.length;const saudeData=filteredData.filter(hasSaude);const rep60=filteredData.filter(r=>num(r,"idade")>=60);const rep65=filteredData.filter(r=>num(r,"idade")>=65);const comEC=filteredData.filter(isEC);document.getElementById("kEfetivo").textContent=fmt(total);document.getElementById("kGerencias").textContent=fmt(new Set(filteredData.map(r=>val(r,"gerencia")).filter(Boolean)).size);document.getElementById("kFuncoes").textContent=fmt(new Set(filteredData.map(r=>val(r,"funcaoEC")||val(r,"funcao")).filter(Boolean)).size);document.getElementById("kSaude").textContent=fmt(saudeData.length);document.getElementById("kReposicao").textContent=fmt(rep65.length);makeBarChart("chartDiretoria",topN(countBy(filteredData,r=>val(r,"diretoria")),10));makePieChart("chartSituacao",topN(countBy(filteredData,r=>val(r,"situacao")),8));makeBarChart("chartCoordenacao",topN(countBy(filteredData,r=>val(r,"coordenacao")),15));makePieChart("chartCargo",topN(countBy(filteredData,r=>val(r,"cargo")),10));document.getElementById("pEC").textContent=fmt(comEC.length);document.getElementById("pFuncaoCargo").textContent=fmt(total-comEC.length);const encarregados=filteredData.filter(r=>{const ec=norm(val(r,"funcaoEC"));return ec.includes("ENCARREGADO")&&/[I]{1,3}V?/.test(ec)});document.getElementById("pEncarregados").textContent=fmt(encarregados.length);document.getElementById("pFuncoesUnicas").textContent=fmt(new Set(filteredData.map(r=>val(r,"funcaoEC")||val(r,"funcao")).filter(Boolean)).size);makeBarChart("chartFuncaoExercida",topN(countBy(filteredData,r=>val(r,"funcaoEC")||val(r,"funcao")),15));makePieChart("chartFuncaoCargo",[["Com EC",comEC.length],["Função Cargo",total-comEC.length]]);const bairrosRes=uniqueValues(filteredData,"bairroRes");const bairrosTrab=uniqueValues(filteredData,"bairroTrab");const topBairro=topN(countBy(filteredData,r=>val(r,"bairroRes")),1);document.getElementById("tBairrosRes").textContent=fmt(bairrosRes.length);document.getElementById("tBairrosTrab").textContent=fmt(bairrosTrab.length);document.getElementById("tBairroTop").textContent=topBairro[0]?.[0]||"-";makeBarChart("chartBairroRes",topN(countBy(filteredData,r=>val(r,"bairroRes")),15));makeBarChart("chartBairroTrab",topN(countBy(filteredData,r=>val(r,"bairroTrab")),15));renderMap();document.getElementById("sTotal").textContent=fmt(saudeData.length);document.getElementById("sPerc").textContent=pct(saudeData.length,total);document.getElementById("sGerencias").textContent=fmt(new Set(saudeData.map(r=>val(r,"gerencia")).filter(Boolean)).size);const topSaudeFuncao=topN(countBy(saudeData,r=>val(r,"funcaoEC")||val(r,"funcao")),1);document.getElementById("sFuncao").textContent=topSaudeFuncao[0]?.[0]||"-";const topStatus=topN(countBy(saudeData,r=>val(r,"statusRes")),1);document.getElementById("sStatus").textContent=topStatus[0]?.[0]||"-";makeBarChart("chartSaudeGerencia",topN(countBy(saudeData,r=>val(r,"gerencia")),10));makeBarChart("chartSaudeFuncao",topN(countBy(saudeData,r=>val(r,"funcaoEC")||val(r,"funcao")),10));document.getElementById("r60").textContent=fmt(rep60.length);document.getElementById("r65").textContent=fmt(rep65.length);document.getElementById("rPerc").textContent=pct(rep65.length,total);const topRepFuncao=topN(countBy(rep65,r=>val(r,"funcaoEC")||val(r,"funcao")),1);const topRepGer=topN(countBy(rep65,r=>val(r,"gerencia")),1);document.getElementById("rFuncao").textContent=topRepFuncao[0]?.[0]||"-";document.getElementById("rGerencia").textContent=topRepGer[0]?.[0]||"-";const faixas=[["Até 29",filteredData.filter(r=>num(r,"idade")>0&&num(r,"idade")<=29).length],["30-39",filteredData.filter(r=>num(r,"idade")>=30&&num(r,"idade")<=39).length],["40-49",filteredData.filter(r=>num(r,"idade")>=40&&num(r,"idade")<=49).length],["50-59",filteredData.filter(r=>num(r,"idade")>=50&&num(r,"idade")<=59).length],["60-64",filteredData.filter(r=>num(r,"idade")>=60&&num(r,"idade")<=64).length],["65+",filteredData.filter(r=>num(r,"idade")>=65).length]];makeBarChart("chartIdade",faixas);makeBarChart("chartReposicaoGerencia",topN(countBy(rep65,r=>val(r,"gerencia")),10));renderTables()}
+function renderTable(id,rows,headers){const el=document.getElementById(id);if(!el)return;if(!rows.length){el.innerHTML=`<tbody><tr><td colspan="${headers.length}" style="text-align:center;padding:40px;color:var(--muted)">📭 Sem dados para a seleção atual</td></tr></tbody>`;return}el.innerHTML=`<thead><tr>${headers.map(h=>`<th>${safe(h)}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}</tbody>`}
+function badge(text,type="blue"){return`<span class="badge badge-${type}">${safe(text)}</span>`}
+function renderTables(){const funcoes=topN(countBy(filteredData,r=>val(r,"funcaoEC")||val(r,"funcao")),20);renderTable("tblFuncoes",funcoes.map(([f,q])=>[safe(f),fmt(q),badge(pct(q,filteredData.length)),badge(filteredData.filter(r=>(val(r,"funcaoEC")||val(r,"funcao"))===f&&isEC(r)).length+" em EC","green")]),["Função/EC","Qtd","%","Com EC"]);const gerencias=countBy(filteredData,r=>val(r,"gerencia")).map(([g,q])=>{const subset=filteredData.filter(r=>(val(r,"gerencia")||"Não informado")===g);const s=subset.filter(hasSaude).length;const r65=subset.filter(r=>num(r,"idade")>=65).length;const topFunc=topN(countBy(subset,r=>val(r,"funcaoEC")||val(r,"funcao")),1)[0]?.[0]||"-";return[safe(g),fmt(q),safe(topFunc),fmt(s),fmt(r65),r65>0?badge(pct(r65,q),"red"):badge("0%","green")]});renderTable("tblGerencias",gerencias,["Gerência","Efetivo","Função Predominante","Saúde","65+","% 65+"]);const analitico=filteredData.slice(0,500).map(r=>[safe(val(r,"registro")||"-"),safe(val(r,"nome")||"-"),safe(val(r,"diretoria")||"-"),safe(val(r,"coordenacao")||"-"),safe(val(r,"gerencia")||"-"),safe(val(r,"setor")||"-"),safe(val(r,"cargo")||"-"),safe(val(r,"funcaoEC")||val(r,"funcao")||"-"),safe(val(r,"situacao")||"-"),safe(val(r,"idade")||"-")]);renderTable("tblAnalitico",analitico,["Registro","Nome","Diretoria","Coordenação","Gerência","Setor","Cargo","Função/EC","Situação","Idade"])}
+function renderMap(){if(!map){map=L.map('map').setView([-22.9068,-43.1729],11);L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'&copy; OpenStreetMap &copy; CARTO',maxZoom:18}).addTo(map)}map.eachLayer(layer=>{if(layer instanceof L.HeatLayer||layer instanceof L.CircleMarker){map.removeLayer(layer)}});const heatPoints=filteredData.filter(r=>num(r,"latRes")&&num(r,"lonRes")).map(r=>[num(r,"latRes"),num(r,"lonRes"),0.5]);if(heatPoints.length){L.heatLayer(heatPoints,{radius:25,blur:35,maxZoom:17,gradient:{0.2:'#38bdf8',0.5:'#22c55e',0.8:'#f59e0b',1.0:'#ef4444'}}).addTo(map)}const trabalhoPoints={};filteredData.forEach(r=>{const lat=num(r,"latTrab");const lon=num(r,"lonTrab");const setor=val(r,"setor");if(lat&&lon){const key=`${lat},${lon}`;if(!trabalhoPoints[key]){trabalhoPoints[key]={lat,lon,setor,count:0}}trabalhoPoints[key].count++}});Object.values(trabalhoPoints).forEach(p=>{L.circleMarker([p.lat,p.lon],{radius:8,fillColor:'#FF6B35',color:'#fff',weight:2,opacity:1,fillOpacity:0.8}).bindPopup(`<strong>${p.setor}</strong><br>Efetivo: ${p.count}`).addTo(map)})}
+function openTab(tabId){document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));document.querySelectorAll(".tab-content").forEach(t=>t.classList.remove("active"));const btn=document.querySelector(`.tab-btn[data-tab="${tabId}"]`);const tab=document.getElementById(tabId);if(btn)btn.classList.add("active");if(tab)tab.classList.add("active");setTimeout(()=>{Object.values(charts).forEach(c=>c.resize());if(map)map.invalidateSize()},100)}
+window.openTab=openTab;
+document.querySelectorAll(".tab-btn").forEach(btn=>{btn.addEventListener("click",()=>openTab(btn.dataset.tab))});
+["fDiretoria","fCoordenacao","fGerencia","fSetor","fBusca"].forEach(id=>{document.getElementById(id).addEventListener(id==="fBusca"?"input":"change",applyFilters)});
+function exportCSV(){const headers=["Registro","Nome","Diretoria","Coordenação","Gerência","Setor","Cargo","Função/EC","Situação","Idade"];const rows=filteredData.map(r=>[val(r,"registro"),val(r,"nome"),val(r,"diretoria"),val(r,"coordenacao"),val(r,"gerencia"),val(r,"setor"),val(r,"cargo"),val(r,"funcaoEC")||val(r,"funcao"),val(r,"situacao"),val(r,"idade")]);const csv=Papa.unparse([headers,...rows],{delimiter:";"});const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=`hub_comlurb_pessoas_${new Date().toISOString().slice(0,10)}.csv`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url)}
+window.exportCSV=exportCSV;
+function showContent(){document.getElementById("loading").style.display="none";document.getElementById("content").style.display="block"}
+function loadCSV(){Papa.parse(CONFIG.CSV_PESSOAS,{download:true,header:true,skipEmptyLines:true,transformHeader:h=>String(h||"").trim(),complete:(results)=>{rawData=(results.data||[]).filter(hasData);filteredData=[...rawData];document.getElementById("lastUpdate").textContent="⏱️ "+new Date().toLocaleString("pt-BR");document.getElementById("rowCount").textContent="📝 Linhas: "+fmt(rawData.length);console.log("HUB COMLURB | Pessoas carregado:",rawData.length);console.log("Colunas:",Object.keys(rawData[0]||{}));populateFilters();renderAll();showContent()},error:(err)=>{console.error("Erro ao carregar CSV:",err);document.getElementById("loading").innerHTML=`<div class="error-box"><strong>⚠️ Erro ao carregar dados</strong><br><br>Verifique se a planilha está publicada e o link está correto.<br>Detalhe: ${err?.message||err}</div>`}})}
+loadCSV()
+</script>
+</body>
+</html>
