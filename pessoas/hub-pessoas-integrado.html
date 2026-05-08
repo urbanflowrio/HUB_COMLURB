@@ -503,7 +503,7 @@ const aliases = {
   funcao:["FUNÇÃO","FUNCAO","FUNÇÃO DE ORIGEM","FUNCAO DE ORIGEM","FUNCAO_ORIGEM"],
   funcaoExercida:["FUNÇÃO EXERCIDA","FUNCAO EXERCIDA","ENCARGO","FUNÇÃO EC","FUNCAO EC","FUNCAO_ENCARGO","FUNÇÃO/ENCARGO","FUNCAO/ENCARGO"],
   situacao:["SITUAÇÃO FUNCIONAL","SITUACAO FUNCIONAL","SITUAÇÃO","SITUACAO","STATUS"],
-  idade:["IDADE","IDADE ATUAL"],
+  idade:["IDADEANOS","IDADE ANOS","IDADE","IDADE ATUAL","ANOS"],
   admissao:["ADMISSÃO","ADMISSAO","DATA ADMISSÃO","DATA ADMISSAO"],
   referencia:["REFERÊNCIA","REFERENCIA","MÊS REFERÊNCIA","MES REFERENCIA","COMPETÊNCIA","COMPETENCIA"],
   saude:["SAÚDE OCUPACIONAL","SAUDE OCUPACIONAL","LAUDO","RESTRIÇÃO","RESTRICAO","READAPTADO","APTO COM RESTRIÇÃO","APTO COM RESTRICAO","FILHO EXCEPCIONAL"]
@@ -555,16 +555,30 @@ function findCol(field){
   const cols = getColumns();
   const keys = aliases[field] || [field];
 
-  for(const k of keys){
-    const exact = cols.find(c => norm(c) === norm(k));
+  const ncols = cols.map(c => ({original:c, normalized:norm(c)}));
+  const nkeys = keys.map(k => norm(k));
+
+  // 1) Correspondência exata: IDADEANOS = IDADEANOS
+  for(const k of nkeys){
+    const exact = ncols.find(c => c.normalized === k);
     if(exact){
-      columnCache[field] = exact;
-      return exact;
+      columnCache[field] = exact.original;
+      return exact.original;
     }
   }
 
-  const loose = cols.find(c => keys.some(k => norm(c).includes(norm(k)) || norm(k).includes(norm(c))));
-  columnCache[field] = loose || null;
+  // 2) Cabeçalho começa com o termo: IDADEANOS começa com IDADE
+  for(const k of nkeys){
+    const starts = ncols.find(c => c.normalized.startsWith(k));
+    if(starts){
+      columnCache[field] = starts.original;
+      return starts.original;
+    }
+  }
+
+  // 3) Busca flexível controlada
+  const loose = ncols.find(c => nkeys.some(k => c.normalized.includes(k)));
+  columnCache[field] = loose ? loose.original : null;
   return columnCache[field];
 }
 
