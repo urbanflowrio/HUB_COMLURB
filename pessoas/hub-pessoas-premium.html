@@ -594,3 +594,31 @@ document.querySelectorAll(".tabBtn").forEach(btn=>{
 
 document.addEventListener("DOMContentLoaded",loadData);
 </script>
+
+<script>
+document.body.style.display = "block";
+
+window.onerror = function(message, source, lineno, colno, error) {
+  document.body.innerHTML = `
+    <div style="
+      background:#06111f;
+      color:white;
+      font-family:Arial;
+      padding:30px;
+      min-height:100vh;
+    ">
+      <h1 style="color:#ff6b35">Erro encontrado no painel</h1>
+      <p><b>Mensagem:</b> ${message}</p>
+      <p><b>Linha:</b> ${lineno}</p>
+      <p><b>Coluna:</b> ${colno}</p>
+      <pre style="
+        background:#0d1f36;
+        padding:20px;
+        border-radius:12px;
+        white-space:pre-wrap;
+        color:#b8d4f2;
+      ">${error && error.stack ? error.stack : "Sem stack detalhado"}</pre>
+    </div>
+  `;
+};
+</script>
