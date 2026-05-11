@@ -23,7 +23,7 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,
 .status{display:none;margin:14px 0;padding:13px;border:1px solid var(--orange);border-radius:14px;background:#1b2130;color:#ffd4b8}
 .navTabs{display:flex;gap:10px;margin:16px 0 0;flex-wrap:wrap}.tabBtn{border:1px solid var(--line);background:#0a1b31;color:#dcecff;border-radius:999px;padding:11px 16px;font-weight:900;cursor:pointer}.tabBtn.active{background:linear-gradient(90deg,#2f67a5,#4b86bd);border-color:#6fa7d8;color:#fff}.screen{display:none}.screen.active{display:block}
 .filters{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:16px 0}.field{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px}label{display:block;font-size:10px;font-weight:900;letter-spacing:.18em;color:#b8d4f2;margin-bottom:8px}select{width:100%;background:transparent;color:#fff;border:0;font-weight:800;font-size:15px}option{background:#0d1f36}
-.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:14px}.kpi{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;min-height:120px}.kpi.feature{grid-column:span 2;background:linear-gradient(135deg,#0d1f36,#12365c);border-color:#4074a2}.kpi .label{font-size:11px;letter-spacing:.16em;color:#b8d4f2;font-weight:900;text-transform:uppercase}.kpi .value{font-size:34px;font-weight:950;margin:14px 0 4px}.kpi.feature .value{font-size:46px}.kpi .note{color:#c7d8ee;font-size:13px}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:14px}.kpi{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;min-height:120px}.kpi.feature{grid-column:span 1;background:var(--panel);border-color:var(--line)}.kpi .label{font-size:11px;letter-spacing:.16em;color:#b8d4f2;font-weight:900;text-transform:uppercase}.kpi .value{font-size:34px;font-weight:950;margin:14px 0 4px}.kpi.feature .value{font-size:34px}.kpi .note{color:#c7d8ee;font-size:13px}
 .grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}.grid2{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:20px;min-height:320px;overflow:hidden}.panelHead{padding:18px;border-bottom:1px solid var(--line)}h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px}.body{padding:18px}
 .barRow{display:grid;grid-template-columns:140px 1fr 70px 55px;gap:10px;align-items:center;margin-bottom:12px}.track{height:22px;background:#132941;border-radius:4px;overflow:hidden}.fill{height:100%;background:linear-gradient(90deg,#2f67a5,#5b9bd5)}.fill.orange{background:linear-gradient(90deg,#b95023,#e87535)}.fill.green{background:linear-gradient(90deg,#437b76,#78aaa3)}.num,.pct{text-align:right;font-weight:800}
 .donutRow{display:grid;grid-template-columns:190px 1fr;gap:22px;align-items:center}.donut{width:180px;height:180px;border-radius:50%;background:conic-gradient(var(--blue) 0 var(--opPct),var(--orange) var(--opPct) 100%);position:relative}.donut:after{content:"";position:absolute;inset:52px;border-radius:50%;background:var(--panel)}.donutCenter{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:950}.legendItem{display:grid;grid-template-columns:12px 1fr auto;gap:10px;margin-bottom:18px;align-items:center}.dot{width:12px;height:12px;border-radius:50%;background:var(--blue)}.dot.orange{background:var(--orange)}
@@ -61,6 +61,57 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,
 @media(max-width:1280px){.filters{grid-template-columns:repeat(3,1fr)!important}.commandHero{grid-template-columns:1fr}.kpi.feature{grid-column:span 1}}
 @media(max-width:1100px){.filters{grid-template-columns:1fr!important}.statusIndicator{margin-left:0}.header{align-items:flex-start}.logoImg{border-right:0;padding-right:0}}
 @media(max-width:720px){.mainTitle{font-size:32px}.logoImg{width:220px}.drillBanner{align-items:flex-start;flex-direction:column}}
+
+
+/* =========================================================
+   AJUSTE FINAL - KPIS UNIFORMES + REMOÇÃO STATUS REGISTROS
+   ========================================================= */
+.kpis{
+  display:grid!important;
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  gap:12px!important;
+  margin-bottom:14px!important;
+  align-items:stretch!important;
+}
+.kpis>.kpi,
+.kpis>.kpi.feature{
+  grid-column:span 1!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:120px!important;
+  padding:18px!important;
+  background:var(--panel)!important;
+  border-radius:18px!important;
+}
+.kpis>.kpi.feature{
+  border-color:var(--line)!important;
+}
+.kpis>.kpi .value,
+.kpis>.kpi.feature .value{
+  font-size:34px!important;
+  line-height:1.05!important;
+}
+.kpis>.kpi .label{
+  font-size:11px!important;
+  min-height:auto!important;
+}
+.kpis>.kpi .note{
+  font-size:13px!important;
+}
+.statusIndicator{
+  display:none!important;
+  visibility:hidden!important;
+  width:0!important;
+  height:0!important;
+  min-width:0!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  overflow:hidden!important;
+}
+@media(max-width:1280px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media(max-width:900px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:600px){.kpis{grid-template-columns:1fr!important}}
 
 </style>
 </head>
