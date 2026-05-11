@@ -365,6 +365,67 @@ select,input,.multiSearch{min-width:0;overflow-wrap:anywhere;}
   body{background:#fff;color:#000}
   .app{max-width:100%;padding:10mm}
 }
+
+
+/* AJUSTE FINAL - TABELA ANALÍTICA RESPONSIVA */
+#screenAnalitico .tableWrap{
+  width:100%;
+  max-width:100%;
+  overflow-x:auto;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+#screenAnalitico .dataTable{
+  width:max-content!important;
+  min-width:1900px!important;
+  table-layout:fixed!important;
+}
+#screenAnalitico .dataTable th{
+  white-space:nowrap!important;
+  word-break:normal!important;
+  overflow-wrap:normal!important;
+  hyphens:none!important;
+  line-height:1.2!important;
+  vertical-align:middle;
+}
+#screenAnalitico .dataTable td{
+  white-space:normal!important;
+  word-break:normal!important;
+  overflow-wrap:break-word!important;
+  hyphens:none!important;
+  line-height:1.35!important;
+  vertical-align:middle;
+}
+#screenAnalitico .dataTable th:nth-child(1), #screenAnalitico .dataTable td:nth-child(1){width:78px;}
+#screenAnalitico .dataTable th:nth-child(2), #screenAnalitico .dataTable td:nth-child(2){width:220px;}
+#screenAnalitico .dataTable th:nth-child(3), #screenAnalitico .dataTable td:nth-child(3){width:90px;}
+#screenAnalitico .dataTable th:nth-child(4), #screenAnalitico .dataTable td:nth-child(4){width:145px;}
+#screenAnalitico .dataTable th:nth-child(5), #screenAnalitico .dataTable td:nth-child(5){width:105px;}
+#screenAnalitico .dataTable th:nth-child(6), #screenAnalitico .dataTable td:nth-child(6){width:75px;}
+#screenAnalitico .dataTable th:nth-child(7), #screenAnalitico .dataTable td:nth-child(7){width:95px;}
+#screenAnalitico .dataTable th:nth-child(8), #screenAnalitico .dataTable td:nth-child(8){width:185px;}
+#screenAnalitico .dataTable th:nth-child(9), #screenAnalitico .dataTable td:nth-child(9){width:210px;}
+#screenAnalitico .dataTable th:nth-child(10), #screenAnalitico .dataTable td:nth-child(10){width:210px;}
+#screenAnalitico .dataTable th:nth-child(11), #screenAnalitico .dataTable td:nth-child(11){width:105px;}
+#screenAnalitico .dataTable th:nth-child(12), #screenAnalitico .dataTable td:nth-child(12){width:120px;}
+#screenAnalitico .dataTable th:nth-child(13), #screenAnalitico .dataTable td:nth-child(13){width:115px;}
+#screenAnalitico .dataTable th:nth-child(14), #screenAnalitico .dataTable td:nth-child(14){width:70px;}
+#screenAnalitico .dataTable th:nth-child(15), #screenAnalitico .dataTable td:nth-child(15){width:100px;}
+#screenAnalitico .dataTable th:nth-child(16), #screenAnalitico .dataTable td:nth-child(16){width:85px;}
+#screenAnalitico .dataTable th:nth-child(17), #screenAnalitico .dataTable td:nth-child(17){width:140px;}
+#screenAnalitico .tag{
+  white-space:nowrap!important;
+  word-break:normal!important;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:56px;
+}
+@media(max-width:720px){
+  #screenAnalitico .dataTable{min-width:1750px!important;}
+  #screenAnalitico .dataTable td,#screenAnalitico .dataTable th{padding:10px 9px;}
+}
+
 </style>
 </head>
 
@@ -373,7 +434,7 @@ select,input,.multiSearch{min-width:0;overflow-wrap:anywhere;}
 
   <header class="header">
     <div class="logoWrap">
-      <img id="logoComlurb" src="../logos/RIOPREFEITURA_Comlurb_horizontal_monocromatica_branco.png" class="logoImg" alt="Prefeitura do Rio + Comlurb" style="display:block">
+      <img id="logoComlurb" src="/HUB_COMLURB/assets/logos/RIOPREFEITURA%20Comlurb%20horizontal%20monocromatica%20branco.png" class="logoImg" alt="Prefeitura do Rio + Comlurb" style="display:block">
       <div id="logoFallback" class="logoTextFallback" style="display:none">PREFEITURA DO RIO | COMLURB</div>
     </div>
     
@@ -1461,14 +1522,28 @@ function initLogoFallback(){
   const img = document.getElementById('logoComlurb');
   const fallback = document.getElementById('logoFallback');
   if(!img) return;
+
+  /*
+    Logo oficial no GitHub:
+    HUB_COMLURB/assets/logos/RIOPREFEITURA Comlurb horizontal monocromatica branco.png
+    Usei caminhos absolutos e relativos para funcionar tanto na raiz quanto dentro de /pessoas/.
+  */
   const candidates = [
-    '../logos/RIOPREFEITURA_Comlurb_horizontal_monocromatica_branco.png',
-    './logos/RIOPREFEITURA_Comlurb_horizontal_monocromatica_branco.png',
-    'logos/RIOPREFEITURA_Comlurb_horizontal_monocromatica_branco.png',
-    '../../logos/RIOPREFEITURA_Comlurb_horizontal_monocromatica_branco.png',
-    '/HUB_COMLURB/logos/RIOPREFEITURA_Comlurb_horizontal_monocromatica_branco.png',
-    '/logos/RIOPREFEITURA_Comlurb_horizontal_monocromatica_branco.png'
+    '/HUB_COMLURB/assets/logos/RIOPREFEITURA%20Comlurb%20horizontal%20monocromatica%20branco.png',
+    './assets/logos/RIOPREFEITURA%20Comlurb%20horizontal%20monocromatica%20branco.png',
+    '../assets/logos/RIOPREFEITURA%20Comlurb%20horizontal%20monocromatica%20branco.png',
+    '../../assets/logos/RIOPREFEITURA%20Comlurb%20horizontal%20monocromatica%20branco.png',
+    '/HUB_COMLURB/assets/logos/RIOPREFEITURA%20Comlurb%20horizontal%20monocromatica%20azul.png',
+    './assets/logos/RIOPREFEITURA%20Comlurb%20horizontal%20monocromatica%20azul.png',
+    '../assets/logos/RIOPREFEITURA%20Comlurb%20horizontal%20monocromatica%20azul.png',
+    '/HUB_COMLURB/assets/logos/Imagem1.png',
+    './assets/logos/Imagem1.png',
+    '../assets/logos/Imagem1.png',
+    '/HUB_COMLURB/assets/logos/comlurb_logo_transparent.png',
+    './assets/logos/comlurb_logo_transparent.png',
+    '../assets/logos/comlurb_logo_transparent.png'
   ];
+
   let i = 0;
   img.onerror = () => {
     i++;
