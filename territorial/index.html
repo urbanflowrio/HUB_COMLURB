@@ -41,6 +41,24 @@ body{
   border:1px solid var(--line);border-radius:24px;background:linear-gradient(135deg,#0a1b31,#0d1f36);
   box-shadow:var(--shadow);position:sticky;top:12px;z-index:20;backdrop-filter:blur(14px)
 }
+
+.logoComlurb{width:245px;min-width:245px;padding-right:26px;border-right:1px solid rgba(255,255,255,.22)}
+.logoMain{font-size:40px;font-weight:950;letter-spacing:-1.8px;line-height:.95;color:#fff}
+.logoSub{font-size:9px;font-weight:900;letter-spacing:.02em;color:#fff;margin-top:6px}
+.multiBox{position:relative}
+.multiBtn{width:100%;background:transparent;color:#fff;border:0;font-weight:800;font-size:15px;text-align:left;cursor:pointer;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.multiBtn:after{content:"⌄";font-size:18px;color:#dcecff}
+.multiPanel{display:none;position:absolute;left:0;right:0;top:calc(100% + 8px);z-index:60;background:#0a1b31;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:12px;max-height:330px;overflow:auto}
+.multiBox.open .multiPanel{display:block}
+.multiSearch{width:100%;border:1px solid #294866;background:#06111f;border-radius:12px;padding:10px;color:#fff;margin-bottom:10px}
+.multiList{display:grid;gap:6px}
+.multiItem{display:flex;align-items:center;gap:8px;font-size:13px;color:#dcecff;padding:8px;border-radius:10px;cursor:pointer}
+.multiItem:hover{background:rgba(91,155,213,.10)}
+.multiItem input{width:auto}
+.multiActions{display:flex;gap:8px;margin-top:10px}
+.multiActions button{flex:1;border:1px solid var(--line);background:#132840;color:#dcecff;border-radius:10px;padding:8px;font-weight:900;cursor:pointer}
+@media(max-width:720px){.logoComlurb{width:220px;min-width:0;border-right:0;padding-right:0}.logoMain{font-size:34px}}
+
 .logoBox{
   width:88px;height:88px;border-radius:24px;background:linear-gradient(135deg,#2f67a5,#5b9bd5);
   display:flex;align-items:center;justify-content:center;color:#fff;font-weight:950;font-size:34px;
@@ -68,7 +86,7 @@ h1{margin:6px 0;font-size:clamp(30px,3.2vw,44px);letter-spacing:-1.4px;line-heig
 }
 .screen{display:none}.screen.active{display:block}
 .filters{
-  display:grid;grid-template-columns:repeat(5,1fr) auto;gap:12px;margin:16px 0
+  display:grid;grid-template-columns:repeat(6,1fr) auto;gap:12px;margin:16px 0
 }
 .field{background:rgba(13,31,54,.92);border:1px solid var(--line);border-radius:16px;padding:12px}
 label{display:block;font-size:10px;font-weight:900;letter-spacing:.18em;color:#b8d4f2;margin-bottom:8px;text-transform:uppercase}
@@ -169,7 +187,7 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
   radial-gradient(circle at 70% 68%,rgba(232,117,53,.38),transparent 16%),
   linear-gradient(135deg,#08192d,#102844)}
 .geoMap:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:34px 34px}
-.geoOverlay{position:absolute;left:16px;right:16px;bottom:16px;background:rgba(6,17,31,.78);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:14px}
+.geoBubble{position:absolute;border-radius:50%;filter:blur(.2px);opacity:.85}.geoBubble.b1{width:130px;height:130px;left:18%;top:20%;background:rgba(91,155,213,.55)}.geoBubble.b2{width:95px;height:95px;right:22%;top:36%;background:rgba(55,214,255,.42)}.geoBubble.b3{width:110px;height:110px;left:46%;bottom:22%;background:rgba(232,117,53,.38)}.geoOverlay{position:absolute;left:16px;right:16px;bottom:16px;background:rgba(6,17,31,.78);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:14px}
 .geoOverlay b{display:block;font-size:18px;margin-bottom:6px}.geoOverlay span{color:#c7d8ee;font-size:13px;line-height:1.4}.geoChips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.geoChip{border:1px solid #345978;border-radius:999px;padding:7px 10px;color:#dcecff;font-weight:800;font-size:12px;background:rgba(19,40,64,.78);cursor:pointer}
 
 .footer{margin-top:16px;color:#aebfd5;font-size:13px}
@@ -184,7 +202,10 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
 <div class="app">
 
   <header class="header">
-    <div class="logoBox">H</div>
+    <div class="logoComlurb">
+      <div class="logoMain">COMLURB</div>
+      <div class="logoSub">COMPANHIA MUNICIPAL DE LIMPEZA URBANA</div>
+    </div>
     <div class="titleBox">
       <div class="eyebrow">HUB COMLURB • CENTRO DE INTELIGÊNCIA OPERACIONAL</div>
       <h1>Radar de Pessoas COMLURB</h1>
@@ -212,7 +233,7 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
       <select id="fDir"><option value="">Todas</option></select>
     </div>
     <div class="field">
-      <label>Superintendência</label>
+      <label>Superintendência / Coordenação</label>
       <select id="fSup"><option value="">Todas</option></select>
     </div>
     <div class="field">
@@ -233,6 +254,20 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
         <option value="risco65">Risco 65+</option>
         <option value="ec">Com EC</option>
       </select>
+    </div>
+    <div class="field">
+      <label>Função Cargo</label>
+      <div class="multiBox" id="funcaoMulti">
+        <button class="multiBtn" id="fFuncaoBtn" type="button">Todas</button>
+        <div class="multiPanel">
+          <input class="multiSearch" id="fFuncaoSearch" placeholder="Buscar função...">
+          <div class="multiList" id="fFuncaoList"></div>
+          <div class="multiActions">
+            <button type="button" onclick="clearFuncao()">Limpar</button>
+            <button type="button" onclick="closeFuncao()">Aplicar</button>
+          </div>
+        </div>
+      </div>
     </div>
     <button class="actionBtn" onclick="clearAll()">Limpar</button>
   </section>
@@ -492,6 +527,8 @@ let ROWS = [];
 let FILTERED = [];
 let VIEW = [];
 let DRILL = null;
+let FUNC_SELECTED = new Set();
+let FUNC_OPTIONS = [];
 let LOAD_LOG = [];
 
 const $ = id => document.getElementById(id);
@@ -680,6 +717,7 @@ function getBaseForOptions(exclude){
     if(exclude !== "gerencia" && vals.gerencia && r.gerencia !== vals.gerencia) return false;
     if(exclude !== "tipoCargo" && vals.tipoCargo && r.tipoCargo !== vals.tipoCargo) return false;
     if(exclude !== "situacao" && vals.situacao && !matchSituacao(r, vals.situacao)) return false;
+    if(exclude !== "funcaoCargo" && FUNC_SELECTED.size && !FUNC_SELECTED.has(r.funcaoCargo)) return false;
     return true;
   });
 }
@@ -694,6 +732,7 @@ function populateFilters(){
   setOptions("fSup", unique(getBaseForOptions("superintendencia"),"superintendencia"), current.sup);
   setOptions("fGerencia", unique(getBaseForOptions("gerencia"),"gerencia"), current.ger);
   setOptions("fTipoCargo", unique(getBaseForOptions("tipoCargo"),"tipoCargo"), current.tipo);
+  renderFuncaoMulti(unique(getBaseForOptions("funcaoCargo"),"funcaoCargo"));
 }
 
 function matchSituacao(r, val){
@@ -738,6 +777,7 @@ function applyFilters(){
     if(ger && r.gerencia !== ger) return false;
     if(tipo && r.tipoCargo !== tipo) return false;
     if(sit && !matchSituacao(r,sit)) return false;
+    if(FUNC_SELECTED.size && !FUNC_SELECTED.has(r.funcaoCargo)) return false;
     return true;
   });
 
@@ -783,6 +823,59 @@ function renderRanks(id, data, total, type){
   }).join("") || `<div class="empty">Sem dados</div>`;
 }
 
+
+function renderFuncaoMulti(values){
+  FUNC_OPTIONS = values || [];
+  const valid = new Set(FUNC_OPTIONS);
+  FUNC_SELECTED = new Set([...FUNC_SELECTED].filter(v=>valid.has(v)));
+
+  const q = norm($("fFuncaoSearch")?.value || "");
+  const shown = FUNC_OPTIONS.filter(v=>!q || norm(v).includes(q)).slice(0,350);
+  const list = $("fFuncaoList");
+  if(!list) return;
+
+  list.innerHTML = shown.map(v=>`
+    <label class="multiItem" title="${esc(v)}">
+      <input type="checkbox" value="${esc(v)}" ${FUNC_SELECTED.has(v) ? "checked" : ""}>
+      <span>${esc(v)}</span>
+    </label>
+  `).join("") || `<div class="empty">Sem funções disponíveis</div>`;
+
+  list.querySelectorAll("input[type='checkbox']").forEach(chk=>{
+    chk.addEventListener("change",()=>{
+      if(chk.checked) FUNC_SELECTED.add(chk.value);
+      else FUNC_SELECTED.delete(chk.value);
+      updateFuncaoBtn();
+      applyFilters();
+      renderAll();
+    });
+  });
+
+  updateFuncaoBtn();
+}
+
+function updateFuncaoBtn(){
+  const btn = $("fFuncaoBtn");
+  if(!btn) return;
+  const n = FUNC_SELECTED.size;
+  if(n === 0) btn.textContent = "Todas";
+  else if(n === 1) btn.textContent = [...FUNC_SELECTED][0];
+  else btn.textContent = `${n} funções selecionadas`;
+}
+
+function clearFuncao(){
+  FUNC_SELECTED.clear();
+  if($("fFuncaoSearch")) $("fFuncaoSearch").value = "";
+  renderFuncaoMulti(FUNC_OPTIONS);
+  applyFilters();
+  renderAll();
+}
+
+function closeFuncao(){
+  $("funcaoMulti")?.classList.remove("open");
+}
+
+
 function setDrill(type,value,title){
   DRILL = {type, value, title:title || value};
   applyFilters();
@@ -800,6 +893,8 @@ function clearDrill(){
 }
 function clearAll(){
   ["fDir","fSup","fGerencia","fTipoCargo","fSituacao"].forEach(id=>$(id).value="");
+  FUNC_SELECTED.clear();
+  if($("fFuncaoSearch")) $("fFuncaoSearch").value = "";
   DRILL=null;
   populateFilters();
   applyFilters();
@@ -1037,23 +1132,26 @@ function renderDemografico(){
 
 function renderTerritorialMap(arr,total){
   const top = groupCount(arr,"cidade").filter(x=>x[0] && x[0] !== "Não informado").slice(0,5);
-  const principal = top[0] || ["-",0];
+  const principal = top[0] || ["Sem dados",0];
   const chips = top.map(([cid,cnt])=>`
     <button class="geoChip" onclick="setDrill('cidade','${esc(cid).replaceAll("'","&#39;")}','${esc(cid).replaceAll("'","&#39;")}')">
-      ${esc(cid)} · ${fmtPct(pct(cnt,total))}
+      ${esc(cid)} · ${fmtInt(cnt)}
     </button>
   `).join("");
+
   $("rankCidades").innerHTML = `
     <div class="geoMap">
+      <div class="geoBubble b1"></div>
+      <div class="geoBubble b2"></div>
+      <div class="geoBubble b3"></div>
       <div class="geoOverlay">
         <b>${esc(principal[0])}</b>
-        <span>Principal concentração residencial do recorte, com ${fmtInt(principal[1])} servidores (${fmtPct(pct(principal[1],total))}).</span>
-        <div class="geoChips">${chips}</div>
+        <span>${principal[1] ? `Principal concentração residencial: ${fmtInt(principal[1])} servidores (${fmtPct(pct(principal[1],total))}).` : "Sem cidade identificada no recorte atual."}</span>
+        <div class="geoChips">${chips || '<span class="empty">Sem dados territoriais</span>'}</div>
       </div>
     </div>
   `;
 }
-
 
 function renderAnalitico(){
   const q = norm($("searchBox")?.value || "");
@@ -1110,6 +1208,22 @@ function exportExcel(){
       renderAll();
     }
   });
+});
+
+document.addEventListener("click",e=>{
+  const box = $("funcaoMulti");
+  if(!box) return;
+  if(e.target && e.target.id === "fFuncaoBtn"){
+    box.classList.toggle("open");
+    return;
+  }
+  if(!box.contains(e.target)) box.classList.remove("open");
+});
+
+document.addEventListener("input",e=>{
+  if(e.target && e.target.id === "fFuncaoSearch"){
+    renderFuncaoMulti(FUNC_OPTIONS);
+  }
 });
 
 document.querySelectorAll(".tabBtn").forEach(btn=>{
