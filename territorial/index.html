@@ -315,6 +315,48 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
 @media(max-width:1100px){.filters{grid-template-columns:1fr auto}.kpis{grid-template-columns:repeat(2,1fr)}.grid,.bottom{grid-template-columns:1fr}.alerts{grid-template-columns:repeat(2,1fr)}.statusIndicator{width:100%;margin-left:0}}
 @media(max-width:720px){.app{padding:14px}.header{position:relative;top:0}.logoImg{width:200px}.mainTitle{font-size:20px}.navTabs{gap:8px}.statusIndicator{padding:6px 10px}.kpis,.alerts,.matrix{grid-template-columns:1fr}.barRow{grid-template-columns:1fr}.num,.pct{text-align:left}.donutRow{grid-template-columns:1fr}.drillBanner{align-items:flex-start;flex-direction:column}}
 
+
+/* AJUSTES DE RESPONSIVIDADE/TEXTO - evita texto estourando caixas */
+.header,.headerContent,.navTabs,.field,.kpi,.panel,.panelHead,.body,.matrixCell,.alert,.rank,.barRow,.multiBox,.multiBtn,.dataTable td,.dataTable th{min-width:0;}
+.logoWrap{display:flex;align-items:center;min-width:0;max-width:100%;}
+.logoTextFallback{
+  font-size:clamp(18px,2.4vw,28px);font-weight:950;letter-spacing:.03em;color:#fff;
+  line-height:1.05;overflow-wrap:anywhere;word-break:break-word;max-width:100%;
+}
+.mainTitle{
+  white-space:normal!important;overflow:visible!important;text-overflow:clip!important;
+  overflow-wrap:anywhere;word-break:break-word;hyphens:auto;
+}
+.subtitle,.hint,.note,.kpi .label,.kpi .note,.alert span,.rank small,.matrixCell small,.legendItem div,.multiBtn,.multiItem span{
+  overflow-wrap:anywhere;word-break:break-word;hyphens:auto;max-width:100%;
+}
+.kpi .value,.kpi.feature .value{
+  white-space:normal!important;overflow:visible!important;text-overflow:clip!important;
+  overflow-wrap:anywhere;word-break:break-word;line-height:1.05;
+}
+.kpi .label,.kpi .note{
+  -webkit-line-clamp:unset!important;display:block!important;overflow:visible!important;
+}
+.panelHead{flex-wrap:wrap;}
+.barRow{grid-template-columns:minmax(0,1fr) minmax(100px,1.6fr) minmax(54px,76px) minmax(48px,58px);}
+.barName{
+  white-space:normal!important;overflow:visible!important;text-overflow:clip!important;
+  overflow-wrap:anywhere;word-break:break-word;line-height:1.25;
+}
+.num,.pct{overflow-wrap:anywhere;word-break:break-word;}
+.dataTable{table-layout:auto;}
+.dataTable td,.dataTable th{max-width:260px;overflow-wrap:anywhere;word-break:break-word;white-space:normal;}
+.statusIndicator b{overflow-wrap:anywhere;word-break:break-word;}
+select,input,.multiSearch{min-width:0;overflow-wrap:anywhere;}
+@media(max-width:720px){
+  .logoWrap{width:100%;}
+  .logoImg{max-width:220px;width:100%;}
+  .filters{grid-template-columns:1fr!important;}
+  .actionBtn{width:100%;}
+  .barRow{grid-template-columns:1fr!important;gap:6px;}
+  .track{width:100%;}
+}
+
 /* CSS para impressão */
 @media print{
   .header{position:relative;top:0}
@@ -330,7 +372,10 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
 <div class="app">
 
   <header class="header">
-    <img src="logos/RIOPREFEITURA_Comlurb_horizontal_monocromatica_branco.png" class="logoImg" alt="Prefeitura do Rio + Comlurb" style="display:block">
+    <div class="logoWrap">
+      <img id="logoComlurb" src="../logos/RIOPREFEITURA_Comlurb_horizontal_monocromatica_branco.png" class="logoImg" alt="Prefeitura do Rio + Comlurb" style="display:block">
+      <div id="logoFallback" class="logoTextFallback" style="display:none">PREFEITURA DO RIO | COMLURB</div>
+    </div>
     
     <div class="headerContent">
       <div class="systemLabel">COMLURB - RADAR DE PESSOAS</div>
@@ -1411,6 +1456,36 @@ document.querySelectorAll(".tabBtn").forEach(btn=>{
   });
 });
 
+
+function initLogoFallback(){
+  const img = document.getElementById('logoComlurb');
+  const fallback = document.getElementById('logoFallback');
+  if(!img) return;
+  const candidates = [
+    '../logos/RIOPREFEITURA_Comlurb_horizontal_monocromatica_branco.png',
+    './logos/RIOPREFEITURA_Comlurb_horizontal_monocromatica_branco.png',
+    'logos/RIOPREFEITURA_Comlurb_horizontal_monocromatica_branco.png',
+    '../../logos/RIOPREFEITURA_Comlurb_horizontal_monocromatica_branco.png',
+    '/HUB_COMLURB/logos/RIOPREFEITURA_Comlurb_horizontal_monocromatica_branco.png',
+    '/logos/RIOPREFEITURA_Comlurb_horizontal_monocromatica_branco.png'
+  ];
+  let i = 0;
+  img.onerror = () => {
+    i++;
+    if(i < candidates.length){
+      img.src = candidates[i] + '?v=' + Date.now();
+    }else{
+      img.style.display = 'none';
+      if(fallback) fallback.style.display = 'block';
+    }
+  };
+  img.onload = () => {
+    img.style.display = 'block';
+    if(fallback) fallback.style.display = 'none';
+  };
+  img.src = candidates[0] + '?v=' + Date.now();
+}
+
 async function boot(){
   try{
     $("loadState").textContent = "Carregando...";
@@ -1451,7 +1526,7 @@ async function boot(){
   }
 }
 
-document.addEventListener("DOMContentLoaded", boot);
+document.addEventListener("DOMContentLoaded", ()=>{ initLogoFallback(); boot(); });
 </script>
 </body>
 </html>
