@@ -162,6 +162,16 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
 .tag{display:inline-flex;border:1px solid #345978;border-radius:999px;padding:5px 9px;font-weight:900;font-size:12px}
 .tag.ok{border-color:#3f7d55}.tag.att{border-color:#8d6a23}.tag.crit{border-color:#8b3f38}.tag.purple{border-color:#7660b8}
 .empty{color:#aebfd5;padding:12px 0}
+
+.geoMap{position:relative;min-height:360px;border-radius:18px;border:1px solid rgba(255,255,255,.08);overflow:hidden;background:
+  radial-gradient(circle at 28% 35%,rgba(91,155,213,.55),transparent 17%),
+  radial-gradient(circle at 55% 52%,rgba(55,214,255,.35),transparent 15%),
+  radial-gradient(circle at 70% 68%,rgba(232,117,53,.38),transparent 16%),
+  linear-gradient(135deg,#08192d,#102844)}
+.geoMap:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:34px 34px}
+.geoOverlay{position:absolute;left:16px;right:16px;bottom:16px;background:rgba(6,17,31,.78);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:14px}
+.geoOverlay b{display:block;font-size:18px;margin-bottom:6px}.geoOverlay span{color:#c7d8ee;font-size:13px;line-height:1.4}.geoChips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.geoChip{border:1px solid #345978;border-radius:999px;padding:7px 10px;color:#dcecff;font-weight:800;font-size:12px;background:rgba(19,40,64,.78);cursor:pointer}
+
 .footer{margin-top:16px;color:#aebfd5;font-size:13px}
 @media(max-width:1400px){.kpis{grid-template-columns:repeat(3,1fr)}.alerts{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:1280px){.filters{grid-template-columns:repeat(3,1fr)}.commandHero,.grid2{grid-template-columns:1fr}.kpi.feature{grid-column:span 1}}
@@ -178,10 +188,10 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
     <div class="titleBox">
       <div class="eyebrow">HUB COMLURB • CENTRO DE INTELIGÊNCIA OPERACIONAL</div>
       <h1>Radar de Pessoas COMLURB</h1>
-      <div class="sub">Força de trabalho, afastamentos, laudos, risco etário, EC e capacidade operacional em leitura executiva.</div>
+      <div class="sub">Leitura executiva da força de trabalho, laudos, afastamentos e perfil do efetivo.</div>
       <div class="navTabs">
         <button class="tabBtn active" data-tab="screenVisao">Visão Geral</button>
-        <button class="tabBtn" data-tab="screenDiretorias">Diretorias & Gerências</button>
+        <button class="tabBtn" data-tab="screenDiretorias">Estrutura</button>
         <button class="tabBtn" data-tab="screenSaude">Saúde Ocupacional</button>
         <button class="tabBtn" data-tab="screenAfastamentos">Afastamentos</button>
         <button class="tabBtn" data-tab="screenDemografico">Demográfico</button>
@@ -230,7 +240,7 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
   <div class="drillBanner" id="drillBanner">
     <div>
       <b id="drillTitle">Drill down ativo</b>
-      <span id="drillDesc">Clique em limpar para voltar ao consolidado.</span>
+      <span id="drillDesc">Use para voltar ao consolidado.</span>
     </div>
     <button class="actionBtn primary" onclick="clearDrill()">Fechar drill down</button>
   </div>
@@ -268,21 +278,21 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
     <div class="grid">
       <div class="panel">
         <div class="panelHead">
-          <div><h2>Distribuição por Diretoria</h2><div class="hint">Clique em uma barra para explodir o detalhamento</div></div>
+          <div><h2>Distribuição por Diretoria</h2><div class="hint">Clique para filtrar</div></div>
         </div>
         <div class="body" id="chartDiretorias"></div>
       </div>
 
       <div class="panel">
         <div class="panelHead">
-          <div><h2>Capacidade x Pressão</h2><div class="hint">Ativos, afastados e laudos no recorte</div></div>
+          <div><h2>Capacidade x Pressão</h2><div class="hint">Composição do quadro no recorte</div></div>
         </div>
         <div class="body" id="chartAtvAfast"></div>
       </div>
 
       <div class="panel">
         <div class="panelHead">
-          <div><h2>Laudos por Gerência</h2><div class="hint">Pressão ocupacional nas estruturas gerenciais</div></div>
+          <div><h2>Laudos por Gerência</h2><div class="hint">Concentração de laudos por gerência</div></div>
         </div>
         <div class="body" id="chartLaudosGerencia"></div>
       </div>
@@ -291,7 +301,7 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
     <div class="bottom">
       <div class="panel">
         <div class="panelHead">
-          <div><h2>Top 10 Gerências</h2><div class="hint">Na visão geral o filtro principal é Gerência; Setor fica no drill down.</div></div>
+          <div><h2>Top 10 Gerências</h2><div class="hint">Principais concentrações gerenciais</div></div>
         </div>
         <div class="body" id="rankGerencias"></div>
       </div>
@@ -307,13 +317,13 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
     <div class="grid2">
       <div class="panel">
         <div class="panelHead">
-          <div><h2>Ranking de Gerências</h2><div class="hint">Clique para abrir setores e funções associadas</div></div>
+          <div><h2>Estrutura gerencial</h2><div class="hint">Volume, laudos e afastamentos por gerência</div></div>
         </div>
         <div class="body" id="rankGerenciasDetalhe"></div>
       </div>
       <div class="panel">
         <div class="panelHead">
-          <div><h2>Drill down operacional</h2><div class="hint">Diretoria → Gerência → Setor → Função</div></div>
+          <div><h2>Cadeia de decisão</h2><div class="hint">Diretoria, gerência e setores vinculados</div></div>
         </div>
         <div class="body" id="drillTree"></div>
       </div>
@@ -321,7 +331,7 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
 
     <div class="panel" style="margin-top:14px">
       <div class="panelHead">
-        <div><h2>Ranking de Setores</h2><div class="hint">Setores conforme o recorte ou drill down ativo</div></div>
+        <div><h2>Setores do recorte</h2><div class="hint">Detalhamento operacional apenas quando necessário</div></div>
       </div>
       <div class="body" id="rankSetores"></div>
     </div>
@@ -440,13 +450,13 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
     </div>
 
     <div class="grid">
-      <div class="panel"><div class="panelHead"><div><h2>Faixa etária</h2><div class="hint">Clique em uma faixa para explodir</div></div></div><div class="body" id="chartIdade"></div></div>
+      <div class="panel"><div class="panelHead"><div><h2>Faixa etária</h2><div class="hint">Clique para filtrar</div></div></div><div class="body" id="chartIdade"></div></div>
       <div class="panel"><div class="panelHead"><div><h2>Escolaridade</h2><div class="hint">Nível educacional</div></div></div><div class="body" id="chartEscolaridade"></div></div>
       <div class="panel"><div class="panelHead"><div><h2>Tempo de casa</h2><div class="hint">Distribuição por permanência</div></div></div><div class="body" id="chartTempoCasa"></div></div>
     </div>
 
     <div class="grid2" style="margin-top:14px">
-      <div class="panel"><div class="panelHead"><div><h2>Top cidades de residência</h2><div class="hint">Principais localidades</div></div></div><div class="body" id="rankCidades"></div></div>
+      <div class="panel"><div class="panelHead"><div><h2>Mapa territorial de residência</h2><div class="hint">Concentração visual dos principais municípios/bairros</div></div></div><div class="body" id="rankCidades"></div></div>
       <div class="panel"><div class="panelHead"><div><h2>Jornada</h2><div class="hint">Tipos de jornada</div></div></div><div class="body" id="chartJornada"></div></div>
     </div>
   </main>
@@ -455,7 +465,7 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
   <main class="screen" id="screenAnalitico">
     <div class="panel">
       <div class="panelHead">
-        <div><h2>Base analítica enriquecida</h2><div class="hint">R54 + laudos + indicadores derivados + drill down</div></div>
+        <div><h2>Base analítica enriquecida</h2><div class="hint">Base enriquecida com filtros e indicadores derivados</div></div>
         <button class="actionBtn primary" onclick="exportExcel()">Exportar Excel</button>
       </div>
       <div class="body">
@@ -850,43 +860,68 @@ function renderVisaoGeral(){
     onclick:n=>`setDrill('gerencia','${esc(n).replaceAll("'","&#39;")}','${esc(n).replaceAll("'","&#39;")}')`
   });
 
-  renderRanks("rankGerencias", groupCount(arr,"gerencia").slice(0,10), total, "gerencia");
-
   const dirsCount = groupCount(arr,"diretoria").length;
   const gerCount = groupCount(arr,"gerencia").length;
   const topGer = groupCount(arr,"gerencia")[0] || ["-",0];
   const topFunc = groupCount(arr,"funcaoAtuacao")[0] || ["-",0];
 
   $("alertsVisao").innerHTML = `
-    <div class="alert green" onclick="clearDrill()"><small>COLABORADORES</small><b>${fmtInt(total)}</b><span>no recorte atual</span></div>
+    <div class="alert green" onclick="clearDrill()"><small>COLABORADORES</small><b>${fmtInt(total)}</b><span>recorte atual</span></div>
     <div class="alert" onclick="setDrill('gerencia','${esc(topGer[0]).replaceAll("'","&#39;")}','${esc(topGer[0]).replaceAll("'","&#39;")}')"><small>GERÊNCIAS</small><b>${fmtInt(gerCount)}</b><span>${esc(topGer[0])} é a maior concentração</span></div>
-    <div class="alert orange" onclick="setDrill('situacao','afastado','Servidores afastados')"><small>TAXA AFASTAMENTO</small><b>${fmtPct(pct(afastados,total))}</b><span>indisponibilidade operacional</span></div>
-    <div class="alert purple" onclick="setDrill('situacao','laudo','Servidores com laudo')"><small>TAXA DE LAUDOS</small><b>${fmtPct(pct(laudos,total))}</b><span>pressão ocupacional</span></div>
-    <div class="alert red" onclick="setDrill('situacao','risco65','Risco 65+')"><small>RISCO 65+</small><b>${fmtPct(pct(risco65,total))}</b><span>continuidade e reposição</span></div>
+    <div class="alert orange" onclick="setDrill('situacao','afastado','Servidores afastados')"><small>TAXA AFASTAMENTO</small><b>${fmtPct(pct(afastados,total))}</b><span>indisponibilidade</span></div>
+    <div class="alert purple" onclick="setDrill('situacao','laudo','Servidores com laudo')"><small>TAXA DE LAUDOS</small><b>${fmtPct(pct(laudos,total))}</b><span>laudos</span></div>
+    <div class="alert red" onclick="setDrill('situacao','risco65','Risco 65+')"><small>RISCO 65+</small><b>${fmtPct(pct(risco65,total))}</b><span>reposição</span></div>
     <div class="alert" onclick="setDrill('funcao','${esc(topFunc[0]).replaceAll("'","&#39;")}','${esc(topFunc[0]).replaceAll("'","&#39;")}')"><small>FUNÇÃO DOMINANTE</small><b>${fmtInt(topFunc[1])}</b><span>${esc(topFunc[0])}</span></div>
-    <div class="alert green"><small>DIRETORIAS</small><b>${fmtInt(dirsCount)}</b><span>unidades no recorte</span></div>
-    <div class="alert orange"><small>VULNERABILIDADE</small><b>${fmtPct(vulnerabilidade)}</b><span>afastamento + laudo + 65+ + EC</span></div>
+    <div class="alert green"><small>DIRETORIAS</small><b>${fmtInt(dirsCount)}</b><span>unidades</span></div>
+    <div class="alert orange"><small>VULNERABILIDADE</small><b>${fmtPct(vulnerabilidade)}</b><span>índice composto</span></div>
   `;
 }
 
 function renderDiretorias(){
   const arr = VIEW, total = arr.length;
-  renderRanks("rankGerenciasDetalhe", groupCount(arr,"gerencia").slice(0,16), total, "gerencia");
-  renderRanks("rankSetores", groupCount(arr,"setor").slice(0,20), total, "setor");
+
+  const gerencias = groupCount(arr,"gerencia").slice(0,14).map(([g,c])=>{
+    const sub = arr.filter(r=>r.gerencia === g);
+    const laudos = sub.filter(r=>r.possuiLaudo).length;
+    const afast = sub.filter(r=>r.afastado).length;
+    const risco = sub.filter(r=>r.risco65).length;
+    const pressao = laudos + afast + risco;
+    return [g,c,laudos,afast,risco,pressao];
+  });
+
+  $("rankGerenciasDetalhe").innerHTML = gerencias.map(([g,c,laudos,afast,risco,pressao])=>{
+    const cls = pressao > c*.25 ? "crit" : pressao > c*.12 ? "att" : "ok";
+    return `
+      <div class="rank" onclick="setDrill('gerencia','${esc(g).replaceAll("'","&#39;")}','${esc(g).replaceAll("'","&#39;")}')">
+        <div>
+          <b>${esc(g)}</b>
+          <small>${fmtInt(c)} servidores · ${fmtInt(laudos)} laudos · ${fmtInt(afast)} afastados · ${fmtInt(risco)} com 65+</small>
+        </div>
+        <span class="statusPill ${cls}">${fmtPct(pct(pressao,c))}</span>
+      </div>
+    `;
+  }).join("") || `<div class="empty">Sem dados</div>`;
+
+  renderRanks("rankSetores", groupCount(arr,"setor").slice(0,16), total, "setor");
 
   const byDir = groupCount(arr,"diretoria").slice(0,5);
   const treeHtml = byDir.map(([dir,cnt])=>{
     const subsetDir = arr.filter(r=>r.diretoria === dir);
-    const gers = groupCount(subsetDir,"gerencia").slice(0,6).map(([g,c])=>`
-      <div class="rank" onclick="setDrill('gerencia','${esc(g).replaceAll("'","&#39;")}','${esc(g).replaceAll("'","&#39;")}')">
-        <div><b>${esc(g)}</b><small>${fmtInt(c)} servidores • ${fmtPct(pct(c,cnt))} da diretoria</small></div>
-        <span class="statusPill ${c>cnt*.25?'att':'ok'}">${fmtInt(c)}</span>
-      </div>
-    `).join("");
+    const gers = groupCount(subsetDir,"gerencia").slice(0,5).map(([g,c])=>{
+      const sub = subsetDir.filter(r=>r.gerencia === g);
+      const laudos = sub.filter(r=>r.possuiLaudo).length;
+      const afast = sub.filter(r=>r.afastado).length;
+      return `
+        <div class="rank" onclick="setDrill('gerencia','${esc(g).replaceAll("'","&#39;")}','${esc(g).replaceAll("'","&#39;")}')">
+          <div><b>${esc(g)}</b><small>${fmtInt(c)} servidores · ${fmtInt(laudos)} laudos · ${fmtInt(afast)} afastados</small></div>
+          <span class="statusPill ${afast+laudos>c*.2?'att':'ok'}">${fmtInt(c)}</span>
+        </div>
+      `;
+    }).join("");
     return `
       <div style="margin-bottom:18px">
         <div class="alert" onclick="setDrill('diretoria','${esc(dir).replaceAll("'","&#39;")}','${esc(dir).replaceAll("'","&#39;")}')">
-          <small>DIRETORIA</small><b>${esc(dir)}</b><span>${fmtInt(cnt)} servidores</span>
+          <small>DIRETORIA</small><b>${esc(dir)}</b><span>${fmtInt(cnt)} servidores no recorte</span>
         </div>
         ${gers}
       </div>`;
@@ -996,9 +1031,30 @@ function renderDemografico(){
   renderCols("chartIdade", faixaCount(arr,"idade",[["<30",0,30],["31-40",31,40],["41-50",41,50],["51-60",51,60],["61-70",61,70],["71+",71,999]]), "idadeFaixa");
   renderBarRows("chartEscolaridade", groupCount(arr,"escolaridade").slice(0,8), total, {color:"green"});
   renderCols("chartTempoCasa", faixaCount(arr,"tempoCasa",[["0-10",0,10],["11-20",11,20],["21-30",21,30],["31-40",31,40],["41-50",41,50],["51+",51,999]]), "tempoFaixa");
-  renderRanks("rankCidades", groupCount(arr,"cidade").slice(0,12), total, "cidade");
+  renderTerritorialMap(arr,total);
   renderBarRows("chartJornada", groupCount(arr,"jornada").slice(0,8), total, {});
 }
+
+
+function renderTerritorialMap(arr,total){
+  const top = groupCount(arr,"cidade").filter(x=>x[0] && x[0] !== "Não informado").slice(0,5);
+  const principal = top[0] || ["-",0];
+  const chips = top.map(([cid,cnt])=>`
+    <button class="geoChip" onclick="setDrill('cidade','${esc(cid).replaceAll("'","&#39;")}','${esc(cid).replaceAll("'","&#39;")}')">
+      ${esc(cid)} · ${fmtPct(pct(cnt,total))}
+    </button>
+  `).join("");
+  $("rankCidades").innerHTML = `
+    <div class="geoMap">
+      <div class="geoOverlay">
+        <b>${esc(principal[0])}</b>
+        <span>Principal concentração residencial do recorte, com ${fmtInt(principal[1])} servidores (${fmtPct(pct(principal[1],total))}).</span>
+        <div class="geoChips">${chips}</div>
+      </div>
+    </div>
+  `;
+}
+
 
 function renderAnalitico(){
   const q = norm($("searchBox")?.value || "");
