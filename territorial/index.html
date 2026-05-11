@@ -300,8 +300,7 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
 .tag{display:inline-flex;border:1px solid #345978;border-radius:999px;padding:5px 9px;font-weight:900;font-size:12px}
 .tag.ok{border-color:#3f7d55}.tag.att{border-color:#8d6a23}.tag.crit{border-color:#8b3f38}.tag.purple{border-color:#7660b8}
 .empty{color:#aebfd5;padding:12px 0}
-.loading{color:#aebfd5;padding:12px 0;animation:pulse 1.5s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.loading{color:#aebfd5;padding:12px 0}
 
 .geoMap{position:relative;min-height:360px;border-radius:18px;border:1px solid rgba(255,255,255,.08);overflow:hidden;background:
   radial-gradient(circle at 28% 35%,rgba(91,155,213,.55),transparent 17%),
@@ -442,21 +441,21 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
         <div class="panelHead">
           <div><h2>Distribuição por Diretoria</h2><div class="hint">Clique para filtrar</div></div>
         </div>
-        <div class="body" id="chartDiretorias"><div class="loading">⏳ Carregando...</div></div>
+        <div class="body" id="chartDiretorias"></div>
       </div>
 
       <div class="panel">
         <div class="panelHead">
           <div><h2>Capacidade x Pressão</h2><div class="hint">Distribuição do efetivo</div></div>
         </div>
-        <div class="body" id="chartAtvAfast"><div class="loading">⏳ Carregando...</div></div>
+        <div class="body" id="chartAtvAfast"></div>
       </div>
 
       <div class="panel">
         <div class="panelHead">
           <div><h2 id="tituloCardCascata">Distribuição por Superintendência / Coordenação</h2><div class="hint" id="hintCardCascata">De acordo com o filtro aplicado</div></div>
         </div>
-        <div class="body" id="chartLaudosGerencia"><div class="loading">⏳ Carregando...</div></div>
+        <div class="body" id="chartLaudosGerencia"></div>
       </div>
     </div>
   </main>
@@ -494,15 +493,15 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
     <div class="grid">
       <div class="panel">
         <div class="panelHead"><div><h2>Pressão por Gerência</h2><div class="hint">Laudos, afastamentos e idade crítica</div></div></div>
-        <div class="body" id="chartPressaoGerencia"><div class="loading">⏳ Carregando...</div></div>
+        <div class="body" id="chartPressaoGerencia"></div>
       </div>
       <div class="panel">
         <div class="panelHead"><div><h2>Tipos de Laudo</h2><div class="hint">Classificação pela coluna CONCLUSAO da planilha de laudos</div></div></div>
-        <div class="body" id="chartTiposLaudo"><div class="loading">⏳ Carregando...</div></div>
+        <div class="body" id="chartTiposLaudo"></div>
       </div>
       <div class="panel">
         <div class="panelHead"><div><h2>Funções com laudo</h2><div class="hint">Cargos/funções com maior concentração</div></div></div>
-        <div class="body" id="chartFuncaoLaudo"><div class="loading">⏳ Carregando...</div></div>
+        <div class="body" id="chartFuncaoLaudo"></div>
       </div>
     </div>
   </main>
@@ -530,15 +529,15 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
     <div class="grid">
       <div class="panel">
         <div class="panelHead"><div><h2>Tipos de Afastamento</h2><div class="hint">Clique para filtrar</div></div></div>
-        <div class="body" id="chartTipoAfast"><div class="loading">⏳ Carregando...</div></div>
+        <div class="body" id="chartTipoAfast"></div>
       </div>
       <div class="panel">
         <div class="panelHead"><div><h2>Afastados por Gerência</h2><div class="hint">Ranking gerencial</div></div></div>
-        <div class="body" id="chartAfastGerencia"><div class="loading">⏳ Carregando...</div></div>
+        <div class="body" id="chartAfastGerencia"></div>
       </div>
       <div class="panel">
         <div class="panelHead"><div><h2>Tempo de Casa - Afastados</h2><div class="hint">Anos de serviço</div></div></div>
-        <div class="body" id="chartTempoAfast"><div class="loading">⏳ Carregando...</div></div>
+        <div class="body" id="chartTempoAfast"></div>
       </div>
     </div>
   </main>
@@ -574,14 +573,14 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
     </div>
 
     <div class="grid">
-      <div class="panel"><div class="panelHead"><div><h2>Faixa etária</h2><div class="hint">Clique para filtrar</div></div></div><div class="body" id="chartIdade"><div class="loading">⏳ Carregando...</div></div></div>
-      <div class="panel"><div class="panelHead"><div><h2>Escolaridade</h2><div class="hint">Nível educacional</div></div></div><div class="body" id="chartEscolaridade"><div class="loading">⏳ Carregando...</div></div></div>
-      <div class="panel"><div class="panelHead"><div><h2>Tempo de casa</h2><div class="hint">Distribuição por permanência</div></div></div><div class="body" id="chartTempoCasa"><div class="loading">⏳ Carregando...</div></div></div>
+      <div class="panel"><div class="panelHead"><div><h2>Faixa etária</h2><div class="hint">Clique para filtrar</div></div></div><div class="body" id="chartIdade"></div></div>
+      <div class="panel"><div class="panelHead"><div><h2>Escolaridade</h2><div class="hint">Nível educacional</div></div></div><div class="body" id="chartEscolaridade"></div></div>
+      <div class="panel"><div class="panelHead"><div><h2>Tempo de casa</h2><div class="hint">Distribuição por permanência</div></div></div><div class="body" id="chartTempoCasa"></div></div>
     </div>
 
     <div class="grid2" style="margin-top:14px">
-      <div class="panel"><div class="panelHead"><div><h2>Mapa territorial de residência</h2><div class="hint">Concentração visual dos principais municípios/bairros</div></div></div><div class="body" id="rankCidades"><div class="loading">⏳ Carregando...</div></div></div>
-      <div class="panel"><div class="panelHead"><div><h2>Jornada</h2><div class="hint">Tipos de jornada</div></div></div><div class="body" id="chartJornada"><div class="loading">⏳ Carregando...</div></div></div>
+      <div class="panel"><div class="panelHead"><div><h2>Mapa territorial de residência</h2><div class="hint">Concentração visual dos principais municípios/bairros</div></div></div><div class="body" id="rankCidades"></div></div>
+      <div class="panel"><div class="panelHead"><div><h2>Jornada</h2><div class="hint">Tipos de jornada</div></div></div><div class="body" id="chartJornada"></div></div>
     </div>
   </main>
 
@@ -594,7 +593,7 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
       </div>
       <div class="body">
         <div class="field" style="margin-bottom:12px"><label>Busca analítica</label><input id="searchBox" placeholder="Buscar por nome, registro, diretoria, gerência, setor, função..." oninput="searchDebounced()"></div>
-        <div class="tableWrap" id="tableAnalitico"><div class="loading">⏳ Carregando...</div></div>
+        <div class="tableWrap" id="tableAnalitico"></div>
       </div>
     </div>
   </main>
@@ -985,10 +984,6 @@ function avg(arr, field){
   return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : 0;
 }
 
-function showLoading(id) {
-  const el = $(id);
-  if(el) el.innerHTML = '<div class="loading">⏳ Carregando...</div>';
-}
 
 function renderBarRows(id, data, total, opts={}){
   const el = $(id);
@@ -1425,7 +1420,6 @@ async function boot(){
      "chartPressaoGerencia","chartTiposLaudo","chartFuncaoLaudo",
      "chartTipoAfast","chartAfastGerencia","chartTempoAfast",
      "chartIdade","chartEscolaridade","chartTempoCasa",
-     "rankCidades","chartJornada","tableAnalitico"].forEach(showLoading);
     
     RAW_R54 = await loadCSV(URLS.R54, "R54", true);
     RAW_LAUDOS = await loadCSV(URLS.LAUDOS, "Laudos", false);
