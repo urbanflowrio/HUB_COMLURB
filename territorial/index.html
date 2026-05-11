@@ -845,8 +845,10 @@ function avg(arr, field){
 }
 
 function renderBarRows(id, data, total, opts={}){
+  const el = $(id);
+  if(!el) return;
   const max = Math.max(...data.map(x=>x[1]),1);
-  $(id).innerHTML = data.map(([name,cnt])=>`
+  el.innerHTML = data.map(([name,cnt])=>`
     <div class="barRow" onclick="${opts.onclick ? opts.onclick(name) : ""}">
       <div class="barName" title="${esc(name)}">${esc(name)}</div>
       <div class="track"><div class="fill ${opts.color||""}" style="width:${cnt/max*100}%"></div></div>
@@ -856,7 +858,9 @@ function renderBarRows(id, data, total, opts={}){
   `).join("") || `<div class="empty">Sem dados</div>`;
 }
 function renderRanks(id, data, total, type){
-  $(id).innerHTML = data.map(([name,cnt])=>{
+  const el = $(id);
+  if(!el) return;
+  el.innerHTML = data.map(([name,cnt])=>{
     const cls = cnt > total*.10 ? "crit" : cnt > total*.05 ? "att" : "ok";
     return `
       <div class="rank" onclick="setDrill('${type}', '${esc(name).replaceAll("'","&#39;")}', '${esc(name).replaceAll("'","&#39;")}')">
@@ -1004,17 +1008,6 @@ function renderVisaoGeral(){
   const gerCount = groupCount(arr,"gerencia").length;
   const topGer = groupCount(arr,"gerencia")[0] || ["-",0];
   const topFunc = groupCount(arr,"funcaoAtuacao")[0] || ["-",0];
-
-  $("alertsVisaoREMOVIDO").innerHTML = `
-    <div class="alert green" onclick="clearDrill()"><small>COLABORADORES</small><b>${fmtInt(total)}</b><span>recorte atual</span></div>
-    <div class="alert" onclick="setDrill('gerencia','${esc(topGer[0]).replaceAll("'","&#39;")}','${esc(topGer[0]).replaceAll("'","&#39;")}')"><small>GERÊNCIAS</small><b>${fmtInt(gerCount)}</b><span>${esc(topGer[0])} é a maior concentração</span></div>
-    <div class="alert orange" onclick="setDrill('situacao','afastado','Servidores afastados')"><small>TAXA AFASTAMENTO</small><b>${fmtPct(pct(afastados,total))}</b><span>indisponibilidade</span></div>
-    <div class="alert purple" onclick="setDrill('situacao','laudo','Servidores com laudo')"><small>TAXA DE LAUDOS</small><b>${fmtPct(pct(laudos,total))}</b><span>laudos</span></div>
-    <div class="alert red" onclick="setDrill('situacao','risco65','Risco 65+')"><small>RISCO 65+</small><b>${fmtPct(pct(risco65,total))}</b><span>reposição</span></div>
-    <div class="alert" onclick="setDrill('funcao','${esc(topFunc[0]).replaceAll("'","&#39;")}','${esc(topFunc[0]).replaceAll("'","&#39;")}')"><small>FUNÇÃO DOMINANTE</small><b>${fmtInt(topFunc[1])}</b><span>${esc(topFunc[0])}</span></div>
-    <div class="alert green"><small>DIRETORIAS</small><b>${fmtInt(dirsCount)}</b><span>unidades</span></div>
-    <div class="alert orange"><small>VULNERABILIDADE</small><b>${fmtPct(vulnerabilidade)}</b><span>índice composto</span></div>
-  `;
 }
 
 function renderSaude(){
