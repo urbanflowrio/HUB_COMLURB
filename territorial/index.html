@@ -65,11 +65,13 @@ body{
   radial-gradient(circle at 72% 68%,rgba(232,117,53,.34),transparent 17%),
   linear-gradient(135deg,#08192d,#102844)}
 .geoMapReal:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);background-size:34px 34px}
-.geoPoint{position:absolute;width:18px;height:18px;border-radius:999px;background:#5b9bd5;box-shadow:0 0 24px rgba(91,155,213,.9);border:2px solid rgba(255,255,255,.65);cursor:pointer}
+.geoPoint{position:absolute;width:18px;height:18px;border-radius:999px;background:#5b9bd5;box-shadow:0 0 24px rgba(91,155,213,.9);border:2px solid rgba(255,255,255,.65);cursor:pointer;transition:.2s}
+.geoPoint:hover{transform:scale(1.3)}
 .geoPoint.p1{left:25%;top:34%}.geoPoint.p2{left:57%;top:47%;background:#37d6ff}.geoPoint.p3{left:72%;top:68%;background:#e87535}.geoPoint.p4{left:42%;top:70%;background:#78aaa3}.geoPoint.p5{left:80%;top:38%;background:#a78bfa}
 .geoOverlay{position:absolute;left:16px;right:16px;bottom:16px;background:rgba(6,17,31,.80);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:14px}
 .geoOverlay b{display:block;font-size:18px;margin-bottom:6px}.geoOverlay span{color:#c7d8ee;font-size:13px;line-height:1.4}
-.geoChips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.geoChip{border:1px solid #345978;border-radius:999px;padding:7px 10px;color:#dcecff;font-weight:800;font-size:12px;background:rgba(19,40,64,.86);cursor:pointer}
+.geoChips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.geoChip{border:1px solid #345978;border-radius:999px;padding:7px 10px;color:#dcecff;font-weight:800;font-size:12px;background:rgba(19,40,64,.86);cursor:pointer;transition:.2s}
+.geoChip:hover{border-color:#6fa7d8;transform:translateY(-1px)}
 @media(max-width:720px){.logoComlurb{width:220px;min-width:0;border-right:0;padding-right:0}.logoMain{font-size:34px}}
 
 .logoBox{
@@ -99,7 +101,7 @@ h1{margin:6px 0;font-size:clamp(30px,3.2vw,44px);letter-spacing:-1.4px;line-heig
 }
 .screen{display:none}.screen.active{display:block}
 .filters{
-  display:grid;grid-template-columns:repeat(6,1fr) auto;gap:12px;margin:16px 0
+  display:grid;grid-template-columns:repeat(6,1fr) auto auto;gap:12px;margin:16px 0
 }
 .field{background:rgba(13,31,54,.92);border:1px solid var(--line);border-radius:16px;padding:12px}
 label{display:block;font-size:10px;font-weight:900;letter-spacing:.18em;color:#b8d4f2;margin-bottom:8px;text-transform:uppercase}
@@ -109,9 +111,11 @@ select,input{
 option{background:#0d1f36}
 .actionBtn{
   border:1px solid var(--line);background:#0a1b31;color:#dcecff;border-radius:16px;padding:12px 15px;
-  font-weight:900;cursor:pointer;align-self:stretch
+  font-weight:900;cursor:pointer;align-self:stretch;transition:.2s
 }
+.actionBtn:hover{border-color:#6fa7d8;transform:translateY(-1px)}
 .actionBtn.primary{background:linear-gradient(90deg,#2f67a5,#5b9bd5);border-color:#6fa7d8;color:#fff}
+.actionBtn.primary:hover{background:linear-gradient(90deg,#1f5791,#4b86bd)}
 .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:14px}
 .kpi{
   background:rgba(13,31,54,.96);border:1px solid var(--line);border-radius:20px;padding:18px;min-height:128px;
@@ -124,6 +128,31 @@ option{background:#0d1f36}
 .kpi .label{font-size:11px;letter-spacing:.16em;color:#b8d4f2;font-weight:900;text-transform:uppercase;min-height:28px}
 .kpi .value{font-size:34px;font-weight:950;margin:12px 0 4px;letter-spacing:-.8px}.kpi.feature .value{font-size:48px}
 .kpi .note{color:#c7d8ee;font-size:13px;line-height:1.35}
+
+/* TOOLTIP */
+.kpi[data-tooltip]:hover::before{
+  content:attr(data-tooltip);
+  position:absolute;
+  bottom:calc(100% + 8px);
+  left:50%;
+  transform:translateX(-50%);
+  background:var(--panel2);
+  border:1px solid var(--line);
+  padding:10px 14px;
+  border-radius:12px;
+  font-size:12px;
+  white-space:nowrap;
+  z-index:100;
+  box-shadow:var(--shadow);
+  font-weight:700;
+  color:#dcecff;
+  animation:tooltipFade .2s ease-in;
+}
+@keyframes tooltipFade{
+  from{opacity:0;transform:translateX(-50%) translateY(4px)}
+  to{opacity:1;transform:translateX(-50%) translateY(0)}
+}
+
 .commandHero{display:grid;grid-template-columns:1.15fr .85fr;gap:14px;margin-bottom:14px}
 .commandBox{
   background:linear-gradient(135deg,#0d1f36,#102f52);border:1px solid #4074a2;border-radius:22px;
@@ -148,7 +177,7 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
 .barRow:hover{background:rgba(91,155,213,.08)}
 .barName{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
 .track{height:22px;background:#132941;border-radius:5px;overflow:hidden}
-.fill{height:100%;background:linear-gradient(90deg,#2f67a5,#5b9bd5)}
+.fill{height:100%;background:linear-gradient(90deg,#2f67a5,#5b9bd5);transition:.3s}
 .fill.orange{background:linear-gradient(90deg,#b95023,#e87535)}
 .fill.green{background:linear-gradient(90deg,#437b76,#78aaa3)}
 .fill.red{background:linear-gradient(90deg,#8b3f38,#ef6a5d)}
@@ -156,17 +185,19 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
 .donutRow{display:grid;grid-template-columns:190px 1fr;gap:22px;align-items:center}
 .donut{
   width:180px;height:180px;border-radius:50%;
-  background:conic-gradient(var(--blue2) 0 var(--opPct),var(--orange) var(--opPct) var(--opPct2),var(--red) var(--opPct2) 100%);
+  background:conic-gradient(var(--blue2) 0 var(--opPct),var(--orange) var(--opPct) var(--opPct2),var(--purple) var(--opPct2) 100%);
   position:relative
 }
 .donut:after{content:"";position:absolute;inset:52px;border-radius:50%;background:var(--panel)}
 .donutCenter{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:950}
-.legendItem{display:grid;grid-template-columns:12px 1fr auto;gap:10px;margin-bottom:18px;align-items:center;cursor:pointer}
+.legendItem{display:grid;grid-template-columns:12px 1fr auto;gap:10px;margin-bottom:18px;align-items:center;cursor:pointer;transition:.16s}
+.legendItem:hover{transform:translateX(4px)}
 .dot{width:12px;height:12px;border-radius:50%;background:var(--blue2)}
 .dot.orange{background:var(--orange)}.dot.red{background:var(--red)}.dot.green{background:var(--green)}.dot.purple{background:var(--purple)}
 .cols{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;height:210px;align-items:end}
-.colWrap{text-align:center;height:100%;display:flex;flex-direction:column;justify-content:flex-end;gap:8px;cursor:pointer}
-.col{height:var(--h);min-height:28px;background:linear-gradient(180deg,#4b86bd,#1f5791);border-radius:8px 8px 2px 2px}
+.colWrap{text-align:center;height:100%;display:flex;flex-direction:column;justify-content:flex-end;gap:8px;cursor:pointer;transition:.2s}
+.colWrap:hover{transform:translateY(-2px)}
+.col{height:var(--h);min-height:28px;background:linear-gradient(180deg,#4b86bd,#1f5791);border-radius:8px 8px 2px 2px;transition:.3s}
 .colVal{font-weight:900;color:#80d199}.colVal.warn{color:#ffa02b}.colLbl{font-size:12px;color:#d9e6f8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bottom{display:grid;grid-template-columns:1.2fr 1fr;gap:14px;margin-top:14px}
 .alerts{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
@@ -174,7 +205,7 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
 .alert:hover{transform:translateY(-2px);border-left-width:7px}.alert.orange{border-left-color:var(--orange)}.alert.red{border-left-color:var(--red)}.alert.green{border-left-color:var(--green)}.alert.purple{border-left-color:var(--purple)}
 .alert small{display:block;color:#a8bdd5;font-size:9px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}
 .alert b{display:block;font-size:22px;margin:8px 0}.alert span{color:#c7d8ee;font-size:12px;line-height:1.35}
-.rank{display:grid;grid-template-columns:1fr auto;gap:12px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.08);cursor:pointer}
+.rank{display:grid;grid-template-columns:1fr auto;gap:12px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.08);cursor:pointer;transition:.16s}
 .rank:hover{background:rgba(91,155,213,.07);padding-left:8px;padding-right:8px;border-radius:12px}
 .rank small{display:block;color:#aebfd5;margin-top:4px;line-height:1.35}
 .statusPill{border:1px solid #345978;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:900;white-space:nowrap}
@@ -193,6 +224,8 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
 .tag{display:inline-flex;border:1px solid #345978;border-radius:999px;padding:5px 9px;font-weight:900;font-size:12px}
 .tag.ok{border-color:#3f7d55}.tag.att{border-color:#8d6a23}.tag.crit{border-color:#8b3f38}.tag.purple{border-color:#7660b8}
 .empty{color:#aebfd5;padding:12px 0}
+.loading{color:#aebfd5;padding:12px 0;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 
 .geoMap{position:relative;min-height:360px;border-radius:18px;border:1px solid rgba(255,255,255,.08);overflow:hidden;background:
   radial-gradient(circle at 28% 35%,rgba(91,155,213,.55),transparent 17%),
@@ -200,14 +233,21 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
   radial-gradient(circle at 70% 68%,rgba(232,117,53,.38),transparent 16%),
   linear-gradient(135deg,#08192d,#102844)}
 .geoMap:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:34px 34px}
-.geoOverlay{position:absolute;left:16px;right:16px;bottom:16px;background:rgba(6,17,31,.78);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:14px}
-.geoOverlay b{display:block;font-size:18px;margin-bottom:6px}.geoOverlay span{color:#c7d8ee;font-size:13px;line-height:1.4}.geoChips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.geoChip{border:1px solid #345978;border-radius:999px;padding:7px 10px;color:#dcecff;font-weight:800;font-size:12px;background:rgba(19,40,64,.78);cursor:pointer}
 
 .footer{margin-top:16px;color:#aebfd5;font-size:13px}
 @media(max-width:1400px){.kpis{grid-template-columns:repeat(3,1fr)}.alerts{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:1280px){.filters{grid-template-columns:repeat(3,1fr)}.commandHero,.grid2{grid-template-columns:1fr}.kpi.feature{grid-column:span 1}}
-@media(max-width:1100px){.filters{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}.grid,.bottom{grid-template-columns:1fr}.alerts{grid-template-columns:repeat(2,1fr)}.liveStatus{text-align:left;width:100%}}
+@media(max-width:1280px){.filters{grid-template-columns:repeat(3,1fr) auto auto}.commandHero,.grid2{grid-template-columns:1fr}.kpi.feature{grid-column:span 1}}
+@media(max-width:1100px){.filters{grid-template-columns:1fr auto auto}.kpis{grid-template-columns:repeat(2,1fr)}.grid,.bottom{grid-template-columns:1fr}.alerts{grid-template-columns:repeat(2,1fr)}.liveStatus{text-align:left;width:100%}}
 @media(max-width:720px){.app{padding:14px}.header{position:relative;top:0;flex-direction:column;align-items:flex-start}.logoBox{width:70px;height:70px}.kpis,.alerts,.matrix{grid-template-columns:1fr}.barRow{grid-template-columns:1fr}.num,.pct{text-align:left}.donutRow{grid-template-columns:1fr}.drillBanner{align-items:flex-start;flex-direction:column}}
+
+/* CSS para impressão */
+@media print{
+  .header{position:relative;top:0}
+  .filters,.actionBtn,.drillBanner,.navTabs{display:none!important}
+  .panel{page-break-inside:avoid;box-shadow:none}
+  body{background:#fff;color:#000}
+  .app{max-width:100%;padding:10mm}
+}
 </style>
 </head>
 
@@ -288,6 +328,7 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
       </div>
     </div>
     <button class="actionBtn" onclick="clearAll()">Limpar</button>
+    <button class="actionBtn" onclick="exportPDF()">📄 PDF</button>
   </section>
 
   <div class="drillBanner" id="drillBanner">
@@ -301,27 +342,27 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
   <!-- TELA 1: VISÃO GERAL -->
   <main class="screen active" id="screenVisao">
     <div class="kpis">
-      <div class="kpi feature" onclick="clearDrill()">
+      <div class="kpi feature" onclick="clearDrill()" data-tooltip="Clique para resetar filtros de drill down">
         <div class="label">Total de colaboradores</div>
         <div class="value" id="kpiTotal">0</div>
         <div class="note">No recorte atual</div>
       </div>
-      <div class="kpi green" onclick="setDrill('situacao','ativo','Servidores ativos')">
+      <div class="kpi green" onclick="setDrill('situacao','ativo','Servidores ativos')" data-tooltip="Colaboradores em atividade regular">
         <div class="label">Ativos</div>
         <div class="value" id="kpiAtivos">0</div>
         <div class="note" id="kpiAtivosPct">0%</div>
       </div>
-      <div class="kpi orange" onclick="setDrill('situacao','afastado','Servidores afastados')">
+      <div class="kpi orange" onclick="setDrill('situacao','afastado','Servidores afastados')" data-tooltip="Colaboradores temporariamente afastados">
         <div class="label">Afastados</div>
         <div class="value" id="kpiAfastados">0</div>
         <div class="note" id="kpiAfastadosPct">0%</div>
       </div>
-      <div class="kpi purple" onclick="setDrill('situacao','laudo','Servidores com laudo')">
+      <div class="kpi purple" onclick="setDrill('situacao','laudo','Servidores com laudo')" data-tooltip="Colaboradores com laudo médico registrado">
         <div class="label">Laudos</div>
         <div class="value" id="kpiLaudos">0</div>
         <div class="note" id="kpiLaudosPct">0%</div>
       </div>
-      <div class="kpi red" onclick="setDrill('situacao','risco65','Risco etário 65+')">
+      <div class="kpi red" onclick="setDrill('situacao','risco65','Risco etário 65+')" data-tooltip="Colaboradores com 65 anos ou mais">
         <div class="label">Risco 65+</div>
         <div class="value" id="kpiRisco65">0</div>
         <div class="note" id="kpiRisco65Pct">0%</div>
@@ -333,59 +374,49 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
         <div class="panelHead">
           <div><h2>Distribuição por Diretoria</h2><div class="hint">Clique para filtrar</div></div>
         </div>
-        <div class="body" id="chartDiretorias"></div>
+        <div class="body" id="chartDiretorias"><div class="loading">⏳ Carregando...</div></div>
       </div>
 
       <div class="panel">
         <div class="panelHead">
           <div><h2>Capacidade x Pressão</h2><div class="hint">Distribuição do efetivo</div></div>
         </div>
-        <div class="body" id="chartAtvAfast"></div>
+        <div class="body" id="chartAtvAfast"><div class="loading">⏳ Carregando...</div></div>
       </div>
 
       <div class="panel">
         <div class="panelHead">
           <div><h2 id="tituloCardCascata">Distribuição por Superintendência / Coordenação</h2><div class="hint" id="hintCardCascata">De acordo com o filtro aplicado</div></div>
         </div>
-        <div class="body" id="chartLaudosGerencia"></div>
-      </div>
-    </div>
-
-    <div class="bottom" style="display:none">
-      <div class="panel">
-        <div class="panelHead">
-          <div>
-
-      <div>
-        
+        <div class="body" id="chartLaudosGerencia"><div class="loading">⏳ Carregando...</div></div>
       </div>
     </div>
   </main>
 
-  <!-- TELA 3: SAÚDE OCUPACIONAL -->
+  <!-- TELA 2: SAÚDE OCUPACIONAL -->
   <main class="screen" id="screenSaude">
     <div class="kpis">
-      <div class="kpi feature purple" onclick="setDrill('situacao','laudo','Servidores com laudo')">
+      <div class="kpi feature purple" onclick="setDrill('situacao','laudo','Servidores com laudo')" data-tooltip="Total de colaboradores com laudo ocupacional">
         <div class="label">Total com laudo</div>
         <div class="value" id="saudeLaudos">0</div>
         <div class="note" id="saudeLaudosPct">0%</div>
       </div>
-      <div class="kpi orange" onclick="setDrill('situacao','afastado','Servidores afastados')">
+      <div class="kpi orange" onclick="setDrill('situacao','afastado','Servidores afastados')" data-tooltip="Colaboradores temporariamente indisponíveis">
         <div class="label">Afastados</div>
         <div class="value" id="saudeAfastados">0</div>
         <div class="note">Indisponibilidade registrada</div>
       </div>
-      <div class="kpi red" onclick="setDrill('situacao','risco65','Risco etário 65+')">
+      <div class="kpi red" onclick="setDrill('situacao','risco65','Risco etário 65+')" data-tooltip="Laudo + idade avançada = pressão futura">
         <div class="label">Laudo + 60+</div>
         <div class="value" id="saudeLaudo60">0</div>
         <div class="note">Pressão ocupacional futura</div>
       </div>
-      <div class="kpi red" onclick="setDrill('situacao','laudo_afastado','Laudo com afastamento')">
+      <div class="kpi red" onclick="setDrill('situacao','laudo_afastado','Laudo com afastamento')" data-tooltip="Casos de maior criticidade operacional">
         <div class="label">Laudo + afastamento</div>
         <div class="value" id="saudeLaudoAfast">0</div>
         <div class="note">Maior criticidade</div>
       </div>
-      <div class="kpi purple" onclick="setDrill('situacao','laudo_ec','Laudo com EC')">
+      <div class="kpi purple" onclick="setDrill('situacao','laudo_ec','Laudo com EC')" data-tooltip="Casos com restrição e necessidade de redistribuição">
         <div class="label">Laudo + EC</div>
         <div class="value" id="saudeLaudoEC">0</div>
         <div class="note">Restrição e redistribuição</div>
@@ -395,33 +426,33 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
     <div class="grid">
       <div class="panel">
         <div class="panelHead"><div><h2>Pressão por Gerência</h2><div class="hint">Laudos, afastamentos e idade crítica</div></div></div>
-        <div class="body" id="chartPressaoGerencia"></div>
+        <div class="body" id="chartPressaoGerencia"><div class="loading">⏳ Carregando...</div></div>
       </div>
       <div class="panel">
         <div class="panelHead"><div><h2>Tipos de Laudo</h2><div class="hint">Classificação pela coluna CONCLUSAO da planilha de laudos</div></div></div>
-        <div class="body" id="chartTiposLaudo"></div>
+        <div class="body" id="chartTiposLaudo"><div class="loading">⏳ Carregando...</div></div>
       </div>
       <div class="panel">
         <div class="panelHead"><div><h2>Funções com laudo</h2><div class="hint">Cargos/funções com maior concentração</div></div></div>
-        <div class="body" id="chartFuncaoLaudo"></div>
+        <div class="body" id="chartFuncaoLaudo"><div class="loading">⏳ Carregando...</div></div>
       </div>
     </div>
   </main>
 
-  <!-- TELA 4: AFASTAMENTOS -->
+  <!-- TELA 3: AFASTAMENTOS -->
   <main class="screen" id="screenAfastamentos">
     <div class="kpis">
-      <div class="kpi feature orange" onclick="setDrill('situacao','afastado','Servidores afastados')">
+      <div class="kpi feature orange" onclick="setDrill('situacao','afastado','Servidores afastados')" data-tooltip="Total de afastamentos no recorte atual">
         <div class="label">Total afastados</div>
         <div class="value" id="kpiAfastTotal">0</div>
         <div class="note">Colaboradores afastados no recorte</div>
       </div>
-      <div class="kpi" onclick="setDrill('tipoAfast','INSS','Afastamentos INSS')">
+      <div class="kpi" onclick="setDrill('tipoAfast','INSS','Afastamentos INSS')" data-tooltip="Afastamentos por aposentadoria ou benefício INSS">
         <div class="label">INSS</div>
         <div class="value" id="kpiInss">0</div>
         <div class="note">Registros contendo INSS</div>
       </div>
-      <div class="kpi" onclick="setDrill('situacao','afastado_com_laudo','Afastados com laudo')">
+      <div class="kpi" onclick="setDrill('situacao','afastado_com_laudo','Afastados com laudo')" data-tooltip="Cruzamento: afastamento + laudo ocupacional">
         <div class="label">Afastados com laudo</div>
         <div class="value" id="kpiAfastLaudo">0</div>
         <div class="note">Cruzamento ocupacional</div>
@@ -431,43 +462,43 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
     <div class="grid">
       <div class="panel">
         <div class="panelHead"><div><h2>Tipos de Afastamento</h2><div class="hint">Clique para filtrar</div></div></div>
-        <div class="body" id="chartTipoAfast"></div>
+        <div class="body" id="chartTipoAfast"><div class="loading">⏳ Carregando...</div></div>
       </div>
       <div class="panel">
         <div class="panelHead"><div><h2>Afastados por Gerência</h2><div class="hint">Ranking gerencial</div></div></div>
-        <div class="body" id="chartAfastGerencia"></div>
+        <div class="body" id="chartAfastGerencia"><div class="loading">⏳ Carregando...</div></div>
       </div>
       <div class="panel">
         <div class="panelHead"><div><h2>Tempo de Casa - Afastados</h2><div class="hint">Anos de serviço</div></div></div>
-        <div class="body" id="chartTempoAfast"></div>
+        <div class="body" id="chartTempoAfast"><div class="loading">⏳ Carregando...</div></div>
       </div>
     </div>
   </main>
 
-  <!-- TELA 5: DEMOGRÁFICO -->
+  <!-- TELA 4: DEMOGRÁFICO -->
   <main class="screen" id="screenDemografico">
     <div class="kpis">
-      <div class="kpi">
+      <div class="kpi" data-tooltip="Idade média calculada de todos os colaboradores">
         <div class="label">Idade média</div>
         <div class="value" id="kpiIdadeMedia">0</div>
         <div class="note">Anos</div>
       </div>
-      <div class="kpi" onclick="setDrill('sexo','M','Masculino')">
+      <div class="kpi" onclick="setDrill('sexo','M','Masculino')" data-tooltip="Total de colaboradores do sexo masculino">
         <div class="label">Masculino</div>
         <div class="value" id="kpiMasc">0</div>
         <div class="note" id="kpiMascPct">0%</div>
       </div>
-      <div class="kpi" onclick="setDrill('sexo','F','Feminino')">
+      <div class="kpi" onclick="setDrill('sexo','F','Feminino')" data-tooltip="Total de colaboradoras do sexo feminino">
         <div class="label">Feminino</div>
         <div class="value" id="kpiFem">0</div>
         <div class="note" id="kpiFemPct">0%</div>
       </div>
-      <div class="kpi">
+      <div class="kpi" data-tooltip="Nível de escolaridade mais comum no quadro">
         <div class="label">Escolaridade predominante</div>
         <div class="value" id="kpiEscol" style="font-size:20px">-</div>
         <div class="note">Grau mais comum</div>
       </div>
-      <div class="kpi">
+      <div class="kpi" data-tooltip="Município com maior concentração residencial">
         <div class="label">Cidade predominante</div>
         <div class="value" id="kpiCidade" style="font-size:20px">-</div>
         <div class="note">Residência</div>
@@ -475,27 +506,27 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
     </div>
 
     <div class="grid">
-      <div class="panel"><div class="panelHead"><div><h2>Faixa etária</h2><div class="hint">Clique para filtrar</div></div></div><div class="body" id="chartIdade"></div></div>
-      <div class="panel"><div class="panelHead"><div><h2>Escolaridade</h2><div class="hint">Nível educacional</div></div></div><div class="body" id="chartEscolaridade"></div></div>
-      <div class="panel"><div class="panelHead"><div><h2>Tempo de casa</h2><div class="hint">Distribuição por permanência</div></div></div><div class="body" id="chartTempoCasa"></div></div>
+      <div class="panel"><div class="panelHead"><div><h2>Faixa etária</h2><div class="hint">Clique para filtrar</div></div></div><div class="body" id="chartIdade"><div class="loading">⏳ Carregando...</div></div></div>
+      <div class="panel"><div class="panelHead"><div><h2>Escolaridade</h2><div class="hint">Nível educacional</div></div></div><div class="body" id="chartEscolaridade"><div class="loading">⏳ Carregando...</div></div></div>
+      <div class="panel"><div class="panelHead"><div><h2>Tempo de casa</h2><div class="hint">Distribuição por permanência</div></div></div><div class="body" id="chartTempoCasa"><div class="loading">⏳ Carregando...</div></div></div>
     </div>
 
     <div class="grid2" style="margin-top:14px">
-      <div class="panel"><div class="panelHead"><div><h2>Mapa territorial de residência</h2><div class="hint">Concentração visual dos principais municípios/bairros</div></div></div><div class="body" id="rankCidades"></div></div>
-      <div class="panel"><div class="panelHead"><div><h2>Jornada</h2><div class="hint">Tipos de jornada</div></div></div><div class="body" id="chartJornada"></div></div>
+      <div class="panel"><div class="panelHead"><div><h2>Mapa territorial de residência</h2><div class="hint">Concentração visual dos principais municípios/bairros</div></div></div><div class="body" id="rankCidades"><div class="loading">⏳ Carregando...</div></div></div>
+      <div class="panel"><div class="panelHead"><div><h2>Jornada</h2><div class="hint">Tipos de jornada</div></div></div><div class="body" id="chartJornada"><div class="loading">⏳ Carregando...</div></div></div>
     </div>
   </main>
 
-  <!-- TELA 6: ANALÍTICO -->
+  <!-- TELA 5: ANALÍTICO -->
   <main class="screen" id="screenAnalitico">
     <div class="panel">
       <div class="panelHead">
         <div><h2>Base analítica enriquecida</h2><div class="hint">Base enriquecida com filtros e indicadores derivados</div></div>
-        <button class="actionBtn primary" onclick="exportExcel()">Exportar Excel</button>
+        <button class="actionBtn primary" onclick="exportExcel()">📊 Exportar Excel</button>
       </div>
       <div class="body">
-        <div class="field" style="margin-bottom:12px"><label>Busca analítica</label><input id="searchBox" placeholder="Buscar por nome, registro, diretoria, gerência, setor, função..." oninput="renderAnalitico()"></div>
-        <div class="tableWrap" id="tableAnalitico"></div>
+        <div class="field" style="margin-bottom:12px"><label>Busca analítica</label><input id="searchBox" placeholder="Buscar por nome, registro, diretoria, gerência, setor, função..." oninput="searchDebounced()"></div>
+        <div class="tableWrap" id="tableAnalitico"><div class="loading">⏳ Carregando...</div></div>
       </div>
     </div>
   </main>
@@ -504,6 +535,57 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
 </div>
 
 <script>
+/* =========================
+   UTILITÁRIOS
+   ========================= */
+
+// Debounce genérico
+function debounce(fn, ms) {
+  let timer;
+  return function(...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), ms);
+  };
+}
+
+// Cache de filtros no localStorage
+function saveFilters() {
+  try {
+    const filters = {
+      dir: $("fDir")?.value || "",
+      sup: $("fSup")?.value || "",
+      ger: $("fGerencia")?.value || "",
+      tipo: $("fTipoCargo")?.value || "",
+      sit: $("fSituacao")?.value || "",
+      func: [...FUNC_SELECTED]
+    };
+    localStorage.setItem('hub_comlurb_filters', JSON.stringify(filters));
+  } catch(e) {
+    console.warn('Erro ao salvar filtros:', e);
+  }
+}
+
+function loadFilters() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('hub_comlurb_filters') || '{}');
+    if(saved.dir) $("fDir").value = saved.dir;
+    if(saved.sup) $("fSup").value = saved.sup;
+    if(saved.ger) $("fGerencia").value = saved.ger;
+    if(saved.tipo) $("fTipoCargo").value = saved.tipo;
+    if(saved.sit) $("fSituacao").value = saved.sit;
+    if(saved.func && Array.isArray(saved.func)) {
+      FUNC_SELECTED = new Set(saved.func);
+    }
+  } catch(e) {
+    console.warn('Erro ao carregar filtros:', e);
+  }
+}
+
+// Export PDF (via print)
+function exportPDF() {
+  window.print();
+}
+
 /* =========================
    FONTES DE DADOS
    ========================= */
@@ -638,17 +720,13 @@ function defineFuncaoAtuacao(funcaoCargo, funcaoEC){
   return clean(funcaoEC) || clean(funcaoCargo) || "Não informado";
 }
 
-
 function buildOrgMap(rows){
   const map = new Map();
-
   rows.forEach(r=>{
     const setor = clean(pick(r,[
       "SETOR","LOTAÇÃO","LOTACAO","UNIDADE","LOCAL_TRABALHO","LOCAL DE TRABALHO"
     ]));
-
     if(!setor) return;
-
     const item = {
       setor,
       diretoria: clean(pick(r,["DIRETORIA","DIR"])) || "Não informado",
@@ -663,28 +741,22 @@ function buildOrgMap(rows){
         "GERÊNCIA EXECUTIVA","GERENCIA EXECUTIVA","GER"
       ])) || "Não informado"
     };
-
     map.set(norm(setor), item);
   });
-
   return map;
 }
 
 function getOrgBySetor(setor){
   const key = norm(setor);
   if(!key) return null;
-
   if(ORG_MAP.has(key)) return ORG_MAP.get(key);
-
   for(const [k,v] of ORG_MAP.entries()){
     if(k && key && (k === key || k.includes(key) || key.includes(k))){
       return v;
     }
   }
-
   return null;
 }
-
 
 function enrich(){
   const laudosMap = buildLaudosMap(RAW_LAUDOS);
@@ -829,6 +901,7 @@ function applyFilters(){
   });
 
   VIEW = FILTERED.filter(matchDrill);
+  saveFilters();
 }
 
 function groupCount(arr, field){
@@ -842,6 +915,11 @@ function groupCount(arr, field){
 function avg(arr, field){
   const vals = arr.map(r=>Number(r[field])).filter(v=>Number.isFinite(v) && v>0);
   return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : 0;
+}
+
+function showLoading(id) {
+  const el = $(id);
+  if(el) el.innerHTML = '<div class="loading">⏳ Carregando...</div>';
 }
 
 function renderBarRows(id, data, total, opts={}){
@@ -873,7 +951,6 @@ function renderRanks(id, data, total, type){
     `;
   }).join("") || `<div class="empty">Sem dados</div>`;
 }
-
 
 function renderFuncaoMulti(values){
   FUNC_OPTIONS = values || [];
@@ -926,7 +1003,6 @@ function closeFuncao(){
   $("funcaoMulti")?.classList.remove("open");
 }
 
-
 function setDrill(type,value,title){
   DRILL = {type, value, title:title || value};
   applyFilters();
@@ -951,6 +1027,7 @@ function clearAll(){
   applyFilters();
   renderAll();
   $("drillBanner").classList.remove("active");
+  localStorage.removeItem('hub_comlurb_filters');
 }
 
 function renderAll(){
@@ -969,8 +1046,6 @@ function renderVisaoGeral(){
   const afastados = arr.filter(r=>r.afastado).length;
   const laudos = arr.filter(r=>r.possuiLaudo).length;
   const risco65 = arr.filter(r=>r.risco65).length;
-  const ec = arr.filter(r=>r.ecInformado).length;
-  const vulnerabilidade = pct(afastados + laudos + risco65 + ec, total);
 
   $("kpiTotal").textContent = fmtInt(total);
   $("kpiAtivos").textContent = fmtInt(ativos);
@@ -1032,11 +1107,6 @@ function renderVisaoGeral(){
     color:"purple",
     onclick:n=>`setDrill('${campoCascata}','${esc(n).replaceAll("'","&#39;")}','${esc(n).replaceAll("'","&#39;")}')`
   });
-
-  const dirsCount = groupCount(arr,"diretoria").length;
-  const gerCount = groupCount(arr,"gerencia").length;
-  const topGer = groupCount(arr,"gerencia")[0] || ["-",0];
-  const topFunc = groupCount(arr,"funcaoAtuacao")[0] || ["-",0];
 }
 
 function renderSaude(){
@@ -1145,7 +1215,6 @@ function renderDemografico(){
   renderBarRows("chartJornada", groupCount(arr,"jornada").slice(0,8), total, {});
 }
 
-
 function renderTerritorialMap(arr,total){
   const top = groupCount(arr,"cidade").filter(x=>x[0] && x[0] !== "Não informado").slice(0,5);
   const principal = top[0] || ["Sem dados",0];
@@ -1207,6 +1276,9 @@ function renderAnalitico(){
     </table>`;
 }
 
+// Debounced search
+const searchDebounced = debounce(renderAnalitico, 300);
+
 function exportExcel(){
   const data = VIEW.map(r=>({
     Registro:r.registro, Nome:r.nome, Diretoria:r.diretoria, Superintendencia:r.superintendencia, Gerencia:r.gerencia, Setor:r.setor,
@@ -1260,11 +1332,23 @@ document.querySelectorAll(".tabBtn").forEach(btn=>{
 async function boot(){
   try{
     $("loadState").textContent = "Carregando...";
+    
+    // Mostra loading em todos os gráficos
+    ["chartDiretorias","chartAtvAfast","chartLaudosGerencia",
+     "chartPressaoGerencia","chartTiposLaudo","chartFuncaoLaudo",
+     "chartTipoAfast","chartAfastGerencia","chartTempoAfast",
+     "chartIdade","chartEscolaridade","chartTempoCasa",
+     "rankCidades","chartJornada","tableAnalitico"].forEach(showLoading);
+    
     RAW_R54 = await loadCSV(URLS.R54, "R54", true);
     RAW_LAUDOS = await loadCSV(URLS.LAUDOS, "Laudos", false);
     RAW_ORG = await loadCSV(URLS.ORGANOGRAMA, "Organograma oficial", true);
     ORG_MAP = buildOrgMap(RAW_ORG);
     enrich();
+    
+    // Carrega filtros salvos
+    loadFilters();
+    
     populateFilters();
     applyFilters();
     renderAll();
