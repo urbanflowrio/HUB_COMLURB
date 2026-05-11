@@ -237,20 +237,6 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
 
   <!-- TELA 1: VISÃO GERAL -->
   <main class="screen active" id="screenVisao">
-    <div class="commandHero">
-      <div class="commandBox">
-        <small>Status operacional do efetivo</small>
-        <b id="statusOperacional" class="statusWord">ESTÁVEL</b>
-        <span id="statusOperacionalDesc">Leitura consolidada da capacidade operacional líquida do recorte atual.</span>
-      </div>
-      <div class="matrix">
-        <div class="matrixCell" onclick="setDrill('situacao','ativo','Servidores ativos')"><small>Capacidade líquida</small><b id="mCapacidade">0%</b></div>
-        <div class="matrixCell" onclick="setDrill('situacao','laudo','Servidores com laudo')"><small>Pressão ocupacional</small><b id="mPressao">0%</b></div>
-        <div class="matrixCell" onclick="setDrill('situacao','risco65','Risco etário 65+')"><small>Risco de reposição</small><b id="mRisco">0%</b></div>
-        <div class="matrixCell" onclick="setDrill('situacao','ec','Servidores com EC')"><small>Dependência de EC</small><b id="mEC">0%</b></div>
-      </div>
-    </div>
-
     <div class="kpis">
       <div class="kpi feature" onclick="clearDrill()">
         <div class="label">Total de colaboradores</div>
@@ -377,7 +363,7 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
         <div class="body" id="chartPressaoGerencia"></div>
       </div>
       <div class="panel">
-        <div class="panelHead"><div><h2>Tipos de Laudo</h2><div class="hint">Quando a base complementar trouxer classificação</div></div></div>
+        <div class="panelHead"><div><h2>Tipos de Laudo</h2><div class="hint">Classificação pela coluna CONCLUSAO da planilha de laudos</div></div></div>
         <div class="body" id="chartTiposLaudo"></div>
       </div>
       <div class="panel">
@@ -595,7 +581,7 @@ function buildLaudosMap(rows){
   rows.forEach(r=>{
     const registro = norm(pick(r,["REGISTRO","MATRICULA","MATRÍCULA","MAT","ID"]));
     if(!registro) return;
-    const tipo = clean(pick(r,["TIPO","TIPO_LAUDO","TIPO LAUDO","LAUDO","DESCRIÇÃO","DESCRICAO","CLASSIFICAÇÃO","CLASSIFICACAO","CID","OBS"]));
+    const tipo = clean(pick(r,["CONCLUSAO","CONCLUSÃO","CONCLUSAO_LAUDO","CONCLUSÃO LAUDO","CONCLUSAO DO LAUDO","CONCLUSÃO DO LAUDO","TIPO","TIPO_LAUDO","TIPO LAUDO","LAUDO","DESCRIÇÃO","DESCRICAO","CLASSIFICAÇÃO","CLASSIFICACAO","CID","OBS"]));
     const cur = map.get(registro) || {qtd:0, tipos:new Set()};
     cur.qtd++;
     cur.tipos.add(tipo || "Laudo informado");
@@ -830,9 +816,6 @@ function renderVisaoGeral(){
   const laudos = arr.filter(r=>r.possuiLaudo).length;
   const risco65 = arr.filter(r=>r.risco65).length;
   const ec = arr.filter(r=>r.ecInformado).length;
-  const capacidade = Math.max(0, ativos - afastados);
-  const capPct = pct(capacidade,total);
-  const pressaoPct = pct(afastados + laudos, total);
   const vulnerabilidade = pct(afastados + laudos + risco65 + ec, total);
 
   $("kpiTotal").textContent = fmtInt(total);
@@ -844,18 +827,6 @@ function renderVisaoGeral(){
   $("kpiLaudosPct").textContent = fmtPct(pct(laudos,total));
   $("kpiRisco65").textContent = fmtInt(risco65);
   $("kpiRisco65Pct").textContent = fmtPct(pct(risco65,total));
-
-  $("mCapacidade").textContent = fmtPct(capPct);
-  $("mPressao").textContent = fmtPct(pressaoPct);
-  $("mRisco").textContent = fmtPct(pct(risco65,total));
-  $("mEC").textContent = fmtPct(pct(ec,total));
-
-  let status = "ESTÁVEL", cls = "", desc = "Capacidade operacional dentro da faixa de controle no recorte atual.";
-  if(capPct < 70){ status = "ATENÇÃO"; cls = "att"; desc = "Pressão operacional moderada: afastamentos, laudos ou risco etário reduzem a margem de resposta."; }
-  if(capPct < 55 || vulnerabilidade > 45){ status = "CRÍTICO"; cls = "crit"; desc = "Alta vulnerabilidade operacional: recomenda priorizar reposição, remanejamento e análise gerencial."; }
-  $("statusOperacional").textContent = status;
-  $("statusOperacional").className = "statusWord " + cls;
-  $("statusOperacionalDesc").textContent = desc;
 
   renderBarRows("chartDiretorias", groupCount(arr,"diretoria").slice(0,8), total, {
     onclick:n=>`setDrill('diretoria','${esc(n).replaceAll("'","&#39;")}','${esc(n).replaceAll("'","&#39;")}')`
