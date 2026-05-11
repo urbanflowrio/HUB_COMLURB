@@ -50,3 +50,74 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,
 @media(max-width:1280px){.filters{grid-template-columns:repeat(3,1fr)!important}.commandHero{grid-template-columns:1fr}.kpi.feature{grid-column:span 1}}
 @media(max-width:1100px){.filters{grid-template-columns:1fr!important}.statusIndicator{margin-left:0}.header{align-items:flex-start}.logoImg{border-right:0;padding-right:0}}
 @media(max-width:720px){.mainTitle{font-size:32px}.logoImg{width:220px}.drillBanner{align-items:flex-start;flex-direction:column}}
+
+/* =========================================================
+   AJUSTE KPI - TODOS OS CARDS NA MESMA LINHA E MESMO TAMANHO
+   ========================================================= */
+
+.kpis{
+  display:grid !important;
+  grid-template-columns:repeat(5, 1fr) !important;
+  gap:12px !important;
+  margin-bottom:14px !important;
+}
+
+.kpi{
+  min-height:120px !important;
+  padding:18px !important;
+}
+
+.kpi.feature{
+  grid-column:span 1 !important;
+  background:var(--panel) !important;
+  border-color:var(--line) !important;
+}
+
+.kpi.feature .value{
+  font-size:34px !important;
+}
+
+.kpi .value{
+  font-size:34px !important;
+  line-height:1.05 !important;
+}
+
+.kpi .label{
+  font-size:11px !important;
+  min-height:auto !important;
+}
+
+.kpi .note{
+  font-size:13px !important;
+}
+
+/* Responsivo */
+@media(max-width:1280px){
+  .kpis{
+    grid-template-columns:repeat(3, 1fr) !important;
+  }
+}
+
+@media(max-width:900px){
+  .kpis{
+    grid-template-columns:repeat(2, 1fr) !important;
+  }
+}
+
+@media(max-width:600px){
+  .kpis{
+    grid-template-columns:1fr !important;
+  }
+}
+
+/* =========================================================
+   REMOVER BLOCO VERDE DE STATUS / QUANTIDADE DE REGISTROS
+   ========================================================= */
+
+.statusIndicator,
+.statusBox,
+#loadState,
+#statusQtdRegistros{
+  display:none !important;
+}
+
