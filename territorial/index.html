@@ -376,19 +376,60 @@ const fmtInt=n=>n.toLocaleString('pt-BR');
 const fmtPct=n=>n.toFixed(1)+'%';
 
 function parseCSV(text){
-  const lines = text.trim().split('\n');
+  const lines = text.trim().split(/\r?\n/);
   if(!lines.length) return [];
-  const headers = lines[0].split(',').map(h=>h.replace(/^"|"$/g,'').trim());
+  
+  // Parse headers
+  const headerLine = lines[0];
+  const headers = headerLine.split(',').map(h=>h.trim());
+  
   const rows = [];
-  for(let i=1;i<lines.length;i++){
-    const parts = lines[i].match(/("([^"]*)"|[^,]+)(?=\s*,|\s*$)/g);
-    if(!parts) continue;
+  for(let i=1; i<lines.length; i++){
+    let line = lines[i];
+    if(!line || line.trim() === '') continue;
+    
+    // Remove aspas da linha inteira se existirem
+    if(line.startsWith('"') && line.endsWith('"')){
+      line = line.substring(1, line.length-1);
+    }
+    
+    // Parse manual com suporte a aspas duplas aninhadas
+    const values = [];
+    let current = '';
+    let inQuotes = false;
+    let quoteCount = 0;
+    
+    for(let j=0; j<line.length; j++){
+      const char = line[j];
+      const nextChar = line[j+1];
+      
+      if(char === '"'){
+        if(nextChar === '"'){
+          // Aspas duplas escapadas
+          current += '"';
+          j++; // Pula o próximo caractere
+        } else {
+          // Inverte o estado de aspas
+          inQuotes = !inQuotes;
+        }
+      } else if(char === ',' && !inQuotes){
+        // Fim de campo
+        values.push(current.trim());
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    values.push(current.trim()); // Último campo
+    
+    // Criar objeto da linha
     const row = {};
-    parts.forEach((p,idx)=>{
-      row[headers[idx]] = (p||'').replace(/^"|"$/g,'').trim();
+    headers.forEach((header, idx) => {
+      row[header] = values[idx] || '';
     });
     rows.push(row);
   }
+  
   return rows;
 }
 
