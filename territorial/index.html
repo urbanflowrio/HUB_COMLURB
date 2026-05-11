@@ -58,8 +58,8 @@
     <section class="hero">
       <div class="card heroMain">
         <div class="eyebrow">Centro de inteligência operacional</div>
-        <h2>Força de trabalho, disponibilidade real, EC, saúde e território em uma única leitura.</h2>
-        <p>O painel cruza a R54 com o organograma oficial, bases territoriais e laudos para apoiar decisão executiva sobre capacidade operacional, afastamentos, atuação por EC, reposição por idade e concentração territorial.</p>
+        <h2>Sala de situação da força de trabalho para decisão pública em tempo real.</h2>
+        <p>Plataforma executiva que cruza efetivo, organograma, território, EC, afastamentos, laudos e risco etário para revelar capacidade operacional líquida, vulnerabilidade estrutural e prioridades de gestão pública.</p>
         <div class="heroActions"><button class="btn btnPrimary" onclick="exportExcel()">Exportar análise Excel</button><button class="btn btnGhost" onclick="resetFilters()">Limpar filtros</button><button class="btn btnGhost" onclick="toggleDebug()">Diagnóstico</button></div>
       </div>
     </section>
@@ -113,7 +113,7 @@
               </div>
             </div>
             <div class="card">
-              <div class="panelHeader"><div><h3>Insights automáticos</h3><p>Leitura gerada a partir do recorte atual.</p></div></div>
+              <div class="panelHeader"><div><h3>Centro de Inteligência Operacional</h3><p>Sala de situação para estabilidade, pressão estrutural, território e continuidade do serviço público.</p></div></div>
               <div class="insights" id="autoInsights"></div>
             </div>
           </div>
@@ -323,122 +323,205 @@ function updateCharts(){
   const topEC=groupCount(filtered.filter(d=>d.atuaComEC),"funcaoAtuacao").slice(0,10);makeChart("chartEC","bar",topEC.map(x=>x[0]),topEC.map(x=>x[1]),{indexAxis:"y"});
 }
 function updateInsights(){
-  const total = filtered.length || 0;
+  const total = filtered.length;
   const ativos = filtered.filter(d => d.ativo).length;
-  const afast = filtered.filter(d => d.afastado).length;
+  const afastados = filtered.filter(d => d.afastado).length;
   const laudos = filtered.filter(d => d.possuiLaudo).length;
   const risco65 = filtered.filter(d => d.risco65).length;
+  const risco60 = filtered.filter(d => d.risco60).length;
+  const ecImpacto = filtered.filter(d => d.atuaComEC).length;
   const ecInformado = filtered.filter(d => d.ecInformado).length;
-  const atuaEC = filtered.filter(d => d.atuaComEC).length;
   const foraRio = filtered.filter(d => d.foraRio).length;
+  const dentroRio = Math.max(0, total - foraRio);
 
-  const capacidadeLiquida = Math.max(0, ativos - afast - atuaEC);
+  const capacidadeLiquida = Math.max(0, ativos - afastados - ecImpacto);
   const capacidadePct = total ? (capacidadeLiquida / total) * 100 : 0;
-  const vulnerabilidade = total ? ((afast + laudos + risco65 + atuaEC) / total) * 100 : 0;
-  const mediaIdade = avg(filtered, "idade") || 0;
+  const comprometido = Math.max(0, total - capacidadeLiquida);
+  const comprometidoPct = total ? (comprometido / total) * 100 : 0;
+
+  const indiceVulnerabilidade = total
+    ? ((afastados * 1.25 + laudos * 1.0 + risco65 * 1.35 + ecImpacto * 0.85 + foraRio * 0.45) / total) * 100
+    : 0;
+
+  const mediaIdade = avg(filtered, "idade");
 
   const topGerencia = groupCount(filtered, "gerencia")
-    .filter(x => x[0] && x[0] !== "Não informado")[0] || ["-", 0];
+    .filter(x => x[0] !== "Não informado")[0] || ["-", 0];
+
+  const topSetorRisco = groupCount(filtered.filter(d => d.afastado || d.possuiLaudo || d.risco65), "setor")
+    .filter(x => x[0] !== "Não informado")[0] || ["-", 0];
 
   const topBairroRJ = groupCount(filtered.filter(d => !d.foraRio), "bairroRes")
     .filter(x => x[0] && x[0] !== "Não informado")[0] || ["-", 0];
 
-  const topMunicipioExterno = groupCount(filtered.filter(d => d.foraRio), "bairroRes")
+  const topBairroEXT = groupCount(filtered.filter(d => d.foraRio), "bairroRes")
     .filter(x => x[0] && x[0] !== "Não informado")[0] || ["-", 0];
 
-  const gerencias = groupCount(filtered, "gerencia")
-    .filter(x => x[0] && x[0] !== "Não informado")
-    .map(([gerencia, qtd]) => {
-      const arr = filtered.filter(d => d.gerencia === gerencia);
-      const gAfast = arr.filter(d => d.afastado).length;
-      const gLaudos = arr.filter(d => d.possuiLaudo).length;
-      const g65 = arr.filter(d => d.risco65).length;
-      const gEC = arr.filter(d => d.atuaComEC).length;
-      const indice = arr.length ? ((gAfast + gLaudos + g65 + gEC) / arr.length) * 100 : 0;
-      return { gerencia, qtd, gAfast, gLaudos, g65, gEC, indice };
-    })
-    .sort((a, b) => b.indice - a.indice);
+  let status = "ESTÁVEL";
+  let statusCor = "#22c55e";
+  let statusResumo = "A operação apresenta margem de sustentação no recorte atual.";
+  let statusNivel = "Monitoramento";
 
-  const gerenciaCritica = gerencias[0] || { gerencia: "-", indice: 0, qtd: 0 };
-
-  let nivelCapacidade = "estável";
-  let corCapacidade = "#34d399";
-  if (capacidadePct < 55) {
-    nivelCapacidade = "crítico";
-    corCapacidade = "#fb7185";
-  } else if (capacidadePct < 70) {
-    nivelCapacidade = "em atenção";
-    corCapacidade = "#fbbf24";
+  if(capacidadePct < 72 || indiceVulnerabilidade > 38){
+    status = "PRESSÃO OPERACIONAL";
+    statusCor = "#f59e0b";
+    statusResumo = "Há redução da margem operacional e aumento de pressão sobre a estrutura.";
+    statusNivel = "Atenção executiva";
   }
 
-  let nivelVulnerabilidade = "controlada";
-  let corVulnerabilidade = "#38bdf8";
-  if (vulnerabilidade >= 45) {
-    nivelVulnerabilidade = "elevada";
-    corVulnerabilidade = "#fb7185";
-  } else if (vulnerabilidade >= 28) {
-    nivelVulnerabilidade = "moderada";
-    corVulnerabilidade = "#fbbf24";
+  if(capacidadePct < 58 || indiceVulnerabilidade > 55){
+    status = "CRÍTICO";
+    statusCor = "#ef4444";
+    statusResumo = "A capacidade líquida está abaixo da faixa recomendada para sustentação operacional.";
+    statusNivel = "Intervenção prioritária";
   }
 
-  const insights = [
+  const radarCards = [
     {
-      titulo: "Capacidade operacional líquida",
-      texto: `O recorte apresenta ${fmt(capacidadeLiquida)} servidores operacionalmente disponíveis, equivalente a ${capacidadePct.toFixed(1).replace(".", ",")}% do efetivo filtrado. Situação: ${nivelCapacidade}.`,
-      cor: corCapacidade
+      label:"Capacidade líquida",
+      valor:`${capacidadePct.toFixed(1).replace(".",",")}%`,
+      sub:`${fmt(capacidadeLiquida)} disponíveis de ${fmt(total)} servidores`,
+      cor:"#38bdf8"
     },
     {
-      titulo: "Vulnerabilidade operacional consolidada",
-      texto: `O índice agregado de vulnerabilidade é de ${vulnerabilidade.toFixed(1).replace(".", ",")}%, considerando afastamentos, laudos, risco etário e atuação por EC. Leitura atual: ${nivelVulnerabilidade}.`,
-      cor: corVulnerabilidade
+      label:"Capacidade comprometida",
+      valor:`${comprometidoPct.toFixed(1).replace(".",",")}%`,
+      sub:`${fmt(comprometido)} registros sob restrição, risco ou pressão`,
+      cor:"#fb7185"
     },
     {
-      titulo: "Prioridade de gestão",
-      texto: `${gerenciaCritica.gerencia} concentra a maior pressão operacional relativa do recorte, com índice estimado de ${gerenciaCritica.indice.toFixed(1).replace(".", ",")}% em ${fmt(gerenciaCritica.qtd)} servidores analisados.`,
-      cor: "#fb7185"
+      label:"Vulnerabilidade sistêmica",
+      valor:`${indiceVulnerabilidade.toFixed(1).replace(".",",")}%`,
+      sub:"índice composto de pressão operacional",
+      cor:"#a78bfa"
     },
     {
-      titulo: "Risco de continuidade do serviço",
-      texto: `${fmt(risco65)} servidores possuem 65 anos ou mais, sinalizando necessidade de planejamento de sucessão, reposição e preservação de conhecimento operacional.`,
-      cor: "#f97316"
-    },
-    {
-      titulo: "Dependência estrutural de EC",
-      texto: `${fmt(ecInformado)} servidores possuem FUNCAO_EC informada e ${fmt(atuaEC)} aparecem com impacto direto na função de atuação, indicando desalinhamento potencial entre cargo formal e operação executada.`,
-      cor: "#a78bfa"
-    },
-    {
-      titulo: "Pressão por indisponibilidade",
-      texto: `${fmt(afast)} servidores apresentam afastamento registrado e ${fmt(laudos)} possuem laudo localizado, exigindo leitura integrada entre capacidade real, restrições laborais e planejamento de escala.`,
-      cor: "#fbbf24"
-    },
-    {
-      titulo: "Inteligência territorial",
-      texto: `${fmt(foraRio)} servidores residem fora do município do Rio de Janeiro. O principal polo fora do RJ é ${topMunicipioExterno[0]}, enquanto ${topBairroRJ[0]} lidera a concentração residencial dentro do município.`,
-      cor: "#22d3ee"
-    },
-    {
-      titulo: "Envelhecimento da força de trabalho",
-      texto: `A média etária do recorte é de ${mediaIdade.toFixed(1).replace(".", ",")} anos, reforçando a necessidade de monitoramento preventivo por território, gerência e função crítica.`,
-      cor: "#60a5fa"
-    },
-    {
-      titulo: "Concentração gerencial",
-      texto: `${topGerencia[0]} concentra ${fmt(topGerencia[1])} servidores, sendo um dos principais blocos de gestão para análise de capacidade, reposição e redistribuição operacional.`,
-      cor: "#34d399"
+      label:"Pressão territorial",
+      valor:`${pct(foraRio,total)}`,
+      sub:`${fmt(foraRio)} servidores fora do município`,
+      cor:"#22d3ee"
     }
   ];
 
-  document.getElementById("autoInsights").innerHTML = insights.map(i => `
-    <div class="insight">
-      <div class="dot" style="background:${i.cor};box-shadow:0 0 18px ${i.cor};"></div>
+  const alertas = [
+    {
+      nivel: capacidadePct < 58 ? "CRÍTICO" : capacidadePct < 72 ? "ATENÇÃO" : "MONITORAMENTO",
+      titulo:"Estabilidade operacional",
+      texto:`A capacidade operacional líquida está em ${capacidadePct.toFixed(1).replace(".",",")}%. Este indicador mede a margem real de sustentação do serviço após afastamentos e redistribuições por EC.`,
+      cor: capacidadePct < 58 ? "#ef4444" : capacidadePct < 72 ? "#f59e0b" : "#38bdf8"
+    },
+    {
+      nivel: indiceVulnerabilidade > 55 ? "CRÍTICO" : indiceVulnerabilidade > 38 ? "ATENÇÃO" : "MONITORAMENTO",
+      titulo:"Pressão estrutural do efetivo",
+      texto:`A combinação de ${fmt(afastados)} afastamentos, ${fmt(laudos)} laudos, ${fmt(risco65)} servidores 65+ e ${fmt(ecImpacto)} atuações via EC eleva o risco de perda de resiliência operacional.`,
+      cor: indiceVulnerabilidade > 55 ? "#ef4444" : indiceVulnerabilidade > 38 ? "#f59e0b" : "#38bdf8"
+    },
+    {
+      nivel: risco65 > 0 ? "ATENÇÃO" : "MONITORAMENTO",
+      titulo:"Continuidade e sucessão operacional",
+      texto:`O recorte possui ${fmt(risco60)} servidores com 60+ e ${fmt(risco65)} com 65+, sinalizando necessidade de planejamento de reposição, sucessão e preservação de conhecimento operacional.`,
+      cor:"#f97316"
+    },
+    {
+      nivel: ecImpacto > 0 ? "ATENÇÃO" : "MONITORAMENTO",
+      titulo:"Dependência de redistribuição funcional",
+      texto:`Foram identificados ${fmt(ecInformado)} servidores com FUNCAO_EC informada, sendo ${fmt(ecImpacto)} considerados como atuação operacional via EC. Isso indica desalinhamento entre quadro formal e execução real.`,
+      cor:"#a855f7"
+    },
+    {
+      nivel: foraRio > 0 ? "MONITORAMENTO" : "ESTÁVEL",
+      titulo:"Vulnerabilidade territorial e logística",
+      texto:`${fmt(foraRio)} servidores residem fora do município e ${fmt(dentroRio)} dentro do Rio. A maior concentração interna está em ${topBairroRJ[0]}, enquanto o principal polo externo é ${topBairroEXT[0]}.`,
+      cor:"#22d3ee"
+    },
+    {
+      nivel:"PRIORIDADE",
+      titulo:"Foco de gestão pública",
+      texto:`${topGerencia[0]} concentra ${fmt(topGerencia[1])} servidores e ${topSetorRisco[0]} aparece como principal ponto de concentração de risco composto. Priorize análise de capacidade, escala e reposição nesses núcleos.`,
+      cor:"#60a5fa"
+    }
+  ];
+
+  const cardHtml = radarCards.map(c => `
+    <div style="
+      border:1px solid rgba(148,163,184,.16);
+      background:rgba(15,23,42,.52);
+      border-radius:18px;
+      padding:15px;
+      min-height:118px;
+    ">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:#94a3b8;font-weight:900;">${escapeHtml(c.label)}</div>
+      <div style="font-size:30px;font-weight:950;line-height:1;margin-top:10px;color:${c.cor};">${escapeHtml(c.valor)}</div>
+      <div style="font-size:12px;color:#cbd5e1;line-height:1.35;margin-top:9px;">${escapeHtml(c.sub)}</div>
+    </div>
+  `).join("");
+
+  const alertasHtml = alertas.map(a => `
+    <div style="
+      display:grid;
+      grid-template-columns:82px 1fr;
+      gap:12px;
+      align-items:start;
+      padding:14px;
+      border-radius:18px;
+      border:1px solid rgba(148,163,184,.14);
+      background:rgba(15,23,42,.48);
+    ">
+      <div style="
+        border:1px solid ${a.cor};
+        color:${a.cor};
+        background:rgba(2,6,23,.42);
+        border-radius:999px;
+        text-align:center;
+        padding:7px 8px;
+        font-size:9px;
+        font-weight:950;
+        letter-spacing:.08em;
+      ">${escapeHtml(a.nivel)}</div>
       <div>
-        <b>${escapeHtml(i.titulo)}</b>
-        <span>${escapeHtml(i.texto)}</span>
+        <b style="display:block;font-size:13px;letter-spacing:.02em;color:#fff;text-transform:uppercase;">${escapeHtml(a.titulo)}</b>
+        <span style="display:block;color:#aebdd0;font-size:12px;line-height:1.48;margin-top:5px;">${escapeHtml(a.texto)}</span>
       </div>
     </div>
   `).join("");
+
+  document.getElementById("autoInsights").innerHTML = `
+    <div style="
+      border:1px solid rgba(148,163,184,.16);
+      border-left:7px solid ${statusCor};
+      border-radius:24px;
+      padding:22px;
+      background:
+        radial-gradient(circle at 90% 10%, ${statusCor}22, transparent 34%),
+        linear-gradient(135deg,rgba(15,23,42,.72),rgba(2,6,23,.58));
+      box-shadow:0 18px 55px rgba(0,0,0,.28);
+    ">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:#94a3b8;font-weight:950;">Status operacional do município</div>
+      <div style="font-size:32px;font-weight:950;line-height:1;margin-top:10px;color:${statusCor};">${status}</div>
+      <div style="display:inline-flex;margin-top:10px;border:1px solid ${statusCor};border-radius:999px;padding:7px 10px;color:${statusCor};font-size:10px;font-weight:950;text-transform:uppercase;letter-spacing:.1em;">${statusNivel}</div>
+      <div style="margin-top:12px;color:#dbeafe;font-size:13px;line-height:1.48;">${escapeHtml(statusResumo)}</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">${cardHtml}</div>
+
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:.16em;color:#93c5fd;font-weight:950;margin:4px 0 -2px;">Alertas de sala de situação</div>
+    ${alertasHtml}
+
+    <div style="
+      margin-top:4px;
+      padding:18px;
+      border-radius:20px;
+      background:linear-gradient(135deg,rgba(56,189,248,.13),rgba(168,85,247,.10));
+      border:1px solid rgba(56,189,248,.16);
+    ">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:.16em;color:#93c5fd;font-weight:950;margin-bottom:8px;">Leitura executiva</div>
+      <div style="color:#dbeafe;font-size:13px;line-height:1.52;">
+        O recorte atual deve ser analisado como uma matriz de risco público: capacidade líquida, pressão ocupacional, envelhecimento, dependência de EC e vulnerabilidade territorial. A prioridade de gestão é preservar a continuidade do serviço, antecipar reposição e reduzir pontos de fragilidade antes que eles se convertam em descontinuidade operacional.
+      </div>
+    </div>
+  `;
 }
+
 function renderTerritorialExecutivo(){const dentroRJ=filtered.filter(d=>!d.foraRio);const foraRJ=filtered.filter(d=>d.foraRio);const topRJ=groupCount(dentroRJ,"bairroRes").filter(x=>x[0]&&x[0]!=="Não informado").slice(0,5);const topEXT=groupCount(foraRJ,"bairroRes").filter(x=>x[0]&&x[0]!=="Não informado").slice(0,5);document.getElementById("rjTotal").textContent=fmt(dentroRJ.length);document.getElementById("extTotal").textContent=fmt(foraRJ.length);document.getElementById("topRJ").textContent=topRJ[0]?.[0]||"-";document.getElementById("topEXT").textContent=topEXT[0]?.[0]||"-";const maxRJ=Math.max(...topRJ.map(x=>x[1]),1),maxEXT=Math.max(...topEXT.map(x=>x[1]),1);document.getElementById("rankRJ").innerHTML=topRJ.map(([bairro,total])=>{const arr=dentroRJ.filter(d=>d.bairroRes===bairro);const r65=arr.filter(d=>d.risco65).length;const ec=arr.filter(d=>d.ecInformado).length;return `<div class="rankItem"><div class="rankTop"><div><div class="rankNome">${escapeHtml(bairro)}</div><div class="rankSub">65+: ${fmt(r65)} · EC: ${fmt(ec)}</div></div><div class="rankQtd">${fmt(total)}</div></div><div class="rankBar"><i style="width:${(total/maxRJ)*100}%"></i></div></div>`;}).join("");document.getElementById("rankEXT").innerHTML=topEXT.map(([bairro,total])=>{const arr=foraRJ.filter(d=>d.bairroRes===bairro);const r65=arr.filter(d=>d.risco65).length;const ec=arr.filter(d=>d.ecInformado).length;return `<div class="rankItem"><div class="rankTop"><div><div class="rankNome">${escapeHtml(bairro)}</div><div class="rankSub">65+: ${fmt(r65)} · EC: ${fmt(ec)}</div></div><div class="rankQtd">${fmt(total)}</div></div><div class="rankBar"><i style="width:${(total/maxEXT)*100}%"></i></div></div>`;}).join("");}
 function renderGerenciaScores(){const byGer=groupCount(filtered,"gerencia").filter(x=>x[0]!=="Não informado").slice(0,8).map(([ger,total])=>{const arr=filtered.filter(d=>d.gerencia===ger);const ativos=arr.filter(d=>d.ativo).length,afast=arr.filter(d=>d.afastado).length,ec=arr.filter(d=>d.ecInformado).length,ecImpacto=arr.filter(d=>d.atuaComEC).length,laudo=arr.filter(d=>d.possuiLaudo).length,r65=arr.filter(d=>d.risco65).length,disp=Math.max(0,ativos-afast-ecImpacto);return{ger,total,disp,afast,ec,laudo,r65,score:total?disp/total*100:0};});document.getElementById("gerenciaScores").innerHTML=byGer.map((x,i)=>`<div class="scoreCard"><div class="rank">#${i+1} perfil gerencial</div><h4>${escapeHtml(x.ger)}</h4><p>${fmt(x.total)} servidores · disp. ${fmt(x.disp)} (${pct(x.disp,x.total)}) · afast. ${fmt(x.afast)} · EC ${fmt(x.ec)} · laudos ${fmt(x.laudo)} · 65+ ${fmt(x.r65)}</p><div class="bar"><i style="width:${Math.max(8,x.score)}%"></i></div></div>`).join("");}
 function renderECInsights(){const totalEC=filtered.filter(d=>d.atuaComEC).length;const ecInfo=filtered.filter(d=>d.ecInformado).length;const topEC=groupCount(filtered.filter(d=>d.atuaComEC),"funcaoAtuacao")[0]||["-",0];const gariEncarregado=filtered.filter(d=>norm(d.funcao).includes("GARI")&&norm(d.funcaoEC).includes("ENCARREGADO")).length;document.getElementById("ecInsights").innerHTML=`<div class="insight"><div class="dot"></div><div><b>EC informado</b><span>${fmt(ecInfo)} servidores possuem FUNCAO_EC preenchida.</span></div></div><div class="insight"><div class="dot"></div><div><b>Impacto na atuação</b><span>${fmt(totalEC)} servidores atuam pela FUNCAO_EC após aplicação da regra operacional.</span></div></div><div class="insight"><div class="dot"></div><div><b>GARI com EC de encarregado</b><span>${fmt(gariEncarregado)} permanecem classificados como GARI na função de atuação.</span></div></div><div class="insight"><div class="dot"></div><div><b>Principal atuação via EC</b><span>${escapeHtml(topEC[0])} concentra ${fmt(topEC[1])} atuações.</span></div></div>`;}
