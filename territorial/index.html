@@ -345,7 +345,7 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
 
       <div class="panel">
         <div class="panelHead">
-          <div><h2>Laudos por Gerência</h2><div class="hint">Distribuição de laudos</div></div>
+          <div><h2>Distribuição por Superintendência / Coordenação</h2><div class="hint">De acordo com o filtro aplicado</div></div>
         </div>
         <div class="body" id="chartLaudosGerencia"></div>
       </div>
@@ -998,10 +998,10 @@ function renderVisaoGeral(){
       </div>
     </div>`;
 
-  const laudosGer = groupCount(arr.filter(r=>r.possuiLaudo),"gerencia").slice(0,8);
-  renderBarRows("chartLaudosGerencia", laudosGer, Math.max(laudos,1), {
+  const supCoord = groupCount(arr,"superintendencia").slice(0,8);
+  renderBarRows("chartLaudosGerencia", supCoord, Math.max(total,1), {
     color:"purple",
-    onclick:n=>`setDrill('gerencia','${esc(n).replaceAll("'","&#39;")}','${esc(n).replaceAll("'","&#39;")}')`
+    onclick:n=>`setDrill('superintendencia','${esc(n).replaceAll("'","&#39;")}','${esc(n).replaceAll("'","&#39;")}')`
   });
 
   const dirsCount = groupCount(arr,"diretoria").length;
