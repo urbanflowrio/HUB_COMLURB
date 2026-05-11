@@ -366,86 +366,167 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,
 </div>
 
 <script>
-const CSV_PATH = '/mnt/project/R54__Ativos_e_Afastados__29042026__Exportar_Planilha.csv';
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRE3Q_RdpZOqc4f3O3fQirMQkEXQWyBkiIlXB6LZWgqTZbItGBHAxUHf2-0kEcALDIUfyPeK7GyBQrB/pub?gid=1371643814&single=true&output=csv";
+const CSV_FALLBACK = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRE3Q_RdpZOqc4f3O3fQirMQkEXQWyBkiIlXB6LZWgqTZbItGBHAxUHf2-0kEcALDIUfyPeK7GyBQrB/pub?gid=1371643814&single=true&output=csv";
+
 let ROWS = [];
 let FILTERED = [];
 
-const $=(id)=>document.getElementById(id);
-const clean=s=>(s||'').trim();
-const fmtInt=n=>n.toLocaleString('pt-BR');
-const fmtPct=n=>n.toFixed(1)+'%';
+const $ = (id) => document.getElementById(id);
+const clean = s => String(s ?? '').trim();
+const norm = s => clean(s)
+  .normalize('NFD')
+  .replace(/[\u0300-\u036f]/g,'')
+  .replace(/\s+/g,' ')
+  .toUpperCase();
+
+const fmtInt = n => Number(n || 0).toLocaleString('pt-BR');
+const fmtPct = n => Number.isFinite(n) ? n.toFixed(1).replace('.',',') + '%' : '0,0%';
+const safeDiv = (a,b) => b ? (a / b) : 0;
+const esc = s => clean(s).replace(/[&<>"']/g, m => ({
+  '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+}[m]));
+
+const FIELD_CANDIDATES = {
+  DIRETORIA: ['DIRETORIA','DIR'],
+  'SUPERINTENDÊNCIA': ['SUPERINTENDÊNCIA','SUPERINTENDENCIA','COORDENAÇÃO','COORDENACAO','SUPERINTENDÊNCIA/COORDENAÇÃO','SUPERINTENDENCIA/COORDENACAO','COORD','SUPER'],
+  SETOR: ['SETOR','LOTAÇÃO','LOTACAO','UNIDADE','LOCAL_TRABALHO','LOCAL DE TRABALHO'],
+  TIPOCARGO: ['TIPOCARGO','TIPO CARGO','TIPO_CARGO','TIPO'],
+  AFASTAMENTO: ['AFASTAMENTO','AFASTAMENTO_ATUAL','STATUS_AFASTAMENTO'],
+  TIPOAFASTAMENTO: ['TIPOAFASTAMENTO','TIPO AFASTAMENTO','TIPO_AFASTAMENTO','AFASTAMENTO'],
+  TPCASAANOS: ['TPCASAANOS','TP CASA ANOS','TEMPO CASA','TEMPO_CASA','TEMPO DE CASA','ANOS CASA'],
+  SEXO: ['SEXO','GENERO','GÊNERO'],
+  FUNCAOCARGO: ['FUNCAOCARGO','FUNÇÃO CARGO','FUNCAO CARGO','CARGO','FUNÇÃO','FUNCAO'],
+  NOME: ['NOME','NOME DO SERVIDOR','SERVIDOR','NOME_SERVIDOR'],
+  IDADEANOS: ['IDADEANOS','IDADE ANOS','IDADE'],
+  ESCOLARIDADE: ['ESCOLARIDADE','GRAU INSTRUÇÃO','GRAU INSTRUCAO','INSTRUÇÃO','INSTRUCAO'],
+  CIDADEENDER: ['CIDADEENDER','CIDADE ENDER','CIDADE','MUNICIPIO_RES','MUNICÍPIO_RES','MUNICIPIO','MUNICÍPIO'],
+  JORNADA: ['JORNADA','CARGA HORARIA','CARGA HORÁRIA','HORARIO','HORÁRIO']
+};
+
+function getValue(row, candidates){
+  const keys = Object.keys(row || {});
+  for(const cand of candidates){
+    if(row[cand] !== undefined) return row[cand];
+    const found = keys.find(k => norm(k) === norm(cand));
+    if(found) return row[found];
+  }
+  return '';
+}
+
+function normalizeRow(row){
+  const out = {...row};
+  Object.entries(FIELD_CANDIDATES).forEach(([target, candidates]) => {
+    if(!clean(out[target])) out[target] = getValue(row, candidates);
+  });
+
+  // Padronizações úteis para o painel
+  out.SEXO = norm(out.SEXO).startsWith('F') ? 'F' : (norm(out.SEXO).startsWith('M') ? 'M' : clean(out.SEXO));
+  out.TPCASAANOS = parseNumber(out.TPCASAANOS);
+  out.IDADEANOS = parseNumber(out.IDADEANOS);
+
+  return out;
+}
+
+function parseNumber(v){
+  const n = Number(clean(v).replace(/\./g,'').replace(',','.').replace(/[^0-9.-]/g,''));
+  return Number.isFinite(n) ? n : 0;
+}
 
 function parseCSV(text){
-  const lines = text.trim().split(/\r?\n/);
-  if(!lines.length) return [];
-  
-  // Parse headers
-  const headerLine = lines[0];
-  const headers = headerLine.split(',').map(h=>h.trim());
-  
   const rows = [];
-  for(let i=1; i<lines.length; i++){
-    let line = lines[i];
-    if(!line || line.trim() === '') continue;
-    
-    // Remove aspas da linha inteira se existirem
-    if(line.startsWith('"') && line.endsWith('"')){
-      line = line.substring(1, line.length-1);
+  const sep = detectSeparator(text);
+  let current = '', field = [], row = [], inQuotes = false;
+
+  for(let i=0; i<text.length; i++){
+    const c = text[i];
+    const n = text[i+1];
+
+    if(c === '"'){
+      if(inQuotes && n === '"'){ current += '"'; i++; }
+      else inQuotes = !inQuotes;
+    } else if(c === sep && !inQuotes){
+      row.push(current);
+      current = '';
+    } else if((c === '\n' || c === '\r') && !inQuotes){
+      if(c === '\r' && n === '\n') i++;
+      row.push(current);
+      rows.push(row);
+      row = [];
+      current = '';
+    } else {
+      current += c;
     }
-    
-    // Parse manual com suporte a aspas duplas aninhadas
-    const values = [];
-    let current = '';
-    let inQuotes = false;
-    let quoteCount = 0;
-    
-    for(let j=0; j<line.length; j++){
-      const char = line[j];
-      const nextChar = line[j+1];
-      
-      if(char === '"'){
-        if(nextChar === '"'){
-          // Aspas duplas escapadas
-          current += '"';
-          j++; // Pula o próximo caractere
-        } else {
-          // Inverte o estado de aspas
-          inQuotes = !inQuotes;
-        }
-      } else if(char === ',' && !inQuotes){
-        // Fim de campo
-        values.push(current.trim());
-        current = '';
-      } else {
-        current += char;
-      }
-    }
-    values.push(current.trim()); // Último campo
-    
-    // Criar objeto da linha
-    const row = {};
-    headers.forEach((header, idx) => {
-      row[header] = values[idx] || '';
-    });
+  }
+
+  if(current || row.length){
+    row.push(current);
     rows.push(row);
   }
-  
-  return rows;
+
+  const headers = (rows.shift() || []).map(h => clean(h));
+  return rows
+    .filter(r => r.some(v => clean(v)))
+    .map(values => {
+      const obj = {};
+      headers.forEach((h, i) => obj[h] = clean(values[i]));
+      return normalizeRow(obj);
+    });
+}
+
+function detectSeparator(text){
+  const firstLine = (text || '').split(/\r?\n/)[0] || '';
+  const comma = (firstLine.match(/,/g) || []).length;
+  const semicolon = (firstLine.match(/;/g) || []).length;
+  return semicolon > comma ? ';' : ',';
+}
+
+async function fetchCSV(){
+  const urls = [CSV_URL, CSV_FALLBACK];
+  let lastErr;
+
+  for(const url of urls){
+    try{
+      const resp = await fetch(url, {cache:'no-store'});
+      if(!resp.ok) throw new Error('HTTP ' + resp.status);
+      const text = await resp.text();
+      if(!text || text.includes('<html')) throw new Error('A resposta não parece CSV');
+      return text;
+    }catch(err){
+      lastErr = err;
+      console.warn('Falha ao carregar CSV:', url, err);
+    }
+  }
+
+  throw lastErr || new Error('Não foi possível carregar o CSV');
 }
 
 async function loadData(){
   try{
-    const resp = await fetch(CSV_PATH);
-    const text = await resp.text();
+    $('updated').textContent = 'Carregando dados da R54 publicada...';
+    const text = await fetchCSV();
     ROWS = parseCSV(text);
+
+    if(!ROWS.length) throw new Error('CSV carregado, mas sem linhas válidas.');
+
     console.log('Dados carregados:', ROWS.length, 'linhas');
+    console.log('Colunas detectadas:', Object.keys(ROWS[0] || {}));
+
     populateFilters();
     applyFilters();
     renderAll();
-    $('updated').textContent = 'Atualizado em: ' + new Date().toLocaleString('pt-BR');
+
+    $('updated').textContent =
+      'Atualizado em: ' + new Date().toLocaleString('pt-BR') +
+      ' • Base R54 publicada • ' + fmtInt(ROWS.length) + ' registros carregados';
   }catch(err){
     console.error(err);
     $('updated').textContent = 'Erro ao carregar dados: ' + err.message;
+    const status = $('statusBar');
+    if(status){
+      status.style.display = 'block';
+      status.textContent = 'Não foi possível carregar a base. Verifique se a planilha publicada está acessível em CSV.';
+    }
   }
 }
 
@@ -469,7 +550,7 @@ function populateSelect(id, values){
   const sel = $(id);
   if(!sel) return;
   const curr = sel.value;
-  sel.innerHTML = '<option value="">Todos</option>' + values.map(v=>`<option value="${v}">${v}</option>`).join('');
+  sel.innerHTML = '<option value="">Todos</option>' + values.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('');
   if(values.includes(curr)) sel.value = curr;
 }
 
@@ -509,9 +590,9 @@ function renderVisaoGeral(){
   
   $('kpiTotal').textContent = fmtInt(total);
   $('kpiAtivos').textContent = fmtInt(ativos);
-  $('kpiAtivosPct').textContent = fmtPct(ativos/total*100);
+  $('kpiAtivosPct').textContent = fmtPct(safeDiv(ativos,total)*100);
   $('kpiAfastados').textContent = fmtInt(afastados);
-  $('kpiAfastadosPct').textContent = fmtPct(afastados/total*100);
+  $('kpiAfastadosPct').textContent = fmtPct(safeDiv(afastados,total)*100);
   $('kpiTempoCasa').textContent = tempoMedio.toFixed(1);
   
   // Distribuição por Diretoria
@@ -527,12 +608,12 @@ function renderVisaoGeral(){
       <div>${dir}</div>
       <div class="track"><div class="fill" style="width:${cnt/dirMax*100}%"></div></div>
       <div class="num">${fmtInt(cnt)}</div>
-      <div class="pct">${fmtPct(cnt/total*100)}</div>
+      <div class="pct">${fmtPct(safeDiv(cnt,total)*100)}</div>
     </div>
   `).join('') || '<div class="empty">Sem dados</div>';
   
   // Ativos vs Afastados
-  const opPct = ativos/total*100;
+  const opPct = safeDiv(ativos,total)*100;
   $('chartAtvAfast').innerHTML = `
     <div class="donutRow">
       <div class="donut" style="--opPct:${opPct}%">
@@ -548,7 +629,7 @@ function renderVisaoGeral(){
   // Distribuição por Gênero
   const masc = FILTERED.filter(r=>clean(r.SEXO)==='M').length;
   const fem = FILTERED.filter(r=>clean(r.SEXO)==='F').length;
-  const genPct = masc/(masc+fem)*100;
+  const genPct = safeDiv(masc,(masc+fem))*100;
   $('chartGenero').innerHTML = `
     <div class="donutRow">
       <div class="donut" style="--opPct:${genPct}%">
@@ -572,7 +653,7 @@ function renderVisaoGeral(){
     <div class="rank">
       <div>
         <b>${func}</b>
-        <small>${fmtInt(cnt)} colaboradores • ${fmtPct(cnt/total*100)} do total</small>
+        <small>${fmtInt(cnt)} colaboradores • ${fmtPct(safeDiv(cnt,total)*100)} do total</small>
       </div>
       <span class="statusPill ok">${fmtInt(cnt)}</span>
     </div>
@@ -582,11 +663,11 @@ function renderVisaoGeral(){
   const dirsCount = Object.keys(dirCount).length;
   const funcCount2 = Object.keys(funcCount).length;
   const predSexo = masc>fem?'Masculino':'Feminino';
-  const pctMaior = Math.max(masc,fem)/(masc+fem)*100;
+  const pctMaior = safeDiv(Math.max(masc,fem),(masc+fem))*100;
   $('alertsVisao').innerHTML = `
     <div class="alert green"><small>COLABORADORES</small><b>${fmtInt(total)}</b><span>no recorte atual</span></div>
     <div class="alert blue"><small>DIRETORIAS</small><b>${fmtInt(dirsCount)}</b><span>unidades administrativas</span></div>
-    <div class="alert orange"><small>TAXA AFASTAMENTO</small><b>${fmtPct(afastados/total*100)}</b><span>do quadro total</span></div>
+    <div class="alert orange"><small>TAXA AFASTAMENTO</small><b>${fmtPct(safeDiv(afastados,total)*100)}</b><span>do quadro total</span></div>
     <div class="alert"><small>GÊNERO PREDOMINANTE</small><b>${predSexo}</b><span>${fmtPct(pctMaior)} do quadro</span></div>
     <div class="alert green"><small>FUNÇÕES DISTINTAS</small><b>${fmtInt(funcCount2)}</b><span>cargos mapeados</span></div>
   `;
@@ -610,7 +691,7 @@ function renderDiretorias(){
   $('territoryDesc').textContent = fDir ? `Análise detalhada da diretoria ${fDir}` : 'Visão consolidada de todas as unidades administrativas da COMLURB';
   $('matrixTotal').textContent = fmtInt(total);
   $('matrixSetores').textContent = fmtInt(setoresQtd);
-  $('matrixAtivos').textContent = fmtPct(ativos/total*100);
+  $('matrixAtivos').textContent = fmtPct(safeDiv(ativos,total)*100);
   $('matrixTempo').textContent = tempoMedio.toFixed(1) + ' anos';
   
   // Ranking Setores
@@ -621,7 +702,7 @@ function renderDiretorias(){
       <div class="rank">
         <div>
           <b>${setor}</b>
-          <small>${fmtInt(cnt)} colaboradores • ${fmtPct(cnt/total*100)} do total</small>
+          <small>${fmtInt(cnt)} colaboradores • ${fmtPct(safeDiv(cnt,total)*100)} do total</small>
         </div>
         <span class="statusPill ${cls}">${fmtInt(cnt)}</span>
       </div>
@@ -659,7 +740,7 @@ function renderAfastamentos(){
       <div>${tipo}</div>
       <div class="track"><div class="fill orange" style="width:${cnt/tipoMax*100}%"></div></div>
       <div class="num">${fmtInt(cnt)}</div>
-      <div class="pct">${fmtPct(cnt/total*100)}</div>
+      <div class="pct">${fmtPct(safeDiv(cnt,total)*100)}</div>
     </div>
   `).join('') || '<div class="empty">Sem dados</div>';
   
@@ -676,7 +757,7 @@ function renderAfastamentos(){
       <div>${dir}</div>
       <div class="track"><div class="fill" style="width:${cnt/dirMax*100}%"></div></div>
       <div class="num">${fmtInt(cnt)}</div>
-      <div class="pct">${fmtPct(cnt/total*100)}</div>
+      <div class="pct">${fmtPct(safeDiv(cnt,total)*100)}</div>
     </div>
   `).join('') || '<div class="empty">Sem dados</div>';
   
@@ -751,9 +832,9 @@ function renderDemografico(){
   
   $('kpiIdadeMedia').textContent = idadeMedia.toFixed(1);
   $('kpiMasc').textContent = fmtInt(masc);
-  $('kpiMascPct').textContent = fmtPct(masc/total*100);
+  $('kpiMascPct').textContent = fmtPct(safeDiv(masc,total)*100);
   $('kpiFem').textContent = fmtInt(fem);
-  $('kpiFemPct').textContent = fmtPct(fem/total*100);
+  $('kpiFemPct').textContent = fmtPct(safeDiv(fem,total)*100);
   $('kpiEscol').textContent = escolPred ? escolPred[0] : '-';
   $('kpiCidade').textContent = cidPred ? cidPred[0] : '-';
   
@@ -786,7 +867,7 @@ function renderDemografico(){
       <div>${esc}</div>
       <div class="track"><div class="fill green" style="width:${cnt/escolMax*100}%"></div></div>
       <div class="num">${fmtInt(cnt)}</div>
-      <div class="pct">${fmtPct(cnt/total*100)}</div>
+      <div class="pct">${fmtPct(safeDiv(cnt,total)*100)}</div>
     </div>
   `).join('') || '<div class="empty">Sem dados</div>';
   
@@ -817,7 +898,7 @@ function renderDemografico(){
     <div class="rank">
       <div>
         <b>${cid}</b>
-        <small>${fmtInt(cnt)} colaboradores • ${fmtPct(cnt/total*100)} do total</small>
+        <small>${fmtInt(cnt)} colaboradores • ${fmtPct(safeDiv(cnt,total)*100)} do total</small>
       </div>
       <span class="statusPill ok">${fmtInt(cnt)}</span>
     </div>
@@ -836,7 +917,7 @@ function renderDemografico(){
       <div>${jorn}</div>
       <div class="track"><div class="fill" style="width:${cnt/jornMax*100}%"></div></div>
       <div class="num">${fmtInt(cnt)}</div>
-      <div class="pct">${fmtPct(cnt/total*100)}</div>
+      <div class="pct">${fmtPct(safeDiv(cnt,total)*100)}</div>
     </div>
   `).join('') || '<div class="empty">Sem dados</div>';
 }
