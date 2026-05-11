@@ -345,7 +345,7 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
 
       <div class="panel">
         <div class="panelHead">
-          <div><h2>Distribuição por Superintendência / Coordenação</h2><div class="hint">De acordo com o filtro aplicado</div></div>
+          <div><h2 id="tituloCardCascata">Distribuição por Superintendência / Coordenação</h2><div class="hint" id="hintCardCascata">De acordo com o filtro aplicado</div></div>
         </div>
         <div class="body" id="chartLaudosGerencia"></div>
       </div>
@@ -998,10 +998,39 @@ function renderVisaoGeral(){
       </div>
     </div>`;
 
-  const supCoord = groupCount(arr,"superintendencia").slice(0,8);
-  renderBarRows("chartLaudosGerencia", supCoord, Math.max(total,1), {
+  const filtroDir = clean($("fDir")?.value || "");
+  const filtroSup = clean($("fSup")?.value || "");
+  const filtroGer = clean($("fGerencia")?.value || "");
+
+  let campoCascata = "diretoria";
+  let tituloCascata = "Distribuição por Diretoria";
+  let hintCascata = "Selecione uma Diretoria para abrir por Superintendência / Coordenação.";
+
+  if(filtroDir && !filtroSup){
+    campoCascata = "superintendencia";
+    tituloCascata = "Distribuição por Superintendência / Coordenação";
+    hintCascata = "Diretoria selecionada. Selecione uma Superintendência / Coordenação para abrir por Gerência.";
+  }
+
+  if(filtroSup && !filtroGer){
+    campoCascata = "gerencia";
+    tituloCascata = "Distribuição por Gerência";
+    hintCascata = "Superintendência / Coordenação selecionada. Selecione uma Gerência para abrir por Setor.";
+  }
+
+  if(filtroGer){
+    campoCascata = "setor";
+    tituloCascata = "Distribuição por Setor";
+    hintCascata = "Gerência selecionada. Leitura por setor operacional.";
+  }
+
+  if($("tituloCardCascata")) $("tituloCardCascata").textContent = tituloCascata;
+  if($("hintCardCascata")) $("hintCardCascata").textContent = hintCascata;
+
+  const dadosCascata = groupCount(arr,campoCascata).slice(0,8);
+  renderBarRows("chartLaudosGerencia", dadosCascata, Math.max(total,1), {
     color:"purple",
-    onclick:n=>`setDrill('superintendencia','${esc(n).replaceAll("'","&#39;")}','${esc(n).replaceAll("'","&#39;")}')`
+    onclick:n=>`setDrill('${campoCascata}','${esc(n).replaceAll("'","&#39;")}','${esc(n).replaceAll("'","&#39;")}')`
   });
 
   const dirsCount = groupCount(arr,"diretoria").length;
