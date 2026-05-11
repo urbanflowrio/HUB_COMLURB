@@ -8,36 +8,88 @@
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-<link rel="stylesheet" href="../assets/hub-premium.css">
+<style>
+:root{
+  --bg:#06111f;--panel:#0d1f36;--panel2:#0a1b31;--line:#294866;
+  --text:#f7f9ff;--muted:#b8c9de;--blue:#4b86bd;--blue2:#5b9bd5;
+  --orange:#e87535;--green:#78aaa3;--red:#ef6a5d;--yellow:#ffa02b;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
+.app{max-width:1800px;margin:0 auto;padding:28px}
+.header{display:flex;align-items:center;gap:28px;padding:26px;border:1px solid var(--line);border-radius:22px;background:var(--panel2)}
+.logo{width:310px;max-height:82px;object-fit:contain;padding-right:26px;border-right:1px solid rgba(255,255,255,.28)}
+.titleBox{flex:1}.eyebrow{font-size:12px;font-weight:900;letter-spacing:.25em;color:#b8d4f2}h1{margin:6px 0;font-size:38px}.sub{color:#c7d8ee}
+.status{display:none;margin:14px 0;padding:13px;border:1px solid var(--orange);border-radius:14px;background:#1b2130;color:#ffd4b8}
+.navTabs{display:flex;gap:10px;margin:16px 0 0;flex-wrap:wrap}.tabBtn{border:1px solid var(--line);background:#0a1b31;color:#dcecff;border-radius:999px;padding:11px 16px;font-weight:900;cursor:pointer}.tabBtn.active{background:linear-gradient(90deg,#2f67a5,#4b86bd);border-color:#6fa7d8;color:#fff}.screen{display:none}.screen.active{display:block}
+.filters{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:16px 0}.field{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px}label{display:block;font-size:10px;font-weight:900;letter-spacing:.18em;color:#b8d4f2;margin-bottom:8px}select{width:100%;background:transparent;color:#fff;border:0;font-weight:800;font-size:15px}option{background:#0d1f36}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:14px}.kpi{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;min-height:120px}.kpi.feature{grid-column:span 2;background:linear-gradient(135deg,#0d1f36,#12365c);border-color:#4074a2}.kpi .label{font-size:11px;letter-spacing:.16em;color:#b8d4f2;font-weight:900;text-transform:uppercase}.kpi .value{font-size:34px;font-weight:950;margin:14px 0 4px}.kpi.feature .value{font-size:46px}.kpi .note{color:#c7d8ee;font-size:13px}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}.grid2{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:20px;min-height:320px;overflow:hidden}.panelHead{padding:18px;border-bottom:1px solid var(--line)}h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px}.body{padding:18px}
+.barRow{display:grid;grid-template-columns:140px 1fr 70px 55px;gap:10px;align-items:center;margin-bottom:12px}.track{height:22px;background:#132941;border-radius:4px;overflow:hidden}.fill{height:100%;background:linear-gradient(90deg,#2f67a5,#5b9bd5)}.fill.orange{background:linear-gradient(90deg,#b95023,#e87535)}.fill.green{background:linear-gradient(90deg,#437b76,#78aaa3)}.num,.pct{text-align:right;font-weight:800}
+.donutRow{display:grid;grid-template-columns:190px 1fr;gap:22px;align-items:center}.donut{width:180px;height:180px;border-radius:50%;background:conic-gradient(var(--blue) 0 var(--opPct),var(--orange) var(--opPct) 100%);position:relative}.donut:after{content:"";position:absolute;inset:52px;border-radius:50%;background:var(--panel)}.donutCenter{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:950}.legendItem{display:grid;grid-template-columns:12px 1fr auto;gap:10px;margin-bottom:18px;align-items:center}.dot{width:12px;height:12px;border-radius:50%;background:var(--blue)}.dot.orange{background:var(--orange)}
+.cols{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;height:210px;align-items:end}.colWrap{text-align:center;height:100%;display:flex;flex-direction:column;justify-content:flex-end;gap:8px}.col{height:var(--h);min-height:32px;background:linear-gradient(180deg,#4b86bd,#1f5791)}.colVal{font-weight:900;color:#80d199}.colVal.warn{color:#ffa02b}.colLbl{font-size:12px;color:#d9e6f8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bottom{display:grid;grid-template-columns:1.2fr 1fr;gap:14px;margin-top:14px}.alerts{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.alert{background:#132840;border-radius:16px;padding:14px;border-left:4px solid var(--blue)}.alert.orange{border-left-color:var(--orange)}.alert.red{border-left-color:var(--red)}.alert.green{border-left-color:var(--green)}.alert small{display:block;color:#a8bdd5;font-size:9px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}.alert b{display:block;font-size:22px;margin:8px 0}.alert span{color:#c7d8ee;font-size:12px}
+.rank{display:grid;grid-template-columns:1fr auto;gap:12px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.08)}.rank small{display:block;color:#aebfd5;margin-top:4px}.statusPill{border:1px solid #345978;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:900;white-space:nowrap}.ok{color:#83d99d}.att{color:#ffa02b}.crit{color:#ff7d72}.footer{margin-top:16px;color:#aebfd5;font-size:13px}
+.territoryHero{display:grid;grid-template-columns:1.4fr .6fr;gap:14px;margin-bottom:14px}.insightBox{background:linear-gradient(135deg,#0d1f36,#0b2748);border:1px solid var(--line);border-radius:20px;padding:22px;min-height:160px}.insightBox small{display:block;color:#b8d4f2;font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase}.insightBox b{font-size:38px;display:block;margin:10px 0}.insightBox span{color:#c7d8ee;line-height:1.5}.matrix{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.matrixCell{background:#132840;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px;min-height:92px}.matrixCell small{display:block;color:#a8bdd5;font-size:9px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}.matrixCell b{display:block;font-size:24px;margin-top:8px}.tableWrap{max-height:520px;overflow:auto}.dataTable{width:100%;border-collapse:collapse}.dataTable th{position:sticky;top:0;background:#102844;color:#b8d4f2;text-align:left;font-size:11px;letter-spacing:.12em;text-transform:uppercase;z-index:1}.dataTable td,.dataTable th{padding:12px;border-bottom:1px solid rgba(255,255,255,.08)}.dataTable td{color:#eaf3ff}.tag{display:inline-flex;border:1px solid #345978;border-radius:999px;padding:5px 9px;font-weight:900;font-size:12px}.tag.ok{border-color:#3f7d55}.tag.att{border-color:#8d6a23}.tag.crit{border-color:#8b3f38}.mapMock{position:relative;min-height:320px;background:radial-gradient(circle at 25% 35%,rgba(75,134,189,.55),transparent 18%),radial-gradient(circle at 62% 50%,rgba(232,117,53,.45),transparent 16%),radial-gradient(circle at 42% 72%,rgba(120,170,163,.35),transparent 18%),linear-gradient(135deg,#08192d,#102844);border-radius:18px;border:1px solid rgba(255,255,255,.08);overflow:hidden}.mapMock:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:34px 34px}.mapNote{position:absolute;left:16px;right:16px;bottom:16px;background:rgba(6,17,31,.75);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:13px;color:#d9e6f8}.mapNote b{display:block;margin-bottom:4px}.miniList{display:grid;gap:10px}.miniItem{display:grid;grid-template-columns:1fr auto;gap:10px;background:#132840;border-radius:14px;padding:12px}.miniItem small{display:block;color:#aebfd5;margin-top:4px}.empty{color:#aebfd5;padding:12px 0}
+
+.absFilters{display:grid;grid-template-columns:220px 1fr;gap:12px;margin-bottom:14px}.trendBox{height:250px;width:100%;position:relative}.trendSvg{width:100%;height:100%;overflow:visible}.axisLabel{font-size:11px;fill:#b8c9de}.linePath{fill:none;stroke:#5b9bd5;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}.areaPath{fill:rgba(91,155,213,.16)}.pointDot{fill:#ffa02b;stroke:#06111f;stroke-width:3}.splitBars{display:grid;gap:14px}.splitItem{background:#132840;border-radius:14px;padding:14px}.splitTop{display:flex;justify-content:space-between;gap:12px;margin-bottom:10px;font-weight:900}.stack{height:18px;border-radius:99px;overflow:hidden;background:#09182a;display:flex}.stackG{background:#5b9bd5}.stackN{background:#e87535}.smallGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.absHero{display:grid;grid-template-columns:1.15fr .85fr;gap:14px;margin-bottom:14px}.absInsight{background:linear-gradient(135deg,#0d1f36,#12365c);border:1px solid var(--line);border-radius:20px;padding:22px;min-height:160px}.absInsight small{display:block;color:#b8d4f2;font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase}.absInsight b{font-size:42px;display:block;margin:10px 0}.absInsight span{color:#c7d8ee;line-height:1.5}
+@media(max-width:1100px){.absHero,.smallGrid,.absFilters{grid-template-columns:1fr}}
+@media(max-width:1280px){.filters{grid-template-columns:repeat(3,1fr)}.territoryHero,.grid2{grid-template-columns:1fr}.kpi.feature{grid-column:span 1}}
+@media(max-width:1100px){.filters{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}.grid,.bottom{grid-template-columns:1fr}.alerts{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:720px){.app{padding:14px}.header{flex-direction:column;align-items:flex-start}.logo{width:220px;border-right:0;padding-right:0}.kpis,.alerts,.matrix{grid-template-columns:1fr}h1{font-size:32px}.barRow{grid-template-columns:1fr}.num,.pct{text-align:left}.donutRow{grid-template-columns:1fr}}
+
+
+/* ===== COMPATIBILIDADE DO PAINEL TERRITORIAL COM O PADRÃO REFERÊNCIA ===== */
+.logoWrap{display:flex;align-items:center;min-width:0}
+.logoImg{width:310px;max-height:82px;object-fit:contain;padding-right:26px;border-right:1px solid rgba(255,255,255,.28)}
+.logoTextFallback{font-size:24px;font-weight:950;color:#fff}
+.headerContent{flex:1;min-width:0}
+.systemLabel{font-size:12px;font-weight:900;letter-spacing:.25em;color:#b8d4f2;text-transform:uppercase}
+.mainTitle{margin:6px 0;font-size:38px;line-height:1.1;color:#fff;font-weight:900}
+.subtitle{color:#c7d8ee;font-size:15px;line-height:1.4}
+.statusIndicator{margin-left:auto;text-align:right;padding:8px 14px;background:#0a1b31;border-radius:14px;border:1px solid var(--line);min-width:130px}
+.statusIndicator small{display:block;color:#b8d4f2;font-size:9px;letter-spacing:.14em;font-weight:900;text-transform:uppercase}
+.statusIndicator b{display:block;font-size:14px;margin-top:4px;color:#fff}
+.filters{grid-template-columns:repeat(6,1fr) auto!important;align-items:stretch}
+.actionBtn{border:1px solid var(--line);background:#0a1b31;color:#dcecff;border-radius:16px;padding:12px 15px;font-weight:900;cursor:pointer;align-self:stretch}
+.actionBtn.primary{background:linear-gradient(90deg,#2f67a5,#5b9bd5);border-color:#6fa7d8;color:#fff}
+.multiBox{position:relative}.multiBtn{width:100%;background:transparent;color:#fff;border:0;font-weight:800;font-size:15px;text-align:left;cursor:pointer;display:flex;justify-content:space-between;gap:10px;align-items:center}.multiBtn:after{content:"⌄";font-size:18px;color:#dcecff}.multiPanel{display:none;position:absolute;left:0;right:0;top:calc(100% + 8px);z-index:999;background:#0a1b31;border:1px solid var(--line);border-radius:16px;box-shadow:0 24px 70px rgba(0,0,0,.32);padding:12px;max-height:360px;overflow:auto}.multiBox.open .multiPanel{display:block}.multiSearch{width:100%;border:1px solid #294866;background:#06111f;border-radius:12px;padding:10px;color:#fff;margin-bottom:10px}.multiList{display:grid;gap:6px}.multiItem{display:flex;align-items:center;gap:8px;font-size:13px;color:#dcecff;padding:8px;border-radius:10px;cursor:pointer;line-height:1.2}.multiItem:hover{background:rgba(91,155,213,.10)}.multiItem input{width:auto;accent-color:#5b9bd5}.multiActions{display:flex;gap:8px;margin-top:10px}.multiActions button{flex:1;border:1px solid var(--line);background:#132840;color:#dcecff;border-radius:10px;padding:8px;font-weight:900;cursor:pointer}
+.kpi{cursor:pointer}.kpi.red{border-color:rgba(239,106,93,.46)}.kpi.orange{border-color:rgba(232,117,53,.46)}.kpi.green{border-color:rgba(120,170,163,.52)}.kpi.purple{border-color:rgba(167,139,250,.44)}
+.commandHero{display:grid;grid-template-columns:1.15fr .85fr;gap:14px;margin-bottom:14px}.commandBox{background:linear-gradient(135deg,#0d1f36,#102f52);border:1px solid #4074a2;border-radius:20px;padding:22px;min-height:180px}.commandBox small{display:block;color:#b8d4f2;font-size:10px;font-weight:900;letter-spacing:.2em;text-transform:uppercase}.commandBox b{display:block;font-size:42px;margin:12px 0}.commandBox span{color:#c7d8ee;line-height:1.5}.commandBox .statusWord{color:var(--green)}.commandBox .statusWord.att{color:var(--yellow)}.commandBox .statusWord.crit{color:var(--red)}
+.drillBanner{display:none;margin:0 0 14px;background:#0d1f36;border:1px solid var(--line);border-radius:18px;padding:14px 16px;align-items:center;justify-content:space-between;gap:12px}.drillBanner.active{display:flex}.drillBanner b{display:block;font-size:18px}.drillBanner span{display:block;color:#c7d8ee;font-size:13px;margin-top:3px}
+.dataTable{min-width:1100px}.tableWrap{overflow:auto}.loading{color:#aebfd5;padding:12px 0}
+@media(max-width:1280px){.filters{grid-template-columns:repeat(3,1fr)!important}.commandHero{grid-template-columns:1fr}.kpi.feature{grid-column:span 1}}
+@media(max-width:1100px){.filters{grid-template-columns:1fr!important}.statusIndicator{margin-left:0}.header{align-items:flex-start}.logoImg{border-right:0;padding-right:0}}
+@media(max-width:720px){.mainTitle{font-size:32px}.logoImg{width:220px}.drillBanner{align-items:flex-start;flex-direction:column}}
+
+</style>
 </head>
 
 <body>
 <div class="app">
 
   <header class="header">
-    <div class="logoWrap">
-      <img id="logoComlurb" src="/HUB_COMLURB/assets/logos/RIOPREFEITURA%20Comlurb%20horizontal%20monocromatica%20branco.png" class="logoImg" alt="Prefeitura do Rio + Comlurb" style="display:block">
-      <div id="logoFallback" class="logoTextFallback" style="display:none">PREFEITURA DO RIO | COMLURB</div>
-    </div>
-    
-    <div class="headerContent">
-      <div class="systemLabel">COMLURB - RADAR DE PESSOAS</div>
-      <h1 class="mainTitle">Perfil Funcional e Territorial</h1>
-      <div class="subtitle">Leitura executiva da força de trabalho, disponibilidade operacional, risco de reposição e aderência territorial</div>
-    </div>
-    
-    <div class="navTabs">
-      <button class="tabBtn active" data-tab="screenVisao">Visão Geral</button>
-      <button class="tabBtn" data-tab="screenSaude">Saúde Ocupacional</button>
-      <button class="tabBtn" data-tab="screenAfastamentos">Afastamentos</button>
-      <button class="tabBtn" data-tab="screenDemografico">Demográfico</button>
-      <button class="tabBtn" data-tab="screenAnalitico">Analítico</button>
-      <div class="statusIndicator">
-        <small>STATUS</small>
-        <b id="loadState">Carregando...</b>
-      </div>
-    </div>
-  </header>
+  <img id="logoComlurb" class="logo" src="/HUB_COMLURB/assets/logos/RIOPREFEITURA%20Comlurb%20horizontal%20monocromatica%20branco.png" alt="Prefeitura do Rio + Comlurb" style="display:block">
+  <div id="logoFallback" class="logoTextFallback" style="display:none">PREFEITURA DO RIO | COMLURB</div>
+
+  <div class="titleBox">
+    <div class="eyebrow">COMLURB - RADAR DE PESSOAS</div>
+    <h1>Perfil Funcional e Territorial</h1>
+    <div class="sub">Leitura executiva da força de trabalho, disponibilidade operacional, risco de reposição e aderência territorial</div>
+  </div>
+</header>
+
+<div class="navTabs">
+  <button class="tabBtn active" data-tab="screenVisao">Visão Geral</button>
+  <button class="tabBtn" data-tab="screenSaude">Saúde Ocupacional</button>
+  <button class="tabBtn" data-tab="screenAfastamentos">Afastamentos</button>
+  <button class="tabBtn" data-tab="screenDemografico">Demográfico</button>
+  <button class="tabBtn" data-tab="screenAnalitico">Analítico</button>
+  <div class="statusIndicator">
+    <small>STATUS</small>
+    <b id="loadState">Carregando...</b>
+  </div>
+</div>
 
   <div class="status" id="statusBar"></div>
 
