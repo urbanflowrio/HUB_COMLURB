@@ -1420,7 +1420,14 @@ async function boot(){
      "chartPressaoGerencia","chartTiposLaudo","chartFuncaoLaudo",
      "chartTipoAfast","chartAfastGerencia","chartTempoAfast",
      "chartIdade","chartEscolaridade","chartTempoCasa",
-    
+     "rankCidades","chartJornada","tableAnalitico"
+    ].forEach(id=>{
+      const el = $(id);
+      if(el) el.innerHTML = `<div class="loading">Carregando dados...</div>`;
+    });
+
+    // Força nova leitura das bases a cada abertura da página
+    LOAD_LOG = [];
     RAW_R54 = await loadCSV(URLS.R54, "R54", true);
     RAW_LAUDOS = await loadCSV(URLS.LAUDOS, "Laudos", false);
     RAW_ORG = await loadCSV(URLS.ORGANOGRAMA, "Organograma oficial", true);
