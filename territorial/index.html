@@ -23,7 +23,7 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,
 .status{display:none;margin:14px 0;padding:13px;border:1px solid var(--orange);border-radius:14px;background:#1b2130;color:#ffd4b8}
 .navTabs{display:flex;gap:10px;margin:16px 0 0;flex-wrap:wrap}.tabBtn{border:1px solid var(--line);background:#0a1b31;color:#dcecff;border-radius:999px;padding:11px 16px;font-weight:900;cursor:pointer}.tabBtn.active{background:linear-gradient(90deg,#2f67a5,#4b86bd);border-color:#6fa7d8;color:#fff}.screen{display:none}.screen.active{display:block}
 .filters{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:16px 0}.field{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px}label{display:block;font-size:10px;font-weight:900;letter-spacing:.18em;color:#b8d4f2;margin-bottom:8px}select{width:100%;background:transparent;color:#fff;border:0;font-weight:800;font-size:15px}option{background:#0d1f36}
-.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:14px}.kpi{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;min-height:120px}.kpi.feature{grid-column:span 1;background:var(--panel);border-color:var(--line)}.kpi .label{font-size:11px;letter-spacing:.16em;color:#b8d4f2;font-weight:900;text-transform:uppercase}.kpi .value{font-size:34px;font-weight:950;margin:14px 0 4px}.kpi.feature .value{font-size:34px}.kpi .note{color:#c7d8ee;font-size:13px}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:14px}.kpi{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;min-height:120px}.kpi.feature{grid-column:span 2;background:linear-gradient(135deg,#0d1f36,#12365c);border-color:#4074a2}.kpi .label{font-size:11px;letter-spacing:.16em;color:#b8d4f2;font-weight:900;text-transform:uppercase}.kpi .value{font-size:34px;font-weight:950;margin:14px 0 4px}.kpi.feature .value{font-size:46px}.kpi .note{color:#c7d8ee;font-size:13px}
 .grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}.grid2{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:20px;min-height:320px;overflow:hidden}.panelHead{padding:18px;border-bottom:1px solid var(--line)}h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px}.body{padding:18px}
 .barRow{display:grid;grid-template-columns:140px 1fr 70px 55px;gap:10px;align-items:center;margin-bottom:12px}.track{height:22px;background:#132941;border-radius:4px;overflow:hidden}.fill{height:100%;background:linear-gradient(90deg,#2f67a5,#5b9bd5)}.fill.orange{background:linear-gradient(90deg,#b95023,#e87535)}.fill.green{background:linear-gradient(90deg,#437b76,#78aaa3)}.num,.pct{text-align:right;font-weight:800}
 .donutRow{display:grid;grid-template-columns:190px 1fr;gap:22px;align-items:center}.donut{width:180px;height:180px;border-radius:50%;background:conic-gradient(var(--blue) 0 var(--opPct),var(--orange) var(--opPct) 100%);position:relative}.donut:after{content:"";position:absolute;inset:52px;border-radius:50%;background:var(--panel)}.donutCenter{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:950}.legendItem{display:grid;grid-template-columns:12px 1fr auto;gap:10px;margin-bottom:18px;align-items:center}.dot{width:12px;height:12px;border-radius:50%;background:var(--blue)}.dot.orange{background:var(--orange)}
@@ -64,52 +64,34 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,
 
 
 /* =========================================================
-   AJUSTE FINAL - KPIS UNIFORMES + REMOÇÃO STATUS REGISTROS
+   AJUSTE FINAL - KPIS UNIFORMES, SEM STATUS E SEM RODAPÉ
    ========================================================= */
-.kpis{
-  display:grid!important;
-  grid-template-columns:repeat(5,minmax(0,1fr))!important;
-  gap:12px!important;
-  margin-bottom:14px!important;
-  align-items:stretch!important;
-}
-.kpis>.kpi,
-.kpis>.kpi.feature{
-  grid-column:span 1!important;
-  width:100%!important;
-  min-width:0!important;
-  min-height:120px!important;
-  padding:18px!important;
-  background:var(--panel)!important;
-  border-radius:18px!important;
-}
-.kpis>.kpi.feature{
-  border-color:var(--line)!important;
-}
-.kpis>.kpi .value,
-.kpis>.kpi.feature .value{
-  font-size:34px!important;
-  line-height:1.05!important;
-}
-.kpis>.kpi .label{
-  font-size:11px!important;
-  min-height:auto!important;
-}
-.kpis>.kpi .note{
-  font-size:13px!important;
-}
-.statusIndicator{
-  display:none!important;
-  visibility:hidden!important;
-  width:0!important;
-  height:0!important;
-  min-width:0!important;
-  padding:0!important;
-  margin:0!important;
-  border:0!important;
-  overflow:hidden!important;
-}
-@media(max-width:1280px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+.kpis{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:12px!important;margin-bottom:14px!important;align-items:stretch!important}
+.kpis>.kpi,.kpis>.kpi.feature{grid-column:span 1!important;width:100%!important;min-width:0!important;min-height:120px!important;padding:18px!important;background:var(--panel)!important}
+.kpis>.kpi.feature{border-color:var(--line)!important}
+.kpis>.kpi .value,.kpis>.kpi.feature .value{font-size:34px!important;line-height:1.05!important}
+.kpis>.kpi .label{font-size:11px!important;min-height:auto!important}
+.statusIndicator,#loadState{display:none!important;visibility:hidden!important;width:0!important;height:0!important;padding:0!important;margin:0!important;border:0!important;overflow:hidden!important}
+.footer,#updated{display:none!important}
+
+/* =========================================================
+   TERRITORIAL EXECUTIVO - substitui mapa falso por ranking limpo
+   ========================================================= */
+.territorialExec{display:grid;gap:14px}
+.territorialSummary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.territorialCard{background:#132840;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px;min-height:92px}
+.territorialCard small{display:block;color:#a8bdd5;font-size:9px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;margin-bottom:8px}
+.territorialCard b{display:block;font-size:24px;color:#fff;line-height:1.1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.territorialCard span{display:block;color:#c7d8ee;font-size:12px;margin-top:6px}
+.territorialRank{display:grid;gap:10px}
+.territorialRow{display:grid;grid-template-columns:180px 1fr 82px 70px;gap:10px;align-items:center;background:rgba(19,40,64,.72);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px;cursor:pointer;transition:.18s}
+.territorialRow:hover{border-color:#6fa7d8;transform:translateY(-1px);background:rgba(19,40,64,.95)}
+.territorialName{font-weight:900;color:#eaf3ff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.territorialTrack{height:18px;background:#09182a;border-radius:999px;overflow:hidden}
+.territorialFill{height:100%;background:linear-gradient(90deg,#2f67a5,#5b9bd5);border-radius:999px}
+.territorialNum,.territorialPct{text-align:right;font-weight:900;color:#fff}
+.territorialNote{color:#c7d8ee;font-size:12px;line-height:1.4}
+@media(max-width:1280px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))!important}.territorialSummary{grid-template-columns:1fr}.territorialRow{grid-template-columns:1fr}.territorialNum,.territorialPct{text-align:left}}
 @media(max-width:900px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 @media(max-width:600px){.kpis{grid-template-columns:1fr!important}}
 
@@ -136,10 +118,6 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,
   <button class="tabBtn" data-tab="screenAfastamentos">Afastamentos</button>
   <button class="tabBtn" data-tab="screenDemografico">Demográfico</button>
   <button class="tabBtn" data-tab="screenAnalitico">Analítico</button>
-  <div class="statusIndicator">
-    <small>STATUS</small>
-    <b id="loadState">Carregando...</b>
-  </div>
 </div>
 
   <div class="status" id="statusBar"></div>
@@ -890,7 +868,7 @@ function renderAll(){
   renderAfastamentos();
   renderDemografico();
   renderAnalitico();
-  $("loadState").textContent = `${fmtInt(VIEW.length)} registros`;
+  if($("loadState")) $("loadState").textContent = `${fmtInt(VIEW.length)} registros`;
 }
 
 function renderVisaoGeral(){
@@ -1070,49 +1048,52 @@ function renderDemografico(){
 }
 
 function renderTerritorialMap(arr,total){
-  const top = groupCount(arr,"cidade").filter(x=>x[0] && x[0] !== "Não informado").slice(0,5);
+  const top = groupCount(arr,"cidade")
+    .filter(x => x[0] && x[0] !== "Não informado")
+    .slice(0,8);
+
   const principal = top[0] || ["Sem dados",0];
+  const foraRJ = arr.filter(r => norm(r.cidade) && norm(r.cidade) !== "RIO DE JANEIRO" && norm(r.cidade) !== "NAO INFORMADO").length;
+  const bairros = groupCount(arr,"bairroRes").filter(x => x[0] && x[0] !== "Não informado").slice(0,5);
+  const bairroTop = bairros[0] || ["Sem dados",0];
+  const max = Math.max(...top.map(x=>x[1]),1);
 
-  const pointClasses = ["p1","p2","p3","p4","p5"];
-  const colors = ["#5b9bd5","#37d6ff","#e87535","#78aaa3","#a78bfa"];
-  
-  const points = top.map(([cid,cnt],i)=>`
-    <div class="geoPoint ${pointClasses[i] || "p1"}"
-         title="${esc(cid)} · ${fmtInt(cnt)}"
-         onclick="setDrill('cidade','${esc(cid).replaceAll("'","&#39;")}','${esc(cid).replaceAll("'","&#39;")}')"></div>
-  `).join("");
-
-  const chips = top.map(([cid,cnt],i)=>`
-    <button class="geoChip" style="border-color:${colors[i]};background:rgba(${i===0?'91,155,213':i===1?'55,214,255':i===2?'232,117,53':i===3?'120,170,163':'167,139,250'},.16)" 
-            onclick="setDrill('cidade','${esc(cid).replaceAll("'","&#39;")}','${esc(cid).replaceAll("'","&#39;")}')">
-      <span style="color:${colors[i]}">●</span> ${esc(cid)} · <b>${fmtInt(cnt)}</b>
-    </button>
+  const linhas = top.map(([cid,cnt])=>`
+    <div class="territorialRow" onclick="setDrill('cidade','${esc(cid).replaceAll("'","&#39;")}','${esc(cid).replaceAll("'","&#39;")}')">
+      <div class="territorialName" title="${esc(cid)}">${esc(cid)}</div>
+      <div class="territorialTrack"><div class="territorialFill" style="width:${cnt/max*100}%"></div></div>
+      <div class="territorialNum">${fmtInt(cnt)}</div>
+      <div class="territorialPct">${fmtPct(pct(cnt,total))}</div>
+    </div>
   `).join("");
 
   $("rankCidades").innerHTML = `
-    <div style="background:rgba(13,31,54,.96);border:1px solid var(--line);border-radius:20px;padding:16px;margin-bottom:14px">
-      <div style="margin-bottom:12px">
-        <b style="display:block;font-size:16px;margin-bottom:4px;color:#fff">Mapa territorial de residência</b>
-        <span style="color:#c7d8ee;font-size:12px;line-height:1.4">Concentração visual dos principais municípios/bairros</span>
+    <div class="territorialExec">
+      <div class="territorialSummary">
+        <div class="territorialCard">
+          <small>Município predominante</small>
+          <b title="${esc(principal[0])}">${esc(principal[0])}</b>
+          <span>${fmtInt(principal[1])} servidores • ${fmtPct(pct(principal[1],total))}</span>
+        </div>
+        <div class="territorialCard">
+          <small>Fora do Rio</small>
+          <b>${fmtInt(foraRJ)}</b>
+          <span>${fmtPct(pct(foraRJ,total))} do recorte atual</span>
+        </div>
+        <div class="territorialCard">
+          <small>Bairro mais frequente</small>
+          <b title="${esc(bairroTop[0])}">${esc(bairroTop[0])}</b>
+          <span>${fmtInt(bairroTop[1])} servidores</span>
+        </div>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px">
-        <div style="background:rgba(19,40,64,.7);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:10px;text-align:center">
-          <small style="display:block;color:#a8bdd5;font-size:8px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px">MUNICÍPIO</small>
-          <div style="font-size:clamp(13px,1.2vw,15px);font-weight:950;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 4px">${esc(principal[0])}</div>
-        </div>
-        <div style="background:rgba(19,40,64,.7);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:10px;text-align:center">
-          <small style="display:block;color:#a8bdd5;font-size:8px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px">SERVIDORES</small>
-          <div style="font-size:clamp(16px,1.5vw,18px);font-weight:950;color:#fff">${principal[1] ? fmtInt(principal[1]) : '0'}</div>
-        </div>
-        <div style="background:rgba(19,40,64,.7);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:10px;text-align:center">
-          <small style="display:block;color:#a8bdd5;font-size:8px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px">CONCENTRAÇÃO</small>
-          <div style="font-size:clamp(16px,1.5vw,18px);font-weight:950;color:#fff">${principal[1] ? fmtPct(pct(principal[1],total)) : '0%'}</div>
-        </div>
+
+      <div class="territorialNote">
+        Ranking territorial por município de moradia. Clique em uma linha para filtrar o painel.
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">${chips || '<span class="empty">Sem dados territoriais</span>'}</div>
-    </div>
-    <div class="geoMapReal">
-      ${points}
+
+      <div class="territorialRank">
+        ${linhas || '<div class="empty">Sem dados territoriais no recorte atual</div>'}
+      </div>
     </div>
   `;
 }
@@ -1248,7 +1229,7 @@ function initLogoFallback(){
 
 async function boot(){
   try{
-    $("loadState").textContent = "Carregando...";
+    if($("loadState")) $("loadState").textContent = "Carregando...";
     
     // Mostra loading em todos os gráficos
     ["chartDiretorias","chartAtvAfast","chartLaudosGerencia",
@@ -1275,14 +1256,14 @@ async function boot(){
     populateFilters();
     applyFilters();
     renderAll();
-    $("updated").textContent = `Atualizado em: ${new Date().toLocaleString("pt-BR")} • ${LOAD_LOG.join(" • ")}`;
-    $("loadState").textContent = `${fmtInt(VIEW.length)} registros`;
+    if($("updated")) $("updated").textContent = `Atualizado em: ${new Date().toLocaleString("pt-BR")} • ${LOAD_LOG.join(" • ")}`;
+    if($("loadState")) $("loadState").textContent = `${fmtInt(VIEW.length)} registros`;
   }catch(e){
     console.error(e);
     $("statusBar").style.display = "block";
     $("statusBar").textContent = "Erro ao carregar dados.\n" + e.message + "\n\n" + LOAD_LOG.join("\n");
-    $("loadState").textContent = "Erro";
-    $("updated").textContent = "Erro ao carregar bases.";
+    if($("loadState")) $("loadState").textContent = "Erro";
+    if($("updated")) $("updated").textContent = "Erro ao carregar bases.";
   }
 }
 
