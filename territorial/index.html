@@ -37,16 +37,58 @@ body{
 }
 .app{max-width:1840px;margin:0 auto;padding:28px}
 .header{
-  display:flex;align-items:center;gap:28px;padding:26px;
   border:1px solid var(--line);border-radius:24px;background:linear-gradient(135deg,#0a1b31,#0d1f36);
-  box-shadow:var(--shadow);position:sticky;top:12px;z-index:20;backdrop-filter:blur(14px)
+  box-shadow:var(--shadow);position:sticky;top:12px;z-index:20;backdrop-filter:blur(14px);overflow:hidden
 }
+.headerTop{
+  display:flex;align-items:center;gap:32px;padding:24px 28px;border-bottom:1px solid rgba(255,255,255,.08)
+}
+.logoGroup{display:flex;align-items:center;gap:20px;min-width:fit-content}
+.logoPrefeitura{display:flex;align-items:center;gap:14px}
+.logoBox{
+  width:58px;height:58px;display:flex;align-items:center;justify-content:center;color:#fff
+}
+.prefeituraText{display:flex;flex-direction:column;line-height:1}
+.prefLabel{font-size:10px;font-weight:900;letter-spacing:.15em;color:#b8d4f2}
+.prefRio{font-size:32px;font-weight:950;letter-spacing:-1px;color:#fff}
+.logoDivider{width:1px;height:48px;background:rgba(255,255,255,.2)}
+.comlurbBrand{
+  font-size:36px;font-weight:900;letter-spacing:-.5px;color:#fff;padding:0 12px
+}
+.headerContent{flex:1;min-width:0}
+.systemLabel{font-size:11px;font-weight:900;letter-spacing:.28em;color:#b8d4f2;text-transform:uppercase}
+.mainTitle{
+  margin:6px 0 8px;font-size:clamp(24px,2.8vw,36px);letter-spacing:-1px;line-height:1.1;color:#fff;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+}
+.subtitle{
+  color:#c7d8ee;font-size:13px;line-height:1.4;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis
+}
+.navTabs{
+  display:flex;gap:10px;padding:16px 28px;flex-wrap:wrap;align-items:center
+}
+.statusIndicator{
+  margin-left:auto;text-align:right;padding:8px 14px;background:rgba(19,40,64,.6);
+  border-radius:12px;border:1px solid rgba(255,255,255,.08);min-width:140px
+}
+.statusIndicator small{display:block;color:#a8bdd5;font-size:9px;letter-spacing:.14em;font-weight:900}
+.statusIndicator b{display:block;font-size:16px;margin-top:4px;color:#80d199}
 
-.logoComlurb{width:260px;min-width:260px;min-height:74px;display:flex;align-items:center;padding-right:26px;border-right:1px solid rgba(255,255,255,.24)}
-.logoImg{max-width:235px;max-height:76px;object-fit:contain;display:block}
-.logoFallback{display:block}
-.logoMain{font-size:40px;font-weight:950;letter-spacing:-1.8px;line-height:.95;color:#fff}
-.logoSub{font-size:9px;font-weight:900;letter-spacing:.02em;color:#fff;margin-top:6px;line-height:1.15}
+@media(max-width:1100px){
+  .headerTop{flex-direction:column;align-items:flex-start;gap:20px}
+  .logoGroup{flex-wrap:wrap}
+  .comlurbBrand{font-size:28px}
+  .statusIndicator{margin-left:0;width:100%}
+}
+@media(max-width:720px){
+  .header{position:relative;top:0}
+  .logoBox{width:48px;height:48px}
+  .prefRio{font-size:26px}
+  .comlurbBrand{font-size:24px;padding:0 8px}
+  .mainTitle{font-size:22px}
+  .navTabs{padding:12px 16px}
+}
 .multiBox{position:relative}
 .multiBtn{width:100%;background:transparent;color:#fff;border:0;font-weight:800;font-size:15px;text-align:left;cursor:pointer;display:flex;justify-content:space-between;gap:10px;align-items:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .multiBtn:after{content:"⌄";font-size:18px;color:#dcecff;flex:0 0 auto}
@@ -59,37 +101,62 @@ body{
 .multiItem input{width:auto;accent-color:#5b9bd5}
 .multiActions{display:flex;gap:8px;margin-top:10px}
 .multiActions button{flex:1;border:1px solid var(--line);background:#132840;color:#dcecff;border-radius:10px;padding:8px;font-weight:900;cursor:pointer}
-.geoMapReal{position:relative;min-height:360px;border-radius:18px;border:1px solid rgba(255,255,255,.08);overflow:hidden;background:
-  radial-gradient(circle at 24% 32%,rgba(91,155,213,.42),transparent 17%),
-  radial-gradient(circle at 58% 45%,rgba(55,214,255,.30),transparent 15%),
-  radial-gradient(circle at 72% 68%,rgba(232,117,53,.34),transparent 17%),
-  linear-gradient(135deg,#08192d,#102844)}
-.geoMapReal:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);background-size:34px 34px}
-.geoPoint{position:absolute;width:18px;height:18px;border-radius:999px;background:#5b9bd5;box-shadow:0 0 24px rgba(91,155,213,.9);border:2px solid rgba(255,255,255,.65);cursor:pointer;transition:.2s}
-.geoPoint:hover{transform:scale(1.3)}
-.geoPoint.p1{left:25%;top:34%}.geoPoint.p2{left:57%;top:47%;background:#37d6ff}.geoPoint.p3{left:72%;top:68%;background:#e87535}.geoPoint.p4{left:42%;top:70%;background:#78aaa3}.geoPoint.p5{left:80%;top:38%;background:#a78bfa}
-.geoOverlay{position:absolute;left:16px;right:16px;bottom:16px;background:rgba(6,17,31,.80);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:14px}
-.geoOverlay b{display:block;font-size:18px;margin-bottom:6px}.geoOverlay span{color:#c7d8ee;font-size:13px;line-height:1.4}
-.geoChips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.geoChip{border:1px solid #345978;border-radius:999px;padding:7px 10px;color:#dcecff;font-weight:800;font-size:12px;background:rgba(19,40,64,.86);cursor:pointer;transition:.2s}
-.geoChip:hover{border-color:#6fa7d8;transform:translateY(-1px)}
+.geoMapReal{
+  position:relative;min-height:480px;border-radius:18px;border:1px solid rgba(255,255,255,.08);overflow:hidden;
+  background:
+    radial-gradient(circle at 25% 34%,rgba(91,155,213,.48),transparent 18%),
+    radial-gradient(circle at 57% 47%,rgba(55,214,255,.35),transparent 16%),
+    radial-gradient(circle at 72% 68%,rgba(232,117,53,.40),transparent 18%),
+    radial-gradient(circle at 42% 70%,rgba(120,170,163,.32),transparent 16%),
+    radial-gradient(circle at 80% 38%,rgba(167,139,250,.28),transparent 15%),
+    linear-gradient(135deg,#08192d,#0d2438,#08192d)
+}
+.geoMapReal:before{
+  content:"";position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:40px 40px
+}
+.geoPoint{
+  position:absolute;width:22px;height:22px;border-radius:999px;background:#5b9bd5;
+  box-shadow:0 0 28px rgba(91,155,213,.95),0 0 50px rgba(91,155,213,.4);
+  border:3px solid rgba(255,255,255,.75);cursor:pointer;transition:.25s;animation:pointPulse 3s ease-in-out infinite
+}
+@keyframes pointPulse{
+  0%,100%{transform:scale(1);opacity:1}
+  50%{transform:scale(1.15);opacity:.85}
+}
+.geoPoint:hover{transform:scale(1.4)!important;z-index:10}
+.geoPoint.p1{left:25%;top:34%;animation-delay:0s}
+.geoPoint.p2{left:57%;top:47%;background:#37d6ff;box-shadow:0 0 28px rgba(55,214,255,.95),0 0 50px rgba(55,214,255,.4);animation-delay:.6s}
+.geoPoint.p3{left:72%;top:68%;background:#e87535;box-shadow:0 0 28px rgba(232,117,53,.95),0 0 50px rgba(232,117,53,.4);animation-delay:1.2s}
+.geoPoint.p4{left:42%;top:70%;background:#78aaa3;box-shadow:0 0 28px rgba(120,170,163,.95),0 0 50px rgba(120,170,163,.4);animation-delay:1.8s}
+.geoPoint.p5{left:80%;top:38%;background:#a78bfa;box-shadow:0 0 28px rgba(167,139,250,.95),0 0 50px rgba(167,139,250,.4);animation-delay:2.4s}
+.geoOverlay{
+  position:absolute;left:20px;right:20px;bottom:20px;
+  background:rgba(6,17,31,.92);backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.14);border-radius:18px;padding:18px;
+  box-shadow:0 12px 40px rgba(0,0,0,.4)
+}
+.geoHeader{margin-bottom:14px}
+.geoHeader b{display:block;font-size:16px;margin-bottom:4px;color:#fff}
+.geoHeader span{color:#c7d8ee;font-size:12px;line-height:1.4}
+.geoStats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.geoStatItem{background:rgba(19,40,64,.7);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:10px;text-align:center}
+.geoStatItem small{display:block;color:#a8bdd5;font-size:8px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
+.geoStatValue{font-size:18px;font-weight:950;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.geoChips{display:flex;gap:8px;flex-wrap:wrap}
+.geoChip{
+  border:1px solid #345978;border-radius:999px;padding:8px 12px;color:#dcecff;
+  font-weight:800;font-size:12px;background:rgba(19,40,64,.70);cursor:pointer;transition:.2s;
+  display:flex;align-items:center;gap:6px
+}
+.geoChip:hover{border-color:#6fa7d8;transform:translateY(-2px);background:rgba(19,40,64,.95)}
+.geoChip span{font-size:14px}
+.geoChip b{font-weight:950}
 @media(max-width:720px){.logoComlurb{width:220px;min-width:0;border-right:0;padding-right:0}.logoMain{font-size:34px}}
 
-.logoBox{
-  width:88px;height:88px;border-radius:24px;background:linear-gradient(135deg,#2f67a5,#5b9bd5);
-  display:flex;align-items:center;justify-content:center;color:#fff;font-weight:950;font-size:34px;
-  box-shadow:0 0 40px rgba(91,155,213,.22)
-}
-.titleBox{flex:1;min-width:0}
-.eyebrow{font-size:12px;font-weight:900;letter-spacing:.25em;color:#b8d4f2;text-transform:uppercase}
-h1{margin:6px 0;font-size:clamp(30px,3.2vw,44px);letter-spacing:-1.4px;line-height:1}
-.sub{color:#c7d8ee;font-size:14px;line-height:1.45}
-.liveStatus{
-  min-width:250px;border:1px solid rgba(255,255,255,.12);border-radius:18px;background:#08192d;
-  padding:14px 16px;text-align:right
-}
-.liveStatus small{display:block;color:#a8bdd5;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:900}
-.liveStatus b{display:block;font-size:20px;margin-top:6px;color:#80d199}
-.navTabs{display:flex;gap:10px;margin:16px 0 0;flex-wrap:wrap}
 .tabBtn{
   border:1px solid var(--line);background:#0a1b31;color:#dcecff;border-radius:999px;
   padding:11px 16px;font-weight:900;cursor:pointer;transition:.2s
@@ -125,9 +192,19 @@ option{background:#0d1f36}
 .kpi:hover{transform:translateY(-2px);border-color:#6fa7d8;box-shadow:0 18px 45px rgba(0,0,0,.22)}
 .kpi.feature{grid-column:span 2;background:linear-gradient(135deg,#0d1f36,#12365c);border-color:#4074a2}
 .kpi.red{border-color:rgba(239,106,93,.46)}.kpi.orange{border-color:rgba(232,117,53,.46)}.kpi.green{border-color:rgba(120,170,163,.52)}.kpi.purple{border-color:rgba(167,139,250,.44)}
-.kpi .label{font-size:11px;letter-spacing:.16em;color:#b8d4f2;font-weight:900;text-transform:uppercase;min-height:28px}
-.kpi .value{font-size:34px;font-weight:950;margin:12px 0 4px;letter-spacing:-.8px}.kpi.feature .value{font-size:48px}
-.kpi .note{color:#c7d8ee;font-size:13px;line-height:1.35}
+.kpi .label{
+  font-size:11px;letter-spacing:.16em;color:#b8d4f2;font-weight:900;text-transform:uppercase;min-height:28px;
+  overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical
+}
+.kpi .value{
+  font-size:34px;font-weight:950;margin:12px 0 4px;letter-spacing:-.8px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+}
+.kpi.feature .value{font-size:48px}
+.kpi .note{
+  color:#c7d8ee;font-size:13px;line-height:1.35;
+  overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical
+}
 
 /* TOOLTIP */
 .kpi[data-tooltip]:hover::before{
@@ -175,7 +252,11 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
 .body{padding:18px}
 .barRow{display:grid;grid-template-columns:minmax(125px,1fr) 1.6fr 76px 58px;gap:10px;align-items:center;margin-bottom:12px;cursor:pointer;padding:4px;border-radius:10px;transition:.16s}
 .barRow:hover{background:rgba(91,155,213,.08)}
-.barName{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
+.barName{
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700;
+  max-width:100%;word-break:break-word
+}
+.barName:hover{white-space:normal;word-break:break-word}
 .track{height:22px;background:#132941;border-radius:5px;overflow:hidden}
 .fill{height:100%;background:linear-gradient(90deg,#2f67a5,#5b9bd5);transition:.3s}
 .fill.orange{background:linear-gradient(90deg,#b95023,#e87535)}
@@ -237,8 +318,8 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
 .footer{margin-top:16px;color:#aebfd5;font-size:13px}
 @media(max-width:1400px){.kpis{grid-template-columns:repeat(3,1fr)}.alerts{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:1280px){.filters{grid-template-columns:repeat(3,1fr) auto auto}.commandHero,.grid2{grid-template-columns:1fr}.kpi.feature{grid-column:span 1}}
-@media(max-width:1100px){.filters{grid-template-columns:1fr auto auto}.kpis{grid-template-columns:repeat(2,1fr)}.grid,.bottom{grid-template-columns:1fr}.alerts{grid-template-columns:repeat(2,1fr)}.liveStatus{text-align:left;width:100%}}
-@media(max-width:720px){.app{padding:14px}.header{position:relative;top:0;flex-direction:column;align-items:flex-start}.logoBox{width:70px;height:70px}.kpis,.alerts,.matrix{grid-template-columns:1fr}.barRow{grid-template-columns:1fr}.num,.pct{text-align:left}.donutRow{grid-template-columns:1fr}.drillBanner{align-items:flex-start;flex-direction:column}}
+@media(max-width:1100px){.filters{grid-template-columns:1fr auto auto}.kpis{grid-template-columns:repeat(2,1fr)}.grid,.bottom{grid-template-columns:1fr}.alerts{grid-template-columns:repeat(2,1fr)}.headerTop{flex-direction:column;align-items:flex-start}.statusIndicator{width:100%;margin-left:0}}
+@media(max-width:720px){.app{padding:14px}.header{position:relative;top:0}.logoBox{width:48px;height:48px}.prefRio{font-size:26px}.comlurbBrand{font-size:24px;padding:0 8px}.mainTitle{font-size:22px}.navTabs{padding:12px 16px;gap:8px}.statusIndicator{padding:6px 10px}.kpis,.alerts,.matrix{grid-template-columns:1fr}.barRow{grid-template-columns:1fr}.num,.pct{text-align:left}.donutRow{grid-template-columns:1fr}.drillBanner{align-items:flex-start;flex-direction:column}.geoStats{grid-template-columns:1fr}.geoOverlay{left:12px;right:12px;bottom:12px;padding:12px}}
 
 /* CSS para impressão */
 @media print{
@@ -255,31 +336,41 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
 <div class="app">
 
   <header class="header">
-    <div class="logoComlurb">
-      <img class="logoImg"
-           src="../assets/logo-comlurb.png"
-           onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
-           alt="COMLURB">
-      <div class="logoFallback">
-        <div class="logoMain">COMLURB</div>
-        <div class="logoSub">COMPANHIA MUNICIPAL DE LIMPEZA URBANA</div>
+    <div class="headerTop">
+      <div class="logoGroup">
+        <div class="logoPrefeitura">
+          <div class="logoBox">
+            <svg viewBox="0 0 100 100" style="width:100%;height:100%">
+              <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="3"/>
+              <text x="50" y="58" text-anchor="middle" font-size="48" font-weight="900" fill="currentColor">R</text>
+            </svg>
+          </div>
+          <div class="prefeituraText">
+            <div class="prefLabel">PREFEITURA</div>
+            <div class="prefRio">RIO</div>
+          </div>
+        </div>
+        <div class="logoDivider"></div>
+        <div class="comlurbBrand">Comlurb</div>
+      </div>
+      
+      <div class="headerContent">
+        <div class="systemLabel">COMLURB - RADAR DE PESSOAS</div>
+        <h1 class="mainTitle">Perfil Funcional e Territorial</h1>
+        <div class="subtitle">Leitura executiva da força de trabalho, disponibilidade operacional, risco de reposição e aderência territorial</div>
       </div>
     </div>
-    <div class="titleBox">
-      <div class="eyebrow">HUB COMLURB • CENTRO DE INTELIGÊNCIA OPERACIONAL</div>
-      <h1>Radar de Pessoas COMLURB</h1>
-      <div class="sub">Painel consolidado da força de trabalho.</div>
-      <div class="navTabs">
-        <button class="tabBtn active" data-tab="screenVisao">Visão Geral</button>
-        <button class="tabBtn" data-tab="screenSaude">Saúde Ocupacional</button>
-        <button class="tabBtn" data-tab="screenAfastamentos">Afastamentos</button>
-        <button class="tabBtn" data-tab="screenDemografico">Demográfico</button>
-        <button class="tabBtn" data-tab="screenAnalitico">Analítico</button>
+    
+    <div class="navTabs">
+      <button class="tabBtn active" data-tab="screenVisao">Visão Geral</button>
+      <button class="tabBtn" data-tab="screenSaude">Saúde Ocupacional</button>
+      <button class="tabBtn" data-tab="screenAfastamentos">Afastamentos</button>
+      <button class="tabBtn" data-tab="screenDemografico">Demográfico</button>
+      <button class="tabBtn" data-tab="screenAnalitico">Analítico</button>
+      <div class="statusIndicator">
+        <small>STATUS</small>
+        <b id="loadState">Carregando...</b>
       </div>
-    </div>
-    <div class="liveStatus">
-      <small>Status da base</small>
-      <b id="loadState">Carregando...</b>
     </div>
   </header>
 
@@ -1220,15 +1311,18 @@ function renderTerritorialMap(arr,total){
   const principal = top[0] || ["Sem dados",0];
 
   const pointClasses = ["p1","p2","p3","p4","p5"];
+  const colors = ["#5b9bd5","#37d6ff","#e87535","#78aaa3","#a78bfa"];
+  
   const points = top.map(([cid,cnt],i)=>`
     <div class="geoPoint ${pointClasses[i] || "p1"}"
          title="${esc(cid)} · ${fmtInt(cnt)}"
          onclick="setDrill('cidade','${esc(cid).replaceAll("'","&#39;")}','${esc(cid).replaceAll("'","&#39;")}')"></div>
   `).join("");
 
-  const chips = top.map(([cid,cnt])=>`
-    <button class="geoChip" onclick="setDrill('cidade','${esc(cid).replaceAll("'","&#39;")}','${esc(cid).replaceAll("'","&#39;")}')">
-      ${esc(cid)} · ${fmtInt(cnt)}
+  const chips = top.map(([cid,cnt],i)=>`
+    <button class="geoChip" style="border-color:${colors[i]};background:rgba(${i===0?'91,155,213':i===1?'55,214,255':i===2?'232,117,53':i===3?'120,170,163':'167,139,250'},.16)" 
+            onclick="setDrill('cidade','${esc(cid).replaceAll("'","&#39;")}','${esc(cid).replaceAll("'","&#39;")}')">
+      <span style="color:${colors[i]}">●</span> ${esc(cid)} · <b>${fmtInt(cnt)}</b>
     </button>
   `).join("");
 
@@ -1236,8 +1330,24 @@ function renderTerritorialMap(arr,total){
     <div class="geoMapReal">
       ${points}
       <div class="geoOverlay">
-        <b>${esc(principal[0])}</b>
-        <span>${principal[1] ? `Principal concentração residencial: ${fmtInt(principal[1])} servidores (${fmtPct(pct(principal[1],total))}).` : "Sem cidade identificada no recorte atual."}</span>
+        <div class="geoHeader">
+          <b>Mapa territorial de residência</b>
+          <span>Concentração visual dos principais municípios/bairros</span>
+        </div>
+        <div class="geoStats">
+          <div class="geoStatItem">
+            <small>PRINCIPAL MUNICÍPIO</small>
+            <div class="geoStatValue">${esc(principal[0])}</div>
+          </div>
+          <div class="geoStatItem">
+            <small>SERVIDORES</small>
+            <div class="geoStatValue">${principal[1] ? fmtInt(principal[1]) : '0'}</div>
+          </div>
+          <div class="geoStatItem">
+            <small>CONCENTRAÇÃO</small>
+            <div class="geoStatValue">${principal[1] ? fmtPct(pct(principal[1],total)) : '0%'}</div>
+          </div>
+        </div>
         <div class="geoChips">${chips || '<span class="empty">Sem dados territoriais</span>'}</div>
       </div>
     </div>
