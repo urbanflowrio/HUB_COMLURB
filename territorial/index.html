@@ -1,342 +1,134 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HUB COMLURB | Inteligência Operacional</title>
+function updateInsights(){
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  const total = filtered.length;
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  const ativos = filtered.filter(d => d.ativo).length;
+  const afast = filtered.filter(d => d.afastado).length;
+  const laudos = filtered.filter(d => d.possuiLaudo).length;
+  const risco65 = filtered.filter(d => d.risco65).length;
+  const ec = filtered.filter(d => d.ecInformado).length;
+  const atuaEC = filtered.filter(d => d.atuaComEC).length;
 
-  <style>
-    :root{
-      --bg:#07111f; --panel:rgba(13,27,48,.88); --panel2:rgba(16,35,62,.78);
-      --line:rgba(148,163,184,.18); --text:#eef6ff; --muted:#93a4bb;
-      --blue:#38bdf8; --cyan:#22d3ee; --green:#34d399; --amber:#fbbf24;
-      --red:#fb7185; --purple:#a78bfa; --shadow:0 24px 70px rgba(0,0,0,.35); --radius:24px;
+  const capacidadeLiquida =
+    Math.max(0, ativos - afast - atuaEC);
+
+  const capacidadePct =
+    total ? ((capacidadeLiquida / total) * 100) : 0;
+
+  const topGerencia =
+    groupCount(filtered, "gerencia")
+      .filter(x => x[0] !== "Não informado")[0] || ["-",0];
+
+  const topBairro =
+    groupCount(
+      filtered.filter(d => !d.foraRio),
+      "bairroRes"
+    )
+    .filter(x => x[0] && x[0] !== "Não informado")[0] || ["-",0];
+
+  const foraRio =
+    filtered.filter(d => d.foraRio).length;
+
+  const mediaIdade =
+    avg(filtered, "idade");
+
+  const vulnerabilidade =
+    ((afast + laudos + risco65 + atuaEC) / total) * 100;
+
+  let statusCapacidade = "Estável";
+  let corCapacidade = "#22d3ee";
+
+  if(capacidadePct < 55){
+    statusCapacidade = "Crítica";
+    corCapacidade = "#fb7185";
+  } else if(capacidadePct < 70){
+    statusCapacidade = "Pressão operacional";
+    corCapacidade = "#fbbf24";
+  }
+
+  const insights = [
+
+    {
+      titulo: "Capacidade operacional líquida",
+      texto:
+        `${fmt(capacidadeLiquida)} servidores permanecem operacionalmente disponíveis, representando ${capacidadePct.toFixed(1).replace(".",",")}% do efetivo filtrado.`,
+      cor: corCapacidade
+    },
+
+    {
+      titulo: "Pressão operacional",
+      texto:
+        `${fmt(afast)} servidores apresentam indisponibilidade registrada, impactando diretamente a capacidade de resposta operacional.`,
+      cor: "#fbbf24"
+    },
+
+    {
+      titulo: "Risco de continuidade",
+      texto:
+        `${fmt(risco65)} servidores possuem 65 anos ou mais, indicando pressão futura de reposição e sucessão operacional.`,
+      cor: "#fb7185"
+    },
+
+    {
+      titulo: "Dependência estrutural de EC",
+      texto:
+        `${fmt(atuaEC)} servidores atuam via FUNCAO_EC, sugerindo dependência operacional acima da estrutura formal de cargos.`,
+      cor: "#a78bfa"
+    },
+
+    {
+      titulo: "Vulnerabilidade operacional",
+      texto:
+        `O índice consolidado de vulnerabilidade operacional do recorte atual é de ${vulnerabilidade.toFixed(1).replace(".",",")}%, considerando afastamentos, laudos, risco etário e atuação por EC.`,
+      cor: "#38bdf8"
+    },
+
+    {
+      titulo: "Polarização territorial",
+      texto:
+        `${fmt(foraRio)} servidores residem fora do município do Rio de Janeiro, ampliando pressão logística e deslocamentos operacionais.`,
+      cor: "#22d3ee"
+    },
+
+    {
+      titulo: "Concentração territorial",
+      texto:
+        `${topBairro[0]} representa atualmente o principal polo residencial do efetivo filtrado.`,
+      cor: "#34d399"
+    },
+
+    {
+      titulo: "Envelhecimento da força de trabalho",
+      texto:
+        `A média etária atual do recorte é de ${mediaIdade.toFixed(1).replace(".",",")} anos.`,
+      cor: "#f97316"
+    },
+
+    {
+      titulo: "Maior concentração gerencial",
+      texto:
+        `${topGerencia[0]} concentra ${fmt(topGerencia[1])} servidores no recorte atual, representando um dos principais polos operacionais.`,
+      cor: "#60a5fa"
     }
-    *{box-sizing:border-box}
-    html,body{margin:0;min-height:100%;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
-    body{background:radial-gradient(circle at 18% 5%, rgba(56,189,248,.22), transparent 32%),radial-gradient(circle at 85% 12%, rgba(167,139,250,.18), transparent 35%),linear-gradient(145deg,#06101e 0%,#081426 42%,#07101d 100%);overflow-x:hidden}
-    .shell{max-width:1780px;margin:0 auto;padding:22px}
-    .topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px 20px;border:1px solid var(--line);border-radius:28px;background:linear-gradient(135deg,rgba(15,31,56,.92),rgba(8,18,32,.82));box-shadow:var(--shadow);position:sticky;top:12px;z-index:999;backdrop-filter:blur(16px)}
-    .brand{display:flex;align-items:center;gap:14px;min-width:280px}.logoBox{width:46px;height:46px;border-radius:16px;background:linear-gradient(135deg,#0ea5e9,#22d3ee);display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(34,211,238,.25)}.logoBox span{font-weight:900;color:#02111f;font-size:18px}.brand h1{font-size:18px;line-height:1;margin:0;font-weight:900}.brand p{margin:5px 0 0;color:var(--muted);font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase}
-    .statusPill{display:flex;align-items:center;gap:10px;color:#dbeafe;font-size:12px;font-weight:700;background:rgba(15,23,42,.7);border:1px solid var(--line);border-radius:999px;padding:10px 14px;white-space:nowrap}.pulse{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 6px rgba(52,211,153,.12),0 0 24px rgba(52,211,153,.8)}
-    .tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.tabBtn{border:1px solid var(--line);background:rgba(15,23,42,.62);color:#cbd5e1;border-radius:999px;padding:10px 14px;font-size:12px;font-weight:800;cursor:pointer;transition:.22s}.tabBtn:hover,.tabBtn.active{background:linear-gradient(135deg,rgba(56,189,248,.24),rgba(34,211,238,.12));border-color:rgba(56,189,248,.5);color:white;transform:translateY(-1px)}
-    .hero{display:block;margin-top:18px}.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);backdrop-filter:blur(14px)}.heroMain{padding:24px;position:relative;overflow:hidden}.heroMain:before{content:"";position:absolute;right:-120px;top:-120px;width:340px;height:340px;background:radial-gradient(circle,rgba(56,189,248,.22),transparent 68%)}.eyebrow{color:var(--cyan);font-weight:900;text-transform:uppercase;letter-spacing:.18em;font-size:12px;margin-bottom:10px}.heroMain h2{margin:0;font-size:clamp(28px,3.2vw,48px);line-height:1;letter-spacing:-2.2px;font-weight:950;max-width:1100px}.heroMain p{max-width:1080px;color:#b8c6d8;font-size:14px;line-height:1.55;margin:14px 0 0}.heroActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.btn{border:0;border-radius:16px;padding:12px 16px;font-weight:900;cursor:pointer;font-size:13px;transition:.2s}.btnPrimary{background:linear-gradient(135deg,#38bdf8,#22d3ee);color:#031321;box-shadow:0 15px 38px rgba(34,211,238,.18)}.btnGhost{background:rgba(15,23,42,.65);border:1px solid var(--line);color:#e2e8f0}.btn:hover{transform:translateY(-1px)}
-    .filters{margin-top:18px;padding:16px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1.2fr auto;gap:10px;align-items:end}.field{min-width:0}.field label{display:block;color:#8ca0bb;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.12em;margin:0 0 7px}select,input{width:100%;background:rgba(5,13,25,.78);border:1px solid rgba(148,163,184,.22);border-radius:14px;color:#e5f0ff;padding:11px 12px;outline:none;font-weight:700;font-size:12px}select:focus,input:focus{border-color:rgba(56,189,248,.72);box-shadow:0 0 0 3px rgba(56,189,248,.1)}
-    .multiWrap{position:relative}.multiButton{width:100%;background:rgba(5,13,25,.78);border:1px solid rgba(148,163,184,.22);border-radius:14px;color:#e5f0ff;padding:11px 12px;outline:none;font-weight:800;font-size:12px;text-align:left;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.multiPanel{display:none;position:absolute;top:calc(100% + 8px);left:0;right:0;z-index:950;background:#081427;border:1px solid rgba(56,189,248,.25);border-radius:18px;box-shadow:var(--shadow);padding:12px;max-height:330px;overflow:auto}.multiWrap.open .multiPanel{display:block}.multiSearch{margin-bottom:10px}.multiList{display:grid;gap:6px}.multiItem{display:flex;gap:8px;align-items:center;padding:8px;border-radius:12px;color:#cbd5e1;font-size:12px;font-weight:700;cursor:pointer}.multiItem:hover{background:rgba(56,189,248,.08)}.multiItem input{width:auto}.multiActions{display:flex;gap:8px;margin-top:10px}.multiActions button{flex:1;border:1px solid var(--line);background:rgba(15,23,42,.7);color:#e2e8f0;border-radius:12px;padding:8px;font-weight:900;cursor:pointer;font-size:11px}
-    .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-top:18px}.kpi{padding:17px;min-height:128px;position:relative;overflow:hidden}.kpi:after{content:"";position:absolute;right:-40px;bottom:-45px;width:120px;height:120px;border-radius:50%;background:rgba(56,189,248,.08)}.kpi .label{color:#94a3b8;font-size:11px;text-transform:uppercase;letter-spacing:.12em;font-weight:900;min-height:28px}.kpi .value{font-size:30px;font-weight:950;letter-spacing:-1.4px;margin-top:10px}.kpi .sub{color:#a8b4c7;font-size:12px;margin-top:7px;line-height:1.35}.kpi.blue{border-color:rgba(56,189,248,.32)}.kpi.green{border-color:rgba(52,211,153,.32)}.kpi.amber{border-color:rgba(251,191,36,.35)}.kpi.red{border-color:rgba(251,113,133,.34)}.kpi.purple{border-color:rgba(167,139,250,.34)}
-    .view{display:none;margin-top:18px}.view.active{display:block}.gridMacro{display:grid;grid-template-columns:1.25fr .75fr;gap:18px}.executivoPremium{display:grid;grid-template-columns:1.6fr .9fr;gap:18px;align-items:start}.mapaResumoWrapper{display:grid;grid-template-rows:auto auto;gap:18px}.mapCard{height:620px;position:relative;overflow:hidden}#map{height:100%;width:100%;background:#081427;z-index:1}.mapOverlay{position:absolute;left:18px;top:18px;z-index:420;background:rgba(5,13,25,.82);border:1px solid var(--line);border-radius:18px;padding:14px;backdrop-filter:blur(14px);max-width:360px}.mapOverlay h3{margin:0;font-size:14px}.mapOverlay p{margin:7px 0 0;color:#aab7c8;font-size:12px;line-height:1.45}.mapControls{position:absolute;right:18px;top:18px;z-index:420;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.miniBtn{background:rgba(5,13,25,.86);border:1px solid var(--line);color:#e2e8f0;border-radius:999px;padding:9px 11px;font-weight:900;font-size:11px;cursor:pointer}.miniBtn.active{background:rgba(56,189,248,.25);border-color:rgba(56,189,248,.55)}
-    .territorialResumo{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.territorialMiniCard{background:rgba(15,23,42,.52);border:1px solid rgba(148,163,184,.12);border-radius:18px;padding:16px}.territorialMiniCard .label{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#93c5fd;font-weight:800}.territorialMiniCard .value{font-size:clamp(20px,2vw,28px);font-weight:900;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.territorialMiniCard .sub{color:#94a3b8;font-size:12px;margin-top:4px}
-    .rankTerritorial{display:grid;gap:12px}.rankItem{background:rgba(15,23,42,.55);border:1px solid rgba(148,163,184,.12);border-radius:18px;padding:14px}.rankTop{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.rankNome{font-size:16px;font-weight:900;line-height:1.15;word-break:break-word}.rankQtd{font-size:20px;font-weight:900;color:#38bdf8;white-space:nowrap}.rankSub{margin-top:6px;font-size:12px;color:#94a3b8}.rankBar{height:8px;border-radius:999px;overflow:hidden;background:rgba(148,163,184,.14);margin-top:12px}.rankBar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#22d3ee,#38bdf8)}
-    .sideStack{display:grid;gap:18px}.panelHeader{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:18px 18px 0}.panelHeader h3{margin:0;font-size:16px;font-weight:950;letter-spacing:-.4px}.panelHeader p{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.45}.chartBox{padding:14px 16px 18px;height:300px}.chartBox canvas{width:100%!important;height:100%!important}.insights{padding:18px;display:grid;gap:10px}.insight{display:grid;grid-template-columns:12px 1fr;gap:10px;padding:12px;border:1px solid var(--line);border-radius:16px;background:rgba(15,23,42,.48)}.dot{width:10px;height:10px;border-radius:50%;margin-top:4px;background:var(--cyan);box-shadow:0 0 18px rgba(34,211,238,.7)}.insight b{font-size:13px}.insight span{display:block;color:#aab7c8;font-size:12px;line-height:1.45;margin-top:4px}
-    .analysisGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.wide{grid-column:span 2}.full{grid-column:1/-1}.tableWrap{padding:16px;overflow:auto;max-height:620px}table{width:100%;border-collapse:collapse;min-width:1600px;font-size:12px}th,td{border-bottom:1px solid rgba(148,163,184,.13);padding:11px 10px;text-align:left;white-space:nowrap}th{position:sticky;top:0;background:#0d1b30;color:#93c5fd;text-transform:uppercase;letter-spacing:.08em;font-size:10px;z-index:2}tr:hover td{background:rgba(56,189,248,.055)}.scoreGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;padding:16px}.scoreGrid.four{grid-template-columns:repeat(4,1fr)}.scoreCard{padding:16px;border:1px solid var(--line);border-radius:20px;background:rgba(15,23,42,.52)}.scoreCard .rank{font-size:11px;color:#93c5fd;font-weight:900;text-transform:uppercase;letter-spacing:.12em}.scoreCard h4{margin:9px 0 6px;font-size:18px;line-height:1.15}.scoreCard p{margin:0;color:#aab7c8;font-size:12px;line-height:1.45}.bar{height:8px;background:rgba(148,163,184,.14);border-radius:999px;overflow:hidden;margin-top:12px}.bar i{display:block;height:100%;background:linear-gradient(90deg,#22d3ee,#38bdf8);border-radius:999px}.footer{margin:18px 0 8px;color:#718096;font-size:11px;text-align:center}.debugBox{display:none;margin-top:18px;padding:16px;border:1px solid rgba(251,191,36,.35);background:rgba(251,191,36,.08);border-radius:18px;color:#fde68a;font-size:12px;line-height:1.55;white-space:pre-wrap}.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#081427;color:#e5f0ff;border:1px solid rgba(56,189,248,.2)}.popupTitle{font-weight:900;color:#7dd3fc;margin-bottom:4px}.popupLine{font-size:12px;color:#cbd5e1;margin:3px 0}.popupLine b{color:#fff}.markerGlow{filter:drop-shadow(0 0 8px rgba(34,211,238,.8))}
-    @media(max-width:1400px){.kpis{grid-template-columns:repeat(3,1fr)}.scoreGrid.four{grid-template-columns:repeat(2,1fr)}}@media(max-width:1300px){.hero,.gridMacro,.executivoPremium{grid-template-columns:1fr}.filters{grid-template-columns:repeat(3,1fr)}.analysisGrid{grid-template-columns:1fr}.wide{grid-column:auto}.scoreGrid{grid-template-columns:1fr}.territorialResumo{grid-template-columns:repeat(2,1fr)}}@media(max-width:760px){.shell{padding:10px}.topbar{position:relative;top:0;flex-direction:column;align-items:stretch}.tabs{justify-content:flex-start}.filters{grid-template-columns:1fr}.kpis{grid-template-columns:1fr}.mapCard{height:580px}.heroMain h2{font-size:34px}.scoreGrid,.scoreGrid.four,.territorialResumo{grid-template-columns:1fr}.mapControls{left:18px;right:18px;top:auto;bottom:18px;justify-content:flex-start}.multiPanel{position:relative;top:8px}}
-  </style>
-</head>
-<body>
-  <div class="shell">
-    <header class="topbar">
-      <div class="brand"><div class="logoBox"><span>H</span></div><div><h1>HUB COMLURB</h1><p>Inteligência Operacional</p></div></div>
-      <div class="statusPill"><i class="pulse"></i><span id="updateInfo">Carregando bases...</span></div>
-      <nav class="tabs">
-        <button class="tabBtn active" data-view="macro">Visão Executiva</button>
-        <button class="tabBtn" data-view="ec">EC & Função</button>
-        <button class="tabBtn" data-view="saude">Saúde & Afastamentos</button>
-        <button class="tabBtn" data-view="analitico">Analítico</button>
-      </nav>
-    </header>
 
-    <section class="hero">
-      <div class="card heroMain">
-        <div class="eyebrow">Centro de inteligência operacional</div>
-        <h2>Força de trabalho, disponibilidade real, EC, saúde e território em uma única leitura.</h2>
-        <p>O painel cruza a R54 com o organograma oficial, bases territoriais e laudos para apoiar decisão executiva sobre capacidade operacional, afastamentos, atuação por EC, reposição por idade e concentração territorial.</p>
-        <div class="heroActions"><button class="btn btnPrimary" onclick="exportExcel()">Exportar análise Excel</button><button class="btn btnGhost" onclick="resetFilters()">Limpar filtros</button><button class="btn btnGhost" onclick="toggleDebug()">Diagnóstico</button></div>
+  ];
+
+  document.getElementById("autoInsights").innerHTML =
+    insights.map(i => `
+      <div class="insight">
+        <div
+          class="dot"
+          style="
+            background:${i.cor};
+            box-shadow:0 0 18px ${i.cor};
+          ">
+        </div>
+
+        <div>
+          <b>${escapeHtml(i.titulo)}</b>
+          <span>${escapeHtml(i.texto)}</span>
+        </div>
       </div>
-    </section>
+    `).join("");
 
-    <section class="card filters">
-      <div class="field"><label>Diretoria</label><select id="fDiretoria"></select></div>
-      <div class="field"><label>Coordenação / Superintendência</label><select id="fCoordenacao"></select></div>
-      <div class="field"><label>Gerência</label><select id="fGerencia"></select></div>
-      <div class="field"><label>Setor</label><select id="fSetor"></select></div>
-      <div class="field"><label>Função atuação</label><div class="multiWrap" id="funcaoMulti"><button class="multiButton" type="button" id="fFuncaoBtn">Todas as funções</button><div class="multiPanel"><input class="multiSearch" id="fFuncaoSearch" placeholder="Filtrar função..."/><div class="multiList" id="fFuncaoList"></div><div class="multiActions"><button type="button" onclick="clearFuncaoSelection()">Limpar</button><button type="button" onclick="closeFuncaoPanel()">Aplicar</button></div></div></div></div>
-      <div class="field"><button class="btn btnGhost" onclick="resetFilters()">Limpar filtros</button></div>
-    </section>
-
-    <section class="kpis">
-      <div class="card kpi blue"><div class="label">Efetivo filtrado</div><div class="value" id="kTotal">0</div><div class="sub">registros considerados</div></div>
-      <div class="card kpi green"><div class="label">Disponibilidade real</div><div class="value" id="kDisponivel">0</div><div class="sub" id="kDisponivelSub">0% do efetivo</div></div>
-      <div class="card kpi amber"><div class="label">Afastados</div><div class="value" id="kAfastados">0</div><div class="sub" id="kAfastadosSub">0% do efetivo</div></div>
-      <div class="card kpi red"><div class="label">Risco 65+</div><div class="value" id="k65">0</div><div class="sub" id="k65Sub">0% do efetivo</div></div>
-      <div class="card kpi purple"><div class="label">Com laudo</div><div class="value" id="kLaudos">0</div><div class="sub" id="kLaudosSub">0% do efetivo</div></div>
-      <div class="card kpi blue"><div class="label">EC informado</div><div class="value" id="kEC">0</div><div class="sub" id="kECSub">0% do efetivo</div></div>
-    </section>
-
-    <div class="debugBox" id="debugBox"></div>
-
-    <main>
-      <section id="macro" class="view active">
-        <div class="executivoPremium">
-          <div class="mapaResumoWrapper">
-            <div class="card mapCard">
-              <div class="mapOverlay"><h3>Mapa executivo</h3><p>Azul: residência. Verde: trabalho. Rosa: risco 65+. Clique nos pontos para abrir a leitura.</p></div>
-              <div class="mapControls"><button class="miniBtn active" data-layer="residencia">Residência</button><button class="miniBtn active" data-layer="trabalho">Trabalho</button><button class="miniBtn" data-layer="risco">Risco 65+</button><button class="miniBtn" onclick="fitMap()">Centralizar</button></div>
-              <div id="map"></div>
-            </div>
-            <div class="territorialResumo">
-              <div class="territorialMiniCard"><div class="label">Dentro do RJ</div><div class="value" id="rjTotal">0</div><div class="sub">servidores residentes</div></div>
-              <div class="territorialMiniCard"><div class="label">Fora do RJ</div><div class="value" id="extTotal">0</div><div class="sub">municípios externos</div></div>
-              <div class="territorialMiniCard"><div class="label">Maior concentração RJ</div><div class="value" id="topRJ">-</div><div class="sub">bairro dominante</div></div>
-              <div class="territorialMiniCard"><div class="label">Maior concentração externa</div><div class="value" id="topEXT">-</div><div class="sub">município dominante</div></div>
-            </div>
-            <div class="card">
-              <div class="panelHeader"><div><h3>Perfil operacional das gerências</h3><p>Disponibilidade real, afastamento, EC, laudos e risco 65+.</p></div></div>
-              <div class="scoreGrid four" id="gerenciaScores"></div>
-            </div>
-          </div>
-          <div class="sideStack">
-            <div class="card">
-              <div class="panelHeader"><div><h3>Concentração territorial</h3><p>Distribuição separada entre bairros do Rio e municípios externos.</p></div></div>
-              <div class="scoreGrid">
-                <div><h4 style="margin:0 0 14px">Dentro do RJ</h4><div class="rankTerritorial" id="rankRJ"></div></div>
-                <div><h4 style="margin:0 0 14px">Fora do RJ</h4><div class="rankTerritorial" id="rankEXT"></div></div>
-              </div>
-            </div>
-            <div class="card">
-              <div class="panelHeader"><div><h3>Insights automáticos</h3><p>Leitura gerada a partir do recorte atual.</p></div></div>
-              <div class="insights" id="autoInsights"></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="ec" class="view">
-        <div class="analysisGrid">
-          <div class="card wide"><div class="panelHeader"><div><h3>Atuação operacional por EC</h3><p>Funções com maior atuação pela FUNCAO_EC.</p></div></div><div class="chartBox" style="height:420px"><canvas id="chartEC"></canvas></div></div>
-          <div class="card"><div class="panelHeader"><div><h3>Leitura EC</h3><p>Impacto operacional da atuação por EC.</p></div></div><div class="insights" id="ecInsights"></div></div>
-          <div class="card full"><div class="panelHeader"><div><h3>Top distorções operacionais</h3><p>Funções com maior atuação via EC, respeitando a regra de GARI com EC de encarregado.</p></div></div><div class="scoreGrid four" id="ecScores"></div></div>
-          <div class="card full"><div class="panelHeader"><div><h3>FUNCAOCARGO x FUNCAO_EC</h3><p>Principais combinações encontradas na base filtrada.</p></div></div><div class="scoreGrid four" id="ecCargoScores"></div></div>
-        </div>
-      </section>
-
-      <section id="saude" class="view">
-        <div class="analysisGrid">
-          <div class="card"><div class="panelHeader"><div><h3>Distribuição etária</h3><p>Perfil etário da força de trabalho.</p></div></div><div class="chartBox" style="height:390px"><canvas id="chartIdade"></canvas></div></div>
-          <div class="card wide"><div class="panelHeader"><div><h3>Afastamentos por gerência</h3><p>Pressão operacional por indisponibilidade.</p></div></div><div class="chartBox" style="height:390px"><canvas id="chartAfastamento"></canvas></div></div>
-          <div class="card full"><div class="panelHeader"><div><h3>Saúde ocupacional</h3><p>Leitura consolidada de laudos, idade e afastamentos.</p></div></div><div class="scoreGrid four" id="saudeScores"></div></div>
-        </div>
-      </section>
-
-      <section id="analitico" class="view">
-        <div class="card full"><div class="panelHeader"><div><h3>Base analítica</h3><p>Dados enriquecidos com organograma, coordenadas, função de atuação, laudos e indicadores derivados.</p></div></div><div style="padding:16px 16px 0"><input id="fBuscaAnalitico" placeholder="Buscar por nome, registro, setor, bairro, função..." /></div><div class="tableWrap"><table id="dataTable"></table></div></div>
-      </section>
-    </main>
-    <div class="footer">Fonte: R54 + organograma Master + laudos + bases territoriais publicadas · Painel dinâmico</div>
-  </div>
-
-<script>
-/* =========================
-   CONFIGURAÇÃO DAS FONTES
-   ========================= */
-const DATA_BASE = location.pathname.includes('/territorial/territorial/') ? '../data/' : 'data/';
-const URLS = {
-  R54: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRE3Q_RdpZOqc4f3O3fQirMQkEXQWyBkiIlXB6LZWgqTZbItGBHAxUHf2-0kEcALDIUfyPeK7GyBQrB/pub?gid=1371643814&single=true&output=csv",
-  MASTER_ORGANOGRAMA: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTrmMaCLJp2MfkkqRqORG88xbz4d97_-S8sm1B9zXhza1Q8EHS5cPfHZI_TAFz-PdRola-TtAeywnuc/pub?output=csv",
-  LAUDOS: "https://docs.google.com/spreadsheets/d/1ioBdeaqpan0Eq9o4BB5f0_UvCRJPsX5hoonaF2v3YwI/export?format=csv",
-  BAIRROS_RIO: DATA_BASE + "coordenadas_bairros_rio.csv",
-  LOCAIS_TRABALHO: DATA_BASE + "coordenadas_locais_trabalho.csv",
-  MASTER_COORDENADAS: DATA_BASE + "coordenadas_master_completo.csv",
-  MUNICIPIOS_EXTERNOS: DATA_BASE + "coordenadas_municipios_externos.csv"
-};
-
-let rawR54=[], rawOrg=[], rawLaudos=[], enriched=[], filtered=[];
-let laudosMap=new Map(), orgMap=new Map(), coordBairros=new Map(), coordTrabalho=new Map(), coordMaster=new Map(), coordExternos=new Map();
-let map, layerResidencia, layerTrabalho, layerRisco, charts={};
-let visibleLayers={residencia:true,trabalho:true,risco:false};
-let loadReport=[], funcaoSelected=new Set(), lastFuncaoOptions=[];
-
-const CANDIDATES={
-  nome:["NOME","NOME DO SERVIDOR","SERVIDOR","Nome do Servidor"],
-  registro:["REGISTRO","MATRICULA","MATRÍCULA","MAT","ID"],
-  diretoria:["DIRETORIA","DIR"],
-  coordenacao:["SUPERINTENDÊNCIA","SUPERINTENDENCIA","COORDENAÇÃO","COORDENACAO","SUPERINTENDÊNCIA/COORDENAÇÃO","SUPERINTENDENCIA/COORDENACAO","COORD","SUPER"],
-  gerencia:["GERÊNCIA","GERENCIA","GER","GERÊNCIA EXECUTIVA","GERENCIA EXECUTIVA"],
-  setor:["SETOR","LOTAÇÃO","LOTACAO","UNIDADE","LOCAL_TRABALHO","LOCAL DE TRABALHO"],
-  funcao:["FUNCAOCARGO","FUNÇÃO CARGO","FUNCAO CARGO","CARGO","FUNÇÃO","FUNCAO"],
-  funcaoEC:["FUNCAO_EC","FUNÇÃO EC","FUNCAO EC","EC"],
-  situacao:["SITUAÇÃO FUNCIONAL","SITUACAO FUNCIONAL","STATUS","SITUAÇÃO","SITUACAO"],
-  afastamento:["AFASTAMENTO","AFASTAMENTO_ATUAL","STATUS_AFASTAMENTO"],
-  idade:["IDADEANOS","IDADE ANOS","IDADE","Idade"],
-  bairroRes:["BAIRRO_RES","BAIRRO RES","BAIRRO_RESIDENCIA","BAIRRO RESIDENCIA","BAIRRO DE RESIDÊNCIA","BAIRRO DE RESIDENCIA","BAIRRO"],
-  bairroTrab:["BAIRRO_TRABALHO","BAIRRO TRABALHO","BAIRRO_LOCAL_TRABALHO","BAIRRO LOCAL TRABALHO"],
-  statusRes:["STATUS_RES","STATUS RES","STATUS_RESIDENCIA"]
-};
-
-function norm(v){return String(v??"").trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").toUpperCase();}
-function clean(v){return String(v??"").trim();}
-function num(v){if(v===null||v===undefined||v==="")return null;const n=Number(String(v).replace(",",".").replace(/[^0-9.-]/g,""));return Number.isFinite(n)?n:null;}
-function pick(row,keys){const rowKeys=Object.keys(row||{});for(const k of keys){if(row[k]!==undefined)return row[k];const found=rowKeys.find(rk=>norm(rk)===norm(k));if(found)return row[found];}return "";}
-function fmt(n){return Number(n||0).toLocaleString("pt-BR");}
-function pct(n,d){return d?`${((n/d)*100).toFixed(1).replace(".",",")}%`:"0%";}
-function escapeHtml(v){return String(v??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[m]));}
-function setStatus(msg){document.getElementById("updateInfo").textContent=msg;}
-
-function googleCsvFallback(url){const m=url.match(/\/spreadsheets\/d\/([^/]+)/);if(!m)return null;const gidMatch=url.match(/[?&]gid=([^&]+)/);const gid=gidMatch?gidMatch[1]:"0";return `https://docs.google.com/spreadsheets/d/${m[1]}/gviz/tq?tqx=out:csv&gid=${gid}`;}
-async function fetchText(url, timeoutMs=30000){const controller=new AbortController();const t=setTimeout(()=>controller.abort(),timeoutMs);try{const res=await fetch(url,{cache:"no-store",signal:controller.signal});if(!res.ok)throw new Error(`HTTP ${res.status} em ${url}`);const text=await res.text();if(!text || text.trim().startsWith("<!DOCTYPE") || text.includes("<html"))throw new Error(`Resposta não é CSV em ${url}`);return text;}finally{clearTimeout(t);}}
-function parseCsvText(text, sourceName){const parsed=Papa.parse(text,{header:true,skipEmptyLines:true,transformHeader:h=>String(h||"").trim()});if(parsed.errors && parsed.errors.length){console.warn(`Avisos CSV ${sourceName}:`,parsed.errors.slice(0,3));}return (parsed.data||[]).filter(r=>Object.values(r).some(v=>String(v??"").trim()!==""));}
-async function loadCSV(url, sourceName, required=false){if(!url){loadReport.push(`⚪ ${sourceName}: sem URL configurada.`);return []}const attempts=[url];const fallback=googleCsvFallback(url);if(fallback && fallback!==url)attempts.push(fallback);let lastErr=null;for(const attempt of attempts){try{const text=await fetchText(attempt);const rows=parseCsvText(text,sourceName);loadReport.push(`✅ ${sourceName}: ${fmt(rows.length)} linhas carregadas.`);return rows;}catch(err){lastErr=err;console.warn(`Falha ao carregar ${sourceName}:`,err);}}const message=`${sourceName}: não carregou. ${lastErr?.message||lastErr||"Erro desconhecido"}`;loadReport.push(`${required?"❌":"⚠️"} ${message}`);if(required)throw new Error(message);return [];}
-
-function coordFromRow(row){const keys=Object.keys(row||{});const latKey=keys.find(k=>["LAT","LATITUDE","Y"].includes(norm(k))||norm(k).includes("LATITUDE"));const lonKey=keys.find(k=>["LONG","LON","LNG","LONGITUDE","X"].includes(norm(k))||norm(k).includes("LONGITUDE"));const nameKey=keys.find(k=>["BAIRRO","NOME","LOCAL","SETOR","MUNICIPIO","MUNICÍPIO","LOCAL_TRABALHO","LOCAL DE TRABALHO"].includes(norm(k)))||keys[0];return {name:norm(row[nameKey]),label:clean(row[nameKey]),lat:num(row[latKey]),lon:num(row[lonKey])};}
-function buildCoordMap(rows){const m=new Map();rows.forEach(r=>{const c=coordFromRow(r);if(c.name&&Number.isFinite(c.lat)&&Number.isFinite(c.lon))m.set(c.name,c);});return m;}
-function findCoord(name,type){const key=norm(name);if(!key)return null;const maps=type==="trabalho"?[coordTrabalho,coordMaster,coordBairros]:[coordBairros,coordExternos,coordMaster];for(const m of maps){if(m.has(key))return m.get(key);}for(const m of maps){for(const [k,v] of m.entries()){if(k&&key&&(k.includes(key)||key.includes(k)))return v;}}return null;}
-
-function buildLaudosMap(rows){const m=new Map();rows.forEach(r=>{const registro=norm(pick(r,["REGISTRO","MATRICULA","MATRÍCULA","MAT","ID"]));if(!registro)return;const tipo=clean(pick(r,["TIPO","TIPO_LAUDO","TIPO LAUDO","LAUDO","DESCRIÇÃO","DESCRICAO","CLASSIFICAÇÃO","CLASSIFICACAO","CID"]));const atual=m.get(registro)||{qtd:0,tipos:new Set()};atual.qtd+=1;atual.tipos.add(tipo||"Laudo informado");m.set(registro,atual);});return m;}
-
-function buildOrgMap(rows){
-  const m=new Map();
-  rows.forEach(r=>{
-    const setor=clean(pick(r,CANDIDATES.setor));
-    if(!setor)return;
-    m.set(norm(setor),{
-      setor,
-      diretoria: clean(pick(r,CANDIDATES.diretoria)) || "Não informado",
-      coordenacao: clean(pick(r,CANDIDATES.coordenacao)) || "Não informado",
-      gerencia: clean(pick(r,CANDIDATES.gerencia)) || "Não informado"
-    });
-  });
-  return m;
 }
-function getOrgBySetor(setor){const key=norm(setor);if(!key)return null;if(orgMap.has(key))return orgMap.get(key);for(const [k,v] of orgMap.entries()){if(k && key && (k.includes(key)||key.includes(k)))return v;}return null;}
-
-function defineFuncaoAtuacao(funcaoCargo, funcaoEC){
-  const cargo = norm(funcaoCargo);
-  const ec = norm(funcaoEC);
-  const cargoEhGari = cargo.includes("GARI");
-  const ecEhEncarregado = ec.includes("ENCARREGADO");
-  if (cargoEhGari && ecEhEncarregado) return clean(funcaoCargo) || "Não informado";
-  if (clean(funcaoEC)) return clean(funcaoEC);
-  return clean(funcaoCargo) || "Não informado";
-}
-
-function enrichData(){
-  enriched=rawR54.map((r,idx)=>{
-    const nome=clean(pick(r,CANDIDATES.nome)); const registro=clean(pick(r,CANDIDATES.registro)); const registroKey=norm(registro);
-    const setor=clean(pick(r,CANDIDATES.setor))||"Não informado"; const org=getOrgBySetor(setor);
-    const diretoria=org?.diretoria || clean(pick(r,CANDIDATES.diretoria)) || "Não informado";
-    const coordenacao=org?.coordenacao || clean(pick(r,CANDIDATES.coordenacao)) || "Não informado";
-    const gerencia=org?.gerencia || clean(pick(r,CANDIDATES.gerencia)) || "Não informado";
-    const funcao=clean(pick(r,CANDIDATES.funcao))||"Não informado"; const funcaoEC=clean(pick(r,CANDIDATES.funcaoEC));
-    const funcaoAtuacao=defineFuncaoAtuacao(funcao,funcaoEC);
-    const ecInformado=!!funcaoEC;
-    const atuaComEC=!!funcaoEC && norm(funcaoAtuacao)===norm(funcaoEC);
-    const situacao=clean(pick(r,CANDIDATES.situacao))||"Não informado"; const afastamento=clean(pick(r,CANDIDATES.afastamento));
-    const idade=num(pick(r,CANDIDATES.idade)); const bairroRes=clean(pick(r,CANDIDATES.bairroRes)); const bairroTrab=clean(pick(r,CANDIDATES.bairroTrab))||setor; const statusRes=clean(pick(r,CANDIDATES.statusRes));
-    const cRes=findCoord(bairroRes,"residencia"); const cTrab=findCoord(bairroTrab,"trabalho")||findCoord(setor,"trabalho");
-    const foraRio=norm(statusRes).includes("FORA")||!!(bairroRes&&coordExternos.has(norm(bairroRes)));
-    const afastNorm=norm(afastamento);
-    const afastado = afastNorm!=="" && afastNorm!=="NAO" && afastNorm!=="NÃO" && afastNorm!=="ATIVO" && afastNorm!=="SEM AFASTAMENTO";
-    const ativo=!afastado && !norm(situacao).includes("DESLIG") && !norm(situacao).includes("EXON");
-    const risco65=idade!==null&&idade>=65; const risco60=idade!==null&&idade>=60;
-    const laudo=laudosMap.get(registroKey); const possuiLaudo=!!laudo; const qtdLaudos=laudo?.qtd||0; const tiposLaudos=laudo?[...laudo.tipos].join("; "):"";
-    return {idx,nome,registro,diretoria,coordenacao,gerencia,setor,funcao,funcaoEC,funcaoAtuacao,situacao,afastamento,idade,bairroRes,bairroTrab,statusRes,foraRio,afastado,ativo,risco65,risco60,ecInformado,atuaEC:atuaComEC,atuaComEC,possuiLaudo,qtdLaudos,tiposLaudos,cRes,cTrab,raw:r};
-  });
-  filtered=[...enriched];
-}
-
-function uniqueOptions(field,parentData=enriched){return [...new Set(parentData.map(d=>d[field]).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt-BR"));}
-function fillSelect(id,values,current=""){const el=document.getElementById(id);el.innerHTML=`<option value="">Todos</option>`+values.map(v=>`<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");if(current&&values.includes(current))el.value=current;}
-function groupCount(arr,field){const m=new Map();arr.forEach(d=>m.set(d[field]||"Não informado",(m.get(d[field]||"Não informado")||0)+1));return [...m.entries()].sort((a,b)=>b[1]-a[1]);}
-function avg(arr,field){const vals=arr.map(d=>d[field]).filter(v=>Number.isFinite(v));return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;}
-
-function setupFilters(){
-  fillSelect("fDiretoria",uniqueOptions("diretoria"));fillSelect("fCoordenacao",uniqueOptions("coordenacao"));fillSelect("fGerencia",uniqueOptions("gerencia"));fillSelect("fSetor",uniqueOptions("setor"));
-  renderFuncaoMulti(uniqueOptions("funcaoAtuacao"));
-  ["fDiretoria","fCoordenacao","fGerencia","fSetor"].forEach(id=>document.getElementById(id).addEventListener("change",applyFilters));
-  document.getElementById("fBuscaAnalitico").addEventListener("input",updateTable);
-  document.getElementById("fFuncaoBtn").addEventListener("click",()=>document.getElementById("funcaoMulti").classList.toggle("open"));
-  document.getElementById("fFuncaoSearch").addEventListener("input",()=>renderFuncaoMulti(lastFuncaoOptions));
-  document.addEventListener("click",e=>{const box=document.getElementById("funcaoMulti");if(box&&!box.contains(e.target))box.classList.remove("open");});
-}
-function renderFuncaoMulti(values){
-  lastFuncaoOptions=values;
-  const q=norm(document.getElementById("fFuncaoSearch")?.value||"");
-  const list=document.getElementById("fFuncaoList");
-  const shown=values.filter(v=>!q||norm(v).includes(q));
-  list.innerHTML=shown.map(v=>`<label class="multiItem"><input type="checkbox" value="${escapeHtml(v)}" ${funcaoSelected.has(v)?"checked":""}/> <span>${escapeHtml(v)}</span></label>`).join("");
-  list.querySelectorAll('input[type="checkbox"]').forEach(chk=>chk.addEventListener("change",()=>{if(chk.checked)funcaoSelected.add(chk.value);else funcaoSelected.delete(chk.value);updateFuncaoButton();applyFilters(false);}));
-  updateFuncaoButton();
-}
-function updateFuncaoButton(){const btn=document.getElementById("fFuncaoBtn");const n=funcaoSelected.size;btn.textContent=n===0?"Todas as funções":n===1?[...funcaoSelected][0]:`${n} funções selecionadas`;}
-function clearFuncaoSelection(){funcaoSelected.clear();renderFuncaoMulti(lastFuncaoOptions);applyFilters(false);}
-function closeFuncaoPanel(){document.getElementById("funcaoMulti").classList.remove("open");}
-function applyFilters(refreshFuncao=true){
-  const diretoria=document.getElementById("fDiretoria").value, coordenacao=document.getElementById("fCoordenacao").value, gerencia=document.getElementById("fGerencia").value, setor=document.getElementById("fSetor").value;
-  const baseDiretoria=enriched.filter(d=>!diretoria||d.diretoria===diretoria);
-  fillSelect("fCoordenacao",uniqueOptions("coordenacao",baseDiretoria),coordenacao);
-  const coordVal=document.getElementById("fCoordenacao").value;
-  const baseCoord=baseDiretoria.filter(d=>!coordVal||d.coordenacao===coordVal);
-  fillSelect("fGerencia",uniqueOptions("gerencia",baseCoord),gerencia);
-  const gerVal=document.getElementById("fGerencia").value;
-  const baseGer=baseCoord.filter(d=>!gerVal||d.gerencia===gerVal);
-  fillSelect("fSetor",uniqueOptions("setor",baseGer),setor);
-  const setorVal=document.getElementById("fSetor").value;
-  const baseSetor=baseGer.filter(d=>!setorVal||d.setor===setorVal);
-  const validFuncoes=uniqueOptions("funcaoAtuacao",baseSetor);
-  funcaoSelected=new Set([...funcaoSelected].filter(v=>validFuncoes.includes(v)));
-  if(refreshFuncao)renderFuncaoMulti(validFuncoes);
-  filtered=baseSetor.filter(d=>funcaoSelected.size===0||funcaoSelected.has(d.funcaoAtuacao));
-  updateAll();
-}
-function resetFilters(){["fDiretoria","fCoordenacao","fGerencia","fSetor"].forEach(id=>document.getElementById(id).value="");funcaoSelected.clear();document.getElementById("fFuncaoSearch").value="";document.getElementById("fBuscaAnalitico").value="";applyFilters();}
-
-function updateKPIs(){
-  const total=filtered.length, ativos=filtered.filter(d=>d.ativo).length, afastados=filtered.filter(d=>d.afastado).length, r65=filtered.filter(d=>d.risco65).length, ecInformado=filtered.filter(d=>d.ecInformado).length, ecImpacto=filtered.filter(d=>d.atuaComEC).length, laudos=filtered.filter(d=>d.possuiLaudo).length;
-  const disponivel=Math.max(0,ativos-afastados-ecImpacto);
-  document.getElementById("kTotal").textContent=fmt(total);
-  document.getElementById("kDisponivel").textContent=fmt(disponivel);document.getElementById("kDisponivelSub").textContent=`${pct(disponivel,total)} do efetivo`;
-  document.getElementById("kAfastados").textContent=fmt(afastados);document.getElementById("kAfastadosSub").textContent=`${pct(afastados,total)} do efetivo`;
-  document.getElementById("k65").textContent=fmt(r65);document.getElementById("k65Sub").textContent=`${pct(r65,total)} do efetivo`;
-  document.getElementById("kLaudos").textContent=fmt(laudos);document.getElementById("kLaudosSub").textContent=`${pct(laudos,total)} do efetivo`;
-  document.getElementById("kEC").textContent=fmt(ecInformado);document.getElementById("kECSub").textContent=`${pct(ecInformado,total)} do efetivo`;
-}
-
-function initMap(){map=L.map("map",{zoomControl:false,preferCanvas:true}).setView([-22.9068,-43.1729],10);L.control.zoom({position:"bottomright"}).addTo(map);L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{attribution:"&copy; OpenStreetMap & CartoDB",maxZoom:19}).addTo(map);layerResidencia=L.layerGroup().addTo(map);layerTrabalho=L.layerGroup().addTo(map);layerRisco=L.layerGroup();document.querySelectorAll(".miniBtn[data-layer]").forEach(btn=>btn.addEventListener("click",()=>{const l=btn.dataset.layer;visibleLayers[l]=!visibleLayers[l];btn.classList.toggle("active",visibleLayers[l]);renderMap();}));}
-function circleMarker(lat,lon,color,radius,popupHtml){return L.circleMarker([lat,lon],{radius,color,weight:1.5,opacity:.95,fillColor:color,fillOpacity:.42,className:"markerGlow"}).bindPopup(popupHtml);}
-function popup(d,type){return `<div class="popupTitle">${escapeHtml(type)}</div><div class="popupLine"><b>${escapeHtml(d.nome||"Sem nome")}</b></div><div class="popupLine">Registro: ${escapeHtml(d.registro||"-")}</div><div class="popupLine">Gerência: ${escapeHtml(d.gerencia)}</div><div class="popupLine">Setor: ${escapeHtml(d.setor)}</div><div class="popupLine">FUNCAOCARGO: ${escapeHtml(d.funcao)}</div><div class="popupLine">FUNCAO_EC: ${escapeHtml(d.funcaoEC||"-")}</div><div class="popupLine">Atuação: ${escapeHtml(d.funcaoAtuacao)}</div><div class="popupLine">Afastamento: ${escapeHtml(d.afastamento||"-")}</div><div class="popupLine">Idade: ${escapeHtml(d.idade??"-")}</div><div class="popupLine">Laudo: ${d.possuiLaudo?"Sim":"Não"}</div><div class="popupLine">Residência: ${escapeHtml(d.bairroRes||"-")}</div><div class="popupLine">Trabalho: ${escapeHtml(d.bairroTrab||"-")}</div>`;}
-function renderMap(){if(!map)return;layerResidencia.clearLayers();layerTrabalho.clearLayers();layerRisco.clearLayers();const maxPoints=2200;const sample=filtered.length>maxPoints?filtered.filter((_,i)=>i%Math.ceil(filtered.length/maxPoints)===0):filtered;sample.forEach(d=>{if(d.cRes)circleMarker(d.cRes.lat,d.cRes.lon,"#38bdf8",d.risco65?7:4,popup(d,"Residência")).addTo(layerResidencia);if(d.cTrab)circleMarker(d.cTrab.lat,d.cTrab.lon,"#34d399",d.risco65?7:4,popup(d,"Local de trabalho")).addTo(layerTrabalho);if(d.risco65&&(d.cTrab||d.cRes)){const c=d.cTrab||d.cRes;circleMarker(c.lat,c.lon,"#fb7185",8,popup(d,"Risco de reposição 65+")).addTo(layerRisco);}});if(visibleLayers.residencia&&!map.hasLayer(layerResidencia))map.addLayer(layerResidencia);if(!visibleLayers.residencia&&map.hasLayer(layerResidencia))map.removeLayer(layerResidencia);if(visibleLayers.trabalho&&!map.hasLayer(layerTrabalho))map.addLayer(layerTrabalho);if(!visibleLayers.trabalho&&map.hasLayer(layerTrabalho))map.removeLayer(layerTrabalho);if(visibleLayers.risco&&!map.hasLayer(layerRisco))map.addLayer(layerRisco);if(!visibleLayers.risco&&map.hasLayer(layerRisco))map.removeLayer(layerRisco);}
-function fitMap(){const pts=[];filtered.forEach(d=>{if(d.cRes)pts.push([d.cRes.lat,d.cRes.lon]);if(d.cTrab)pts.push([d.cTrab.lat,d.cTrab.lon]);});if(pts.length)map.fitBounds(pts,{padding:[40,40],maxZoom:12});}
-
-function makeChart(id,type,labels,data,options={}){const ctx=document.getElementById(id);if(!ctx)return;if(charts[id])charts[id].destroy();charts[id]=new Chart(ctx,{type,data:{labels,datasets:[{data,borderWidth:1,borderRadius:10,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:"#06101e",titleColor:"#fff",bodyColor:"#cbd5e1",borderColor:"rgba(56,189,248,.25)",borderWidth:1}},scales:type==='doughnut'?{}:{x:{ticks:{color:"#94a3b8"},grid:{color:"rgba(148,163,184,.08)"}},y:{ticks:{color:"#94a3b8"},grid:{color:"rgba(148,163,184,.08)"}}},...options}});}
-function updateCharts(){
-  const faixas=[["Até 29",0,29],["30-39",30,39],["40-49",40,49],["50-59",50,59],["60-64",60,64],["65+",65,200]];makeChart("chartIdade","bar",faixas.map(f=>f[0]),faixas.map(f=>filtered.filter(d=>d.idade>=f[1]&&d.idade<=f[2]).length));
-  const topAfast=groupCount(filtered.filter(d=>d.afastado),"gerencia").filter(x=>x[0]!=="Não informado").slice(0,10);makeChart("chartAfastamento","bar",topAfast.map(x=>x[0]),topAfast.map(x=>x[1]),{indexAxis:"y"});
-  const topEC=groupCount(filtered.filter(d=>d.atuaComEC),"funcaoAtuacao").slice(0,10);makeChart("chartEC","bar",topEC.map(x=>x[0]),topEC.map(x=>x[1]),{indexAxis:"y"});
-}
-function updateInsights(){const total=filtered.length,ativos=filtered.filter(d=>d.ativo).length,afast=filtered.filter(d=>d.afastado).length,r65=filtered.filter(d=>d.risco65).length,ec=filtered.filter(d=>d.ecInformado).length,laudos=filtered.filter(d=>d.possuiLaudo).length;const disponivel=Math.max(0,ativos-afast-filtered.filter(d=>d.atuaComEC).length);const topGer=groupCount(filtered,"gerencia").filter(x=>x[0]!=="Não informado")[0]||["-",0];const topBairro=groupCount(filtered.filter(d=>!d.foraRio),"bairroRes").filter(x=>x[0]&&x[0]!=="Não informado")[0]||["-",0];const insights=[[`Disponibilidade real`,`${fmt(disponivel)} servidores permanecem disponíveis no recorte, equivalente a ${pct(disponivel,total)} do efetivo filtrado.`],[`Maior concentração gerencial`,`${topGer[0]} concentra ${fmt(topGer[1])} registros no filtro atual.`],[`Risco de reposição`,`${fmt(r65)} servidores possuem 65 anos ou mais, equivalente a ${pct(r65,total)} do recorte.`],[`EC informado`,`${fmt(ec)} servidores possuem FUNCAO_EC preenchida. O impacto operacional considera a regra de atuação informada.`],[`Afastamentos`,`${fmt(afast)} servidores possuem registro na coluna AFASTAMENTO.`],[`Laudos`,`${fmt(laudos)} servidores possuem laudo localizado na base complementar.`],[`Polo residencial RJ`,`${topBairro[0]} aparece como principal concentração residencial dentro do Rio.`]];document.getElementById("autoInsights").innerHTML=insights.map(i=>`<div class="insight"><div class="dot"></div><div><b>${escapeHtml(i[0])}</b><span>${escapeHtml(i[1])}</span></div></div>`).join("");}
-function renderTerritorialExecutivo(){const dentroRJ=filtered.filter(d=>!d.foraRio);const foraRJ=filtered.filter(d=>d.foraRio);const topRJ=groupCount(dentroRJ,"bairroRes").filter(x=>x[0]&&x[0]!=="Não informado").slice(0,5);const topEXT=groupCount(foraRJ,"bairroRes").filter(x=>x[0]&&x[0]!=="Não informado").slice(0,5);document.getElementById("rjTotal").textContent=fmt(dentroRJ.length);document.getElementById("extTotal").textContent=fmt(foraRJ.length);document.getElementById("topRJ").textContent=topRJ[0]?.[0]||"-";document.getElementById("topEXT").textContent=topEXT[0]?.[0]||"-";const maxRJ=Math.max(...topRJ.map(x=>x[1]),1),maxEXT=Math.max(...topEXT.map(x=>x[1]),1);document.getElementById("rankRJ").innerHTML=topRJ.map(([bairro,total])=>{const arr=dentroRJ.filter(d=>d.bairroRes===bairro);const r65=arr.filter(d=>d.risco65).length;const ec=arr.filter(d=>d.ecInformado).length;return `<div class="rankItem"><div class="rankTop"><div><div class="rankNome">${escapeHtml(bairro)}</div><div class="rankSub">65+: ${fmt(r65)} · EC: ${fmt(ec)}</div></div><div class="rankQtd">${fmt(total)}</div></div><div class="rankBar"><i style="width:${(total/maxRJ)*100}%"></i></div></div>`;}).join("");document.getElementById("rankEXT").innerHTML=topEXT.map(([bairro,total])=>{const arr=foraRJ.filter(d=>d.bairroRes===bairro);const r65=arr.filter(d=>d.risco65).length;const ec=arr.filter(d=>d.ecInformado).length;return `<div class="rankItem"><div class="rankTop"><div><div class="rankNome">${escapeHtml(bairro)}</div><div class="rankSub">65+: ${fmt(r65)} · EC: ${fmt(ec)}</div></div><div class="rankQtd">${fmt(total)}</div></div><div class="rankBar"><i style="width:${(total/maxEXT)*100}%"></i></div></div>`;}).join("");}
-function renderGerenciaScores(){const byGer=groupCount(filtered,"gerencia").filter(x=>x[0]!=="Não informado").slice(0,8).map(([ger,total])=>{const arr=filtered.filter(d=>d.gerencia===ger);const ativos=arr.filter(d=>d.ativo).length,afast=arr.filter(d=>d.afastado).length,ec=arr.filter(d=>d.ecInformado).length,ecImpacto=arr.filter(d=>d.atuaComEC).length,laudo=arr.filter(d=>d.possuiLaudo).length,r65=arr.filter(d=>d.risco65).length,disp=Math.max(0,ativos-afast-ecImpacto);return{ger,total,disp,afast,ec,laudo,r65,score:total?disp/total*100:0};});document.getElementById("gerenciaScores").innerHTML=byGer.map((x,i)=>`<div class="scoreCard"><div class="rank">#${i+1} perfil gerencial</div><h4>${escapeHtml(x.ger)}</h4><p>${fmt(x.total)} servidores · disp. ${fmt(x.disp)} (${pct(x.disp,x.total)}) · afast. ${fmt(x.afast)} · EC ${fmt(x.ec)} · laudos ${fmt(x.laudo)} · 65+ ${fmt(x.r65)}</p><div class="bar"><i style="width:${Math.max(8,x.score)}%"></i></div></div>`).join("");}
-function renderECInsights(){const totalEC=filtered.filter(d=>d.atuaComEC).length;const ecInfo=filtered.filter(d=>d.ecInformado).length;const topEC=groupCount(filtered.filter(d=>d.atuaComEC),"funcaoAtuacao")[0]||["-",0];const gariEncarregado=filtered.filter(d=>norm(d.funcao).includes("GARI")&&norm(d.funcaoEC).includes("ENCARREGADO")).length;document.getElementById("ecInsights").innerHTML=`<div class="insight"><div class="dot"></div><div><b>EC informado</b><span>${fmt(ecInfo)} servidores possuem FUNCAO_EC preenchida.</span></div></div><div class="insight"><div class="dot"></div><div><b>Impacto na atuação</b><span>${fmt(totalEC)} servidores atuam pela FUNCAO_EC após aplicação da regra operacional.</span></div></div><div class="insight"><div class="dot"></div><div><b>GARI com EC de encarregado</b><span>${fmt(gariEncarregado)} permanecem classificados como GARI na função de atuação.</span></div></div><div class="insight"><div class="dot"></div><div><b>Principal atuação via EC</b><span>${escapeHtml(topEC[0])} concentra ${fmt(topEC[1])} atuações.</span></div></div>`;}
-function renderECScores(){const byFuncao=groupCount(filtered.filter(d=>d.atuaComEC),"funcaoAtuacao").slice(0,8);const max=byFuncao[0]?.[1]||1;document.getElementById("ecScores").innerHTML=byFuncao.map(([f,t],i)=>`<div class="scoreCard"><div class="rank">#${i+1} atuação EC</div><h4>${escapeHtml(f)}</h4><p>${fmt(t)} servidores atuando via EC.</p><div class="bar"><i style="width:${Math.max(10,t/max*100)}%"></i></div></div>`).join("");
-  const combo=new Map();filtered.filter(d=>d.ecInformado).forEach(d=>{const k=`${d.funcao} → ${d.funcaoEC}`;combo.set(k,(combo.get(k)||0)+1);});const combos=[...combo.entries()].sort((a,b)=>b[1]-a[1]).slice(0,8);const maxC=combos[0]?.[1]||1;document.getElementById("ecCargoScores").innerHTML=combos.map(([c,t],i)=>`<div class="scoreCard"><div class="rank">#${i+1} combinação</div><h4>${escapeHtml(c)}</h4><p>${fmt(t)} registros com essa combinação.</p><div class="bar"><i style="width:${Math.max(10,t/maxC*100)}%"></i></div></div>`).join("");}
-function renderSaudeScores(){const byGer=groupCount(filtered,"gerencia").filter(x=>x[0]!=="Não informado").slice(0,8).map(([g,t])=>{const arr=filtered.filter(d=>d.gerencia===g);return{ger:g,total:t,afast:arr.filter(d=>d.afastado).length,laudo:arr.filter(d=>d.possuiLaudo).length,r65:arr.filter(d=>d.risco65).length,idade:avg(arr,"idade")};}).sort((a,b)=>(b.afast+b.laudo+b.r65)-(a.afast+a.laudo+a.r65));const max=Math.max(...byGer.map(x=>x.afast+x.laudo+x.r65),1);document.getElementById("saudeScores").innerHTML=byGer.map((x,i)=>`<div class="scoreCard"><div class="rank">#${i+1} pressão ocupacional</div><h4>${escapeHtml(x.ger)}</h4><p>${fmt(x.afast)} afastados · ${fmt(x.laudo)} laudos · ${fmt(x.r65)} com 65+ · média ${x.idade.toFixed(1).replace('.',',')} anos</p><div class="bar"><i style="width:${Math.max(10,((x.afast+x.laudo+x.r65)/max)*100)}%"></i></div></div>`).join("");}
-function updateTable(){const busca=norm(document.getElementById("fBuscaAnalitico")?.value||"");let arr=filtered;if(busca){arr=arr.filter(d=>norm([d.nome,d.registro,d.diretoria,d.coordenacao,d.gerencia,d.setor,d.funcao,d.funcaoEC,d.funcaoAtuacao,d.bairroRes,d.bairroTrab,d.afastamento].join(" ")).includes(busca));}const cols=["registro","nome","diretoria","coordenacao","gerencia","setor","funcao","funcaoEC","funcaoAtuacao","ecInformado","atuaComEC","situacao","afastamento","idade","bairroRes","bairroTrab","statusRes","foraRio","risco65","possuiLaudo","qtdLaudos","tiposLaudos"];const labels=["Registro","Nome","Diretoria","Coord./Super.","Gerência","Setor","FUNCAOCARGO","FUNCAO_EC","Função de Atuação","EC informado","Atua pela EC","Situação","Afastamento","Idade","Bairro Res.","Bairro Trabalho","Status Res.","Fora Rio","Risco 65+","Possui Laudo","Qtd. Laudos","Tipo(s) Laudo(s)"];const rows=arr.slice(0,1200);document.getElementById("dataTable").innerHTML=`<thead><tr>${labels.map(l=>`<th>${escapeHtml(l)}</th>`).join("")}</tr></thead><tbody>${rows.map(d=>`<tr>${cols.map(c=>`<td>${d[c]===true?"Sim":d[c]===false?"Não":escapeHtml(d[c]??"")}</td>`).join("")}</tr>`).join("")}</tbody>`;}
-function updateAll(){updateKPIs();renderMap();updateCharts();updateInsights();renderTerritorialExecutivo();renderGerenciaScores();renderECInsights();renderECScores();renderSaudeScores();updateTable();updateDebug();}
-function exportExcel(){const data=filtered.map(d=>({Registro:d.registro,Nome:d.nome,Diretoria:d.diretoria,Coordenacao_Superintendencia:d.coordenacao,Gerencia:d.gerencia,Setor:d.setor,FUNCAOCARGO:d.funcao,FUNCAO_EC:d.funcaoEC,Funcao_Atuacao:d.funcaoAtuacao,EC_Informado:d.ecInformado?"Sim":"Não",Atua_pela_EC:d.atuaComEC?"Sim":"Não",Situacao:d.situacao,Afastamento:d.afastamento,IdadeAnos:d.idade,Bairro_Residencia:d.bairroRes,Bairro_Trabalho:d.bairroTrab,Status_Residencia:d.statusRes,Fora_Rio:d.foraRio?"Sim":"Não",Risco_65:d.risco65?"Sim":"Não",Possui_Laudo:d.possuiLaudo?"Sim":"Não",Qtd_Laudos:d.qtdLaudos,Tipos_Laudos:d.tiposLaudos,Lat_Residencia:d.cRes?.lat||"",Long_Residencia:d.cRes?.lon||"",Lat_Trabalho:d.cTrab?.lat||"",Long_Trabalho:d.cTrab?.lon||""}));const ws=XLSX.utils.json_to_sheet(data);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Analitico");XLSX.writeFile(wb,"HUB_COMLURB_analitico_v8.xlsx");}
-function setupTabs(){document.querySelectorAll(".tabBtn").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll(".tabBtn").forEach(b=>b.classList.remove("active"));document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));btn.classList.add("active");document.getElementById(btn.dataset.view).classList.add("active");setTimeout(()=>{if(map)map.invalidateSize();},150);}));}
-function toggleDebug(){const el=document.getElementById("debugBox");el.style.display=el.style.display==="block"?"none":"block";updateDebug();}
-function updateDebug(){const el=document.getElementById("debugBox");if(!el)return;const geoRes=enriched.filter(d=>d.cRes).length,geoTrab=enriched.filter(d=>d.cTrab).length,semOrg=enriched.filter(d=>d.gerencia==="Não informado"||d.diretoria==="Não informado").length;el.textContent=["DIAGNÓSTICO DE CARGA",...loadReport,"",`R54: ${fmt(rawR54.length)} linhas`,`Organograma Master: ${fmt(rawOrg.length)} linhas`,`Laudos: ${fmt(rawLaudos.length)} linhas`,`Bairros Rio: ${fmt(coordBairros.size)} coordenadas`,`Locais Trabalho: ${fmt(coordTrabalho.size)} coordenadas`,`Master Coordenadas: ${fmt(coordMaster.size)} coordenadas`,`Municípios Externos: ${fmt(coordExternos.size)} coordenadas`,`Residências geocodificadas: ${fmt(geoRes)}`,`Trabalhos geocodificados: ${fmt(geoTrab)}`,`Sem organograma encontrado: ${fmt(semOrg)}`].join("\n");}
-async function boot(){setupTabs();initMap();try{setStatus("Carregando R54...");rawR54=await loadCSV(URLS.R54,"R54",true);if(rawR54.length<15000)loadReport.push(`⚠️ ALERTA: A R54 carregou apenas ${fmt(rawR54.length)} linhas. A base esperada tem cerca de 18 mil pessoas.`);setStatus("Carregando bases complementares...");const [org,laudos,bairros,trab,master,externos]=await Promise.all([loadCSV(URLS.MASTER_ORGANOGRAMA,"Organograma Master",true),loadCSV(URLS.LAUDOS,"Laudos",false),loadCSV(URLS.BAIRROS_RIO,"Coordenadas bairros Rio",false),loadCSV(URLS.LOCAIS_TRABALHO,"Coordenadas locais trabalho",false),loadCSV(URLS.MASTER_COORDENADAS,"Coordenadas master",false),loadCSV(URLS.MUNICIPIOS_EXTERNOS,"Coordenadas municípios externos",false)]);rawOrg=org;rawLaudos=laudos;orgMap=buildOrgMap(rawOrg);laudosMap=buildLaudosMap(rawLaudos);coordBairros=buildCoordMap(bairros);coordTrabalho=buildCoordMap(trab);coordMaster=buildCoordMap(master);coordExternos=buildCoordMap(externos);enrichData();setupFilters();updateAll();fitMap();setStatus(`Atualizado em ${new Date().toLocaleDateString("pt-BR")} · ${fmt(enriched.length)} registros carregados`);}catch(err){console.error(err);setStatus("Erro ao carregar bases. Abra Diagnóstico.");loadReport.push(`❌ ERRO GERAL: ${err.message||err}`);updateDebug();document.getElementById("autoInsights").innerHTML=`<div class="insight"><div class="dot"></div><div><b>Erro de carregamento</b><span>${escapeHtml(err.message||err)}</span></div></div>`;}}
-boot();
-</script>
-</body>
-</html>
