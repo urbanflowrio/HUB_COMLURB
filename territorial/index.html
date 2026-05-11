@@ -37,57 +37,47 @@ body{
 }
 .app{max-width:1840px;margin:0 auto;padding:28px}
 .header{
-  border:1px solid var(--line);border-radius:24px;background:linear-gradient(135deg,#0a1b31,#0d1f36);
-  box-shadow:var(--shadow);position:sticky;top:12px;z-index:20;backdrop-filter:blur(14px);overflow:hidden
+  border:1px solid var(--line);border-radius:22px;
+  background:linear-gradient(135deg,#0a1b31,#0d1f36);
+  box-shadow:var(--shadow);position:sticky;top:12px;z-index:20;
+  backdrop-filter:blur(14px);padding:20px 24px;display:flex;
+  flex-direction:column;gap:16px
 }
-.headerTop{
-  display:flex;align-items:center;gap:32px;padding:24px 28px;border-bottom:1px solid rgba(255,255,255,.08)
-}
-.logoGroup{display:flex;align-items:center;gap:20px;min-width:fit-content}
-.logoPrefeitura{display:flex;align-items:center;gap:14px}
-.logoBox{
-  width:58px;height:58px;display:flex;align-items:center;justify-content:center;color:#fff
-}
-.prefeituraText{display:flex;flex-direction:column;line-height:1}
-.prefLabel{font-size:10px;font-weight:900;letter-spacing:.15em;color:#b8d4f2}
-.prefRio{font-size:32px;font-weight:950;letter-spacing:-1px;color:#fff}
-.logoDivider{width:1px;height:48px;background:rgba(255,255,255,.2)}
-.comlurbBrand{
-  font-size:36px;font-weight:900;letter-spacing:-.5px;color:#fff;padding:0 12px
+.logoImg{
+  width:280px;height:auto;max-height:60px;object-fit:contain;
+  margin-bottom:8px
 }
 .headerContent{flex:1;min-width:0}
-.systemLabel{font-size:11px;font-weight:900;letter-spacing:.28em;color:#b8d4f2;text-transform:uppercase}
+.systemLabel{
+  font-size:11px;font-weight:900;letter-spacing:.28em;
+  color:#b8d4f2;text-transform:uppercase
+}
 .mainTitle{
-  margin:6px 0 8px;font-size:clamp(24px,2.8vw,36px);letter-spacing:-1px;line-height:1.1;color:#fff;
+  margin:6px 0 8px;font-size:clamp(24px,2.8vw,32px);
+  letter-spacing:-1px;line-height:1.1;color:#fff;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap
 }
 .subtitle{
   color:#c7d8ee;font-size:13px;line-height:1.4;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis
+  display:-webkit-box;-webkit-line-clamp:2;
+  -webkit-box-orient:vertical;overflow:hidden;
+  text-overflow:ellipsis
 }
 .navTabs{
-  display:flex;gap:10px;padding:16px 28px;flex-wrap:wrap;align-items:center
+  display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+  padding-top:12px;border-top:1px solid rgba(255,255,255,.08)
 }
 .statusIndicator{
-  margin-left:auto;text-align:right;padding:8px 14px;background:rgba(19,40,64,.6);
-  border-radius:12px;border:1px solid rgba(255,255,255,.08);min-width:140px
+  margin-left:auto;text-align:right;padding:8px 14px;
+  background:rgba(19,40,64,.6);border-radius:12px;
+  border:1px solid rgba(255,255,255,.08);min-width:140px
 }
-.statusIndicator small{display:block;color:#a8bdd5;font-size:9px;letter-spacing:.14em;font-weight:900}
-.statusIndicator b{display:block;font-size:16px;margin-top:4px;color:#80d199}
-
-@media(max-width:1100px){
-  .headerTop{flex-direction:column;align-items:flex-start;gap:20px}
-  .logoGroup{flex-wrap:wrap}
-  .comlurbBrand{font-size:28px}
-  .statusIndicator{margin-left:0;width:100%}
+.statusIndicator small{
+  display:block;color:#a8bdd5;font-size:9px;
+  letter-spacing:.14em;font-weight:900
 }
-@media(max-width:720px){
-  .header{position:relative;top:0}
-  .logoBox{width:48px;height:48px}
-  .prefRio{font-size:26px}
-  .comlurbBrand{font-size:24px;padding:0 8px}
-  .mainTitle{font-size:22px}
-  .navTabs{padding:12px 16px}
+.statusIndicator b{
+  display:block;font-size:16px;margin-top:4px;color:#80d199
 }
 .multiBox{position:relative}
 .multiBtn{width:100%;background:transparent;color:#fff;border:0;font-weight:800;font-size:15px;text-align:left;cursor:pointer;display:flex;justify-content:space-between;gap:10px;align-items:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -102,7 +92,8 @@ body{
 .multiActions{display:flex;gap:8px;margin-top:10px}
 .multiActions button{flex:1;border:1px solid var(--line);background:#132840;color:#dcecff;border-radius:10px;padding:8px;font-weight:900;cursor:pointer}
 .geoMapReal{
-  position:relative;min-height:480px;border-radius:18px;border:1px solid rgba(255,255,255,.08);overflow:hidden;
+  position:relative;min-height:320px;border-radius:18px;
+  border:1px solid rgba(255,255,255,.08);overflow:hidden;
   background:
     radial-gradient(circle at 25% 34%,rgba(91,155,213,.48),transparent 18%),
     radial-gradient(circle at 57% 47%,rgba(55,214,255,.35),transparent 16%),
@@ -119,9 +110,11 @@ body{
   background-size:40px 40px
 }
 .geoPoint{
-  position:absolute;width:22px;height:22px;border-radius:999px;background:#5b9bd5;
+  position:absolute;width:22px;height:22px;border-radius:999px;
+  background:#5b9bd5;
   box-shadow:0 0 28px rgba(91,155,213,.95),0 0 50px rgba(91,155,213,.4);
-  border:3px solid rgba(255,255,255,.75);cursor:pointer;transition:.25s;animation:pointPulse 3s ease-in-out infinite
+  border:3px solid rgba(255,255,255,.75);cursor:pointer;
+  transition:.25s;animation:pointPulse 3s ease-in-out infinite
 }
 @keyframes pointPulse{
   0%,100%{transform:scale(1);opacity:1}
@@ -133,26 +126,16 @@ body{
 .geoPoint.p3{left:72%;top:68%;background:#e87535;box-shadow:0 0 28px rgba(232,117,53,.95),0 0 50px rgba(232,117,53,.4);animation-delay:1.2s}
 .geoPoint.p4{left:42%;top:70%;background:#78aaa3;box-shadow:0 0 28px rgba(120,170,163,.95),0 0 50px rgba(120,170,163,.4);animation-delay:1.8s}
 .geoPoint.p5{left:80%;top:38%;background:#a78bfa;box-shadow:0 0 28px rgba(167,139,250,.95),0 0 50px rgba(167,139,250,.4);animation-delay:2.4s}
-.geoOverlay{
-  position:absolute;left:20px;right:20px;bottom:20px;
-  background:rgba(6,17,31,.92);backdrop-filter:blur(10px);
-  border:1px solid rgba(255,255,255,.14);border-radius:18px;padding:18px;
-  box-shadow:0 12px 40px rgba(0,0,0,.4)
-}
-.geoHeader{margin-bottom:14px}
-.geoHeader b{display:block;font-size:16px;margin-bottom:4px;color:#fff}
-.geoHeader span{color:#c7d8ee;font-size:12px;line-height:1.4}
-.geoStats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
-.geoStatItem{background:rgba(19,40,64,.7);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:10px;text-align:center}
-.geoStatItem small{display:block;color:#a8bdd5;font-size:8px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
-.geoStatValue{font-size:18px;font-weight:950;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.geoChips{display:flex;gap:8px;flex-wrap:wrap}
 .geoChip{
-  border:1px solid #345978;border-radius:999px;padding:8px 12px;color:#dcecff;
-  font-weight:800;font-size:12px;background:rgba(19,40,64,.70);cursor:pointer;transition:.2s;
-  display:flex;align-items:center;gap:6px
+  border:1px solid #345978;border-radius:999px;padding:8px 12px;
+  color:#dcecff;font-weight:800;font-size:12px;
+  background:rgba(19,40,64,.70);cursor:pointer;transition:.2s;
+  display:inline-flex;align-items:center;gap:6px
 }
-.geoChip:hover{border-color:#6fa7d8;transform:translateY(-2px);background:rgba(19,40,64,.95)}
+.geoChip:hover{
+  border-color:#6fa7d8;transform:translateY(-2px);
+  background:rgba(19,40,64,.95)
+}
 .geoChip span{font-size:14px}
 .geoChip b{font-weight:950}
 @media(max-width:720px){.logoComlurb{width:220px;min-width:0;border-right:0;padding-right:0}.logoMain{font-size:34px}}
@@ -318,8 +301,8 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
 .footer{margin-top:16px;color:#aebfd5;font-size:13px}
 @media(max-width:1400px){.kpis{grid-template-columns:repeat(3,1fr)}.alerts{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:1280px){.filters{grid-template-columns:repeat(3,1fr) auto auto}.commandHero,.grid2{grid-template-columns:1fr}.kpi.feature{grid-column:span 1}}
-@media(max-width:1100px){.filters{grid-template-columns:1fr auto auto}.kpis{grid-template-columns:repeat(2,1fr)}.grid,.bottom{grid-template-columns:1fr}.alerts{grid-template-columns:repeat(2,1fr)}.headerTop{flex-direction:column;align-items:flex-start}.statusIndicator{width:100%;margin-left:0}}
-@media(max-width:720px){.app{padding:14px}.header{position:relative;top:0}.logoBox{width:48px;height:48px}.prefRio{font-size:26px}.comlurbBrand{font-size:24px;padding:0 8px}.mainTitle{font-size:22px}.navTabs{padding:12px 16px;gap:8px}.statusIndicator{padding:6px 10px}.kpis,.alerts,.matrix{grid-template-columns:1fr}.barRow{grid-template-columns:1fr}.num,.pct{text-align:left}.donutRow{grid-template-columns:1fr}.drillBanner{align-items:flex-start;flex-direction:column}.geoStats{grid-template-columns:1fr}.geoOverlay{left:12px;right:12px;bottom:12px;padding:12px}}
+@media(max-width:1100px){.filters{grid-template-columns:1fr auto}.kpis{grid-template-columns:repeat(2,1fr)}.grid,.bottom{grid-template-columns:1fr}.alerts{grid-template-columns:repeat(2,1fr)}.statusIndicator{width:100%;margin-left:0}}
+@media(max-width:720px){.app{padding:14px}.header{position:relative;top:0}.logoImg{width:200px}.mainTitle{font-size:20px}.navTabs{gap:8px}.statusIndicator{padding:6px 10px}.kpis,.alerts,.matrix{grid-template-columns:1fr}.barRow{grid-template-columns:1fr}.num,.pct{text-align:left}.donutRow{grid-template-columns:1fr}.drillBanner{align-items:flex-start;flex-direction:column}}
 
 /* CSS para impressão */
 @media print{
@@ -336,29 +319,12 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
 <div class="app">
 
   <header class="header">
-    <div class="headerTop">
-      <div class="logoGroup">
-        <div class="logoPrefeitura">
-          <div class="logoBox">
-            <svg viewBox="0 0 100 100" style="width:100%;height:100%">
-              <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="3"/>
-              <text x="50" y="58" text-anchor="middle" font-size="48" font-weight="900" fill="currentColor">R</text>
-            </svg>
-          </div>
-          <div class="prefeituraText">
-            <div class="prefLabel">PREFEITURA</div>
-            <div class="prefRio">RIO</div>
-          </div>
-        </div>
-        <div class="logoDivider"></div>
-        <div class="comlurbBrand">Comlurb</div>
-      </div>
-      
-      <div class="headerContent">
-        <div class="systemLabel">COMLURB - RADAR DE PESSOAS</div>
-        <h1 class="mainTitle">Perfil Funcional e Territorial</h1>
-        <div class="subtitle">Leitura executiva da força de trabalho, disponibilidade operacional, risco de reposição e aderência territorial</div>
-      </div>
+    <img src="data:image/png;base64,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" class="logoImg" alt="Prefeitura do Rio + Comlurb">
+    
+    <div class="headerContent">
+      <div class="systemLabel">COMLURB - RADAR DE PESSOAS</div>
+      <h1 class="mainTitle">Perfil Funcional e Territorial</h1>
+      <div class="subtitle">Leitura executiva da força de trabalho, disponibilidade operacional, risco de reposição e aderência territorial</div>
     </div>
     
     <div class="navTabs">
@@ -419,7 +385,6 @@ h2{margin:0;font-size:18px}.hint{color:#c7d8ee;font-size:13px;margin-top:5px;lin
       </div>
     </div>
     <button class="actionBtn" onclick="clearAll()">Limpar</button>
-    <button class="actionBtn" onclick="exportPDF()">📄 PDF</button>
   </section>
 
   <div class="drillBanner" id="drillBanner">
@@ -1327,29 +1292,29 @@ function renderTerritorialMap(arr,total){
   `).join("");
 
   $("rankCidades").innerHTML = `
+    <div style="background:rgba(13,31,54,.96);border:1px solid var(--line);border-radius:20px;padding:16px;margin-bottom:14px">
+      <div style="margin-bottom:12px">
+        <b style="display:block;font-size:16px;margin-bottom:4px;color:#fff">Mapa territorial de residência</b>
+        <span style="color:#c7d8ee;font-size:12px;line-height:1.4">Concentração visual dos principais municípios/bairros</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px">
+        <div style="background:rgba(19,40,64,.7);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:10px;text-align:center">
+          <small style="display:block;color:#a8bdd5;font-size:8px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px">PRINCIPAL MUNICÍPIO</small>
+          <div style="font-size:15px;font-weight:950;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(principal[0])}</div>
+        </div>
+        <div style="background:rgba(19,40,64,.7);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:10px;text-align:center">
+          <small style="display:block;color:#a8bdd5;font-size:8px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px">SERVIDORES</small>
+          <div style="font-size:18px;font-weight:950;color:#fff">${principal[1] ? fmtInt(principal[1]) : '0'}</div>
+        </div>
+        <div style="background:rgba(19,40,64,.7);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:10px;text-align:center">
+          <small style="display:block;color:#a8bdd5;font-size:8px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px">CONCENTRAÇÃO</small>
+          <div style="font-size:18px;font-weight:950;color:#fff">${principal[1] ? fmtPct(pct(principal[1],total)) : '0%'}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">${chips || '<span class="empty">Sem dados territoriais</span>'}</div>
+    </div>
     <div class="geoMapReal">
       ${points}
-      <div class="geoOverlay">
-        <div class="geoHeader">
-          <b>Mapa territorial de residência</b>
-          <span>Concentração visual dos principais municípios/bairros</span>
-        </div>
-        <div class="geoStats">
-          <div class="geoStatItem">
-            <small>PRINCIPAL MUNICÍPIO</small>
-            <div class="geoStatValue">${esc(principal[0])}</div>
-          </div>
-          <div class="geoStatItem">
-            <small>SERVIDORES</small>
-            <div class="geoStatValue">${principal[1] ? fmtInt(principal[1]) : '0'}</div>
-          </div>
-          <div class="geoStatItem">
-            <small>CONCENTRAÇÃO</small>
-            <div class="geoStatValue">${principal[1] ? fmtPct(pct(principal[1],total)) : '0%'}</div>
-          </div>
-        </div>
-        <div class="geoChips">${chips || '<span class="empty">Sem dados territoriais</span>'}</div>
-      </div>
     </div>
   `;
 }
