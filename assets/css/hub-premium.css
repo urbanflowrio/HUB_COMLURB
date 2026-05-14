@@ -863,9 +863,15 @@ h2 {
   margin-top: 40px;
   padding: 20px;
   color: #aebfd5;
-  font-size: 13px;
-  text-align: center;
+  font-size: 12px;
+  text-align: left;  /* ← Mudou de center pra left */
   border-top: 1px solid var(--line);
+  opacity: 0.7;  /* ← Fica mais discreto */
+}
+
+.footerContent {
+  max-width: 800px;
+  margin: 0;  /* ← Remove centralização */
 }
 
 .footerContent {
