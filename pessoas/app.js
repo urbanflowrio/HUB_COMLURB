@@ -65,12 +65,15 @@ const PessoasApp = {
       // Renderiza
       this.render();
       
-      // Footer
-      HUB.footer.render("footer", {
-        author: "Greicy Moreira",
-        contact: "greicymoreira@comlurb.rio",
-        version: "2.0 (Refatorado)"
-      });
+// Footer
+HUB.footer.render("footer", {
+  customText: `
+    <strong>Gabinete da Presidência</strong><br>
+    HUB COMLURB • Núcleo de Inteligência e Gestão Estratégica Operacional
+  `,
+  version: "2.0",
+  showTimestamp: false
+});
       
     } catch (e) {
       console.error("Erro ao inicializar:", e);
