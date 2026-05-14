@@ -1,232 +1,157 @@
-# Painel Pessoas - Versão Refatorada
+# 🏥 Painel SMS - Limpeza e Higienização Hospitalar
 
-Painel de Gestão de Pessoas do HUB COMLURB, refatorado usando o sistema de componentes reutilizáveis.
+## 📋 Descrição
 
-## 📊 O Que É
+Plataforma executiva de monitoramento operacional e financeiro do contrato de limpeza e higienização hospitalar da rede municipal de saúde do Rio de Janeiro. 
 
-Leitura executiva da força de trabalho da COMLURB com 5 telas de análise:
-1. **Visão Geral** - KPIs principais, distribuição por diretoria
-2. **Saúde Ocupacional** - Laudos, afastamentos, riscos
-3. **Afastamentos** - Análise detalhada de afastamentos
-4. **Demográfico** - Idade, sexo, escolaridade, distribuição territorial
-5. **Analítico** - Base enriquecida com exportação Excel
+O painel integra indicadores de postos contratados, faturamento, efetivo operacional, containers de resíduos e distribuição territorial das unidades atendidas, permitindo leitura estratégica da execução contratual em diferentes níveis de gestão.
 
-## 🔄 Diferenças da Versão Anterior
+---
 
-### ANTES (versão original)
-- **1 arquivo HTML** com ~2500 linhas
-- Todo código inline (HTML + CSS + JS misturado)
-- Difícil manter e evoluir
-- Repetir código em cada painel novo
+## 🏥 Unidades Hospitalares
 
-### DEPOIS (versão refatorada)
-- **4 arquivos separados** com ~550 linhas totais
-- Código organizado e modular
-- Usa componentes reutilizáveis do HUB
-- Template para novos painéis
+### **Ativas no Contrato:**
 
-## 📁 Estrutura de Arquivos
+1. **Hospital Municipal Miguel Couto**
+   - Receita Mensal: R$ 1.260.796
+   - Efetivo: 111 garis
+   - Localização: -22.9856, -43.2009
+
+2. **Hospital Municipal Salgado Filho**
+   - Receita Mensal: R$ 1.201.051
+   - Efetivo: 106 garis
+   - Localização: -22.8897, -43.2827
+
+3. **Hospital Municipal Lourenço Jorge / Maternidade Leila Diniz**
+   - Receita Mensal: R$ 1.576.412
+   - Efetivo: 145 garis
+   - Localização (HM Lourenço Jorge): -22.9749, -43.3654
+   - Localização (Maternidade Leila Diniz): -22.9147, -43.2303
+
+### **Saída do Contrato:**
+
+4. **Hospital Municipal Ronaldo Gazolla**
+   - Status: Inativo desde meados de 2024
+   - Último faturamento: Junho/2024
+
+---
+
+## 📊 Indicadores Principais
+
+- **Unidades Ativas:** 3 hospitais
+- **Efetivo Total:** 362 garis
+- **Expectativa Mensal:** R$ 4.038.260
+- **Vencimento:** 01/01/2028
+- **Reajuste:** Bienal
+
+---
+
+## 📂 Estrutura de Arquivos
 
 ```
-/pessoas_refatorado/
-  ├── index.html       (~200 linhas) - Estrutura HTML
-  ├── data.js          (~150 linhas) - Carregamento e enriquecimento
-  ├── screens.js       (~180 linhas) - Renderização das 5 telas
-  ├── app.js           (~120 linhas) - Orquestração e controle
-  └── README.md        (este arquivo)
+/sms/
+├── index.html       # Estrutura HTML com 3 telas
+├── data.js          # Carregamento e processamento de dados
+├── screens.js       # Renderização das telas
+├── app.js           # Orquestração e controle
+└── README.md        # Este arquivo
 ```
 
-**Total: ~650 linhas** (vs ~2500 na versão original)
+---
 
-## 🚀 Como Funciona
+## 🔗 Fontes de Dados
 
-### 1. Carregamento de Dados (data.js)
-
-```javascript
-// Carrega 3 bases em paralelo
-const data = await PessoasData.load();
-// Retorna array enriquecido com flags e campos calculados
+### **CSV 1: Faturamento Histórico**
+```
+https://docs.google.com/spreadsheets/d/e/2PACX-1vQr5S1R56YvP2uYOVJorK3b5CxUghxDNyZu6V6t7Kq_hoxJoj4zrTQVh77NGZPm_IdrBT_xwIU3pca9/pub?gid=24719560&single=true&output=csv
 ```
 
-**Fontes:**
-- R54 (base funcional)
-- Laudos ocupacionais
-- Organograma oficial
+**Colunas:**
+- ANO, MÊS
+- HOSPITAL MUNICIPAL LOURENÇO JORGE/MATERNIDADE LEILA DINIZ
+- HOSPITAL MUNICIPAL MIGUEL COUTO
+- HOSPITAL MUNICIPAL RONALDO GAZOLLA
+- HOSPITAL MUNICIPAL SALGADO FILHO
 
-**Enriquecimento:**
-- Cruza laudos por matrícula
-- Cruza organograma por setor
-- Define função de atuação (cargo vs EC)
-- Calcula flags (ativo, afastado, riscos)
-
-### 2. Renderização (screens.js)
-
-Cada tela tem sua função própria:
-- `renderVisaoGeral(data)`
-- `renderSaude(data)`
-- `renderAfastamentos(data)`
-- `renderDemografico(data)`
-- `renderAnalitico(data)`
-
-Todas usam os componentes do HUB:
-```javascript
-HUB.cards.render("kpis", [...]);
-HUB.simpleBar.render("chart", data, options);
+### **CSV 2: Containers (Consolidado)**
+```
+https://docs.google.com/spreadsheets/d/e/2PACX-1vQr5S1R56YvP2uYOVJorK3b5CxUghxDNyZu6V6t7Kq_hoxJoj4zrTQVh77NGZPm_IdrBT_xwIU3pca9/pub?output=csv
 ```
 
-### 3. Controle (app.js)
+**Colunas:**
+- HOSPITAL
+- TOTAL (containers totais)
+- RSS (containers de resíduos sólidos de saúde)
 
-Orquestra tudo:
-- Inicializa painel
-- Gerencia filtros (cascata)
-- Aplica drill down
-- Salva estado (localStorage)
-- Coordena renderização
+**Atualização:** Automática via planilha Google Sheets
 
-## 🎯 Funcionalidades
+---
 
-### Filtros Cascata
-- Diretoria → Superintendência → Gerência → Setor
-- Tipo de cargo
-- Situação (ativo, afastado, laudo, risco 65+)
-- Multi-select de funções
+## 🖥️ Telas do Painel
 
-### Drill Down
-Clique em qualquer gráfico/KPI para filtrar:
-- KPIs clicáveis
-- Barras clicáveis
-- Faixas etárias clicáveis
+### **1. Visão Executiva**
+- 5 KPIs principais (unidades, faturamento, garis, containers)
+- Gráfico de faturamento por hospital
+- Resumo do contrato
+- Mapa com distribuição territorial
 
-### Exportação
-- Excel com base enriquecida
-- Mantém filtros aplicados
+### **2. Estrutura Contratual**
+- Cards detalhados por hospital
+- Receita mensal, efetivo, containers
+- Informações contratuais (vencimento, reajuste)
+- Coordenadas geográficas
 
-### Performance
-- localStorage para cache de filtros
-- Debounce na busca analítica
-- Loading states
+### **3. Territorial**
+- Resumo territorial (3 cards)
+- Mapa interativo com marcadores
+- Ranking de unidades por efetivo operacional
 
-## 🔧 Como Usar
+---
 
-### Rodar Local
-```bash
-# Abra o index.html no navegador
-# Ou use um servidor local:
-python -m http.server 8000
-# Acesse: http://localhost:8000/pessoas_refatorado/
-```
+## 🛠️ Componentes Utilizados
 
-### Deploy no GitHub Pages
-```bash
-# Copie a pasta para /pessoas/ no repo
-cp -r pessoas_refatorado/* pessoas/
+- **HUB.utils** - Carregamento de CSV, formatação
+- **HUB.cards** - Renderização de KPIs
+- **HUB.charts** - Gráficos HTML
+- **HUB.layout** - Header e footer
 
-# Commit e push
-git add pessoas/
-git commit -m "Refatora painel Pessoas com componentes"
-git push
-```
+---
 
-## 🛠️ Componentes Usados
+## 📝 Observações Importantes
 
-Do sistema HUB (`/assets/components/`):
+1. **Gazolla saiu do contrato** em meados de 2024 (último faturamento em junho/2024)
+2. **Leila Diniz** é vinculada ao Lourenço Jorge (receita unificada)
+3. **Containers** são atualizados automaticamente via CSV consolidado
+4. **Coordenadas** são fixas (hardcoded no data.js)
 
-- **hub-utils.js**
-  - `HUB.format.*` - Formatação
-  - `HUB.data.loadCSV()` - Carregamento com cache
-  - `HUB.array.*` - Manipulação de arrays
-  - `HUB.pick()` - Busca fuzzy de campos
+---
 
-- **hub-cards.js**
-  - `HUB.cards.render()` - KPI cards
+## 🚀 Como Usar
 
-- **hub-layout.js**
-  - `HUB.header.render()` - Header com navegação
-  - `HUB.footer.render()` - Footer
-  - `HUB.drillBanner.*` - Banner de drill down
-  - `HUB.loading.*` - Loading states
+1. **Fazer upload** da pasta `/sms/` para o repositório
+2. **Acessar:** `https://urbanflowrio.github.io/HUB_COMLURB/sms/`
+3. Dados carregam automaticamente dos CSVs públicos
 
-- **hub-charts.js**
-  - `HUB.simpleBar.render()` - Barras HTML (rápido)
+---
 
-## 📝 Manutenção
+## 🔄 Atualização de Dados
 
-### Adicionar Nova Tela
-1. Adicione `<main class="screen" id="screenNova">` no HTML
-2. Crie função `renderNova(data)` em `screens.js`
-3. Adicione no `navigation` do header (app.js)
-4. Chame `renderNova()` no `render()` (app.js)
+Os dados são carregados em tempo real dos Google Sheets publicados. Para atualizar:
 
-### Adicionar Novo KPI
-```javascript
-// Em screens.js
-HUB.cards.render("kpis", [
-  // ... KPIs existentes
-  {
-    label: "Novo KPI",
-    value: data.filter(r => /* condição */).length,
-    color: "green",
-    onclick: "PessoasApp.setDrill('tipo', 'valor', 'Label')"
-  }
-]);
-```
+1. Edite a planilha fonte no Google Sheets
+2. A publicação é automática
+3. Recarregue o painel no navegador
 
-### Adicionar Novo Gráfico
-```javascript
-// Em screens.js
-const grouped = HUB.array.groupCount(data, "campo");
-HUB.simpleBar.render("containerId", grouped, {
-  total: data.length,
-  color: "blue",
-  onclick: name => `PessoasApp.setDrill('campo', '${name}', '${name}')`
-});
-```
+**Cache:** Os dados ficam em cache no localStorage por 1 hora.
 
-## 🎨 Customização
+---
 
-### Cores
-Definidas no CSS (`hub-premium.css`):
-- Navy: `#07111F`
-- Blue: `#6DA5D8`
-- Orange: `#E87535`
-- Green: `#78AAA3`
-- Red: `#EE6B6E`
+## 📧 Contato
 
-### Layout
-- Grid de 3 colunas: `.grid`
-- Grid de 2 colunas: `.grid2`
-- KPIs: `.kpis` (5 colunas)
-- Painéis: `.panel`
+**Gabinete da Presidência**  
+HUB COMLURB • Núcleo de Inteligência e Gestão Estratégica Operacional
 
-## 🐛 Troubleshooting
+---
 
-**Erro ao carregar dados:**
-- Verifique URLs das bases em `data.js`
-- Veja console do navegador
-
-**Filtros não funcionam:**
-- Verifique se campos existem na base
-- Veja mapeamento em `data.js` (`FIELDS`)
-
-**Gráficos vazios:**
-- Verifique se IDs dos containers existem no HTML
-- Veja console do navegador
-
-## 📊 Próximos Passos
-
-Use este painel como template para:
-- Painel SMS (saúde)
-- Painel Contratos
-- Painel Operacional
-- Painel ADM
-
-Estrutura é a mesma, só muda:
-1. URLs das bases (data.js)
-2. Campos de enriquecimento (data.js)
-3. KPIs e gráficos (screens.js)
-
-## 🤝 Créditos
-
-Desenvolvido por **Greicy Moreira**  
-Refatorado usando sistema de componentes HUB COMLURB  
-Versão 2.0 - Mai/2026
+**Versão:** 1.0  
+**Última Atualização:** Maio 2026

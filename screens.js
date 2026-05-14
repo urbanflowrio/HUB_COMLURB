@@ -1,493 +1,269 @@
 /**
- * PAINEL PESSOAS - Módulo de Telas
- * Renderização das 5 telas do painel
+ * SMS SCREENS MODULE
+ * Renderização das telas do painel SMS
  */
 
-const PessoasScreens = {
+const SMSScreens = {
   
-  // ============================================
-  // TELA 1: VISÃO GERAL
-  // ============================================
-  
-  renderVisaoGeral(data) {
-    const total = data.length;
-    const ativos = data.filter(r => r.ativo).length;
-    const afastados = data.filter(r => r.afastado).length;
-    const laudos = data.filter(r => r.possuiLaudo).length;
-    const risco65 = data.filter(r => r.risco65).length;
-    
+  /**
+   * TELA 1: VISÃO EXECUTIVA
+   */
+  renderVisaoExecutiva() {
+    const totais = SMSData.getTotais();
+    const faturamentoAcum = SMSData.getFaturamentoAcumulado();
+    const fatPorHospital = SMSData.getFaturamentoPorHospital();
+
     // KPIs
-    HUB.cards.render("kpis", [
+    HUB.cards.renderKPIs("kpis-exec", [
       {
-        label: "Total de colaboradores",
-        value: total,
-        note: "No recorte atual",
-        feature: true,
-        onclick: "PessoasApp.clearDrill()",
-        tooltip: "Clique para resetar filtros"
+        label: "Unidades Ativas",
+        value: totais.hospitais,
+        note: "Hospitais da rede municipal",
+        color: "blue"
       },
       {
-        label: "Ativos",
-        value: ativos,
-        note: HUB.format.pct(HUB.format.calcPct(ativos, total)),
-        color: "green",
-        onclick: "PessoasApp.setDrill('situacao','ativo','Servidores ativos')",
-        tooltip: "Colaboradores em atividade regular"
+        label: "Faturamento Acumulado",
+        value: HUB.utils.formatMoney(faturamentoAcum),
+        note: "Período: 2024-2026",
+        color: "green"
       },
       {
-        label: "Afastados",
-        value: afastados,
-        note: HUB.format.pct(HUB.format.calcPct(afastados, total)),
-        color: "orange",
-        onclick: "PessoasApp.setDrill('situacao','afastado','Servidores afastados')",
-        tooltip: "Colaboradores temporariamente afastados"
+        label: "Efetivo Operacional",
+        value: totais.garis,
+        note: "Garis ativos no contrato",
+        color: "blue"
       },
       {
-        label: "Laudos",
-        value: laudos,
-        note: HUB.format.pct(HUB.format.calcPct(laudos, total)),
-        color: "purple",
-        onclick: "PessoasApp.setDrill('situacao','laudo','Servidores com laudo')",
-        tooltip: "Colaboradores com laudo médico"
+        label: "Containers Totais",
+        value: totais.containersTotal || "-",
+        note: "Total de containers",
+        color: "orange"
       },
       {
-        label: "Risco 65+",
-        value: risco65,
-        note: HUB.format.pct(HUB.format.calcPct(risco65, total)),
-        color: "red",
-        onclick: "PessoasApp.setDrill('situacao','risco65','Risco etário 65+')",
-        tooltip: "Colaboradores com 65 anos ou mais"
+        label: "Containers RSS",
+        value: totais.containersRSS || "-",
+        note: "Resíduos de Saúde Sólidos",
+        color: "red"
       }
     ]);
-    
-    // Gráfico 1: Diretorias
-    const diretorias = HUB.array.groupCount(data, "diretoria").slice(0, 8);
-    HUB.simpleBar.render("chartDiretorias", diretorias, {
-      total,
-      onclick: name => `PessoasApp.setDrill('diretoria','${HUB.format.esc(name).replaceAll("'", "&#39;")}','${HUB.format.esc(name).replaceAll("'", "&#39;")}')`
-    });
-    
-    // Gráfico 2: Capacidade x Pressão (donut)
-    this._renderCapacidadePressao(data, ativos, afastados, laudos);
-    
-    // Gráfico 3: Cascata (Diretoria → Super → Gerência → Setor)
-    this._renderCascata(data, total);
-  },
 
-  _renderCapacidadePressao(data, ativos, afastados, laudos) {
-    const total = data.length;
-    const opPct = HUB.format.calcPct(ativos, total);
-    
-    HUB.dom.setHTML("chartAtvAfast", `
-      <div class="donutRow">
-        <div class="donut" style="--opPct:${opPct}%">
-          <div class="donutCenter">${HUB.format.int(total)}</div>
+    // Gráfico: Faturamento por Hospital
+    const hospitaisOrdenados = Object.entries(fatPorHospital)
+      .filter(([nome, valor]) => valor > 0)
+      .sort((a, b) => b[1] - a[1]);
+
+    HUB.charts.renderHTMLBars("chart-hospitais", 
+      hospitaisOrdenados.map(([nome, valor]) => ({
+        name: nome,
+        value: valor,
+        pct: (valor / faturamentoAcum * 100)
+      })),
+      { 
+        title: "Faturamento por Hospital",
+        hint: "Acumulado 2024-2026"
+      }
+    );
+
+    // Mapa
+    this.renderMapa();
+
+    // Card com resumo
+    document.getElementById("resumo-contrato").innerHTML = `
+      <div class="panel">
+        <div class="panelHead">
+          <h2>Resumo do Contrato</h2>
+          <div class="hint">Informações gerais da execução contratual</div>
         </div>
-        <div>
-          <div class="legendItem" onclick="PessoasApp.setDrill('situacao','ativo','Servidores ativos')" style="cursor:pointer">
-            <div class="dot green"></div>
-            <div>Ativos</div>
-            <b>${HUB.format.int(ativos)}</b>
-          </div>
-          <div class="legendItem" onclick="PessoasApp.setDrill('situacao','afastado','Servidores afastados')" style="cursor:pointer">
-            <div class="dot orange"></div>
-            <div>Afastados</div>
-            <b>${HUB.format.int(afastados)}</b>
-          </div>
-          <div class="legendItem" onclick="PessoasApp.setDrill('situacao','laudo','Servidores com laudo')" style="cursor:pointer">
-            <div class="dot purple"></div>
-            <div>Com laudo</div>
-            <b>${HUB.format.int(laudos)}</b>
+        <div class="body">
+          <div style="display:grid; gap:16px;">
+            <div>
+              <strong style="display:block; color:#b8d4f2; font-size:11px; letter-spacing:0.16em; text-transform:uppercase; margin-bottom:8px;">Expectativa Mensal</strong>
+              <div style="font-size:28px; font-weight:950;">${HUB.utils.formatMoney(totais.receitaMensal)}</div>
+            </div>
+            <div style="border-top:1px solid rgba(255,255,255,0.08); padding-top:12px;">
+              <strong style="display:block; margin-bottom:12px;">Hospitais Ativos:</strong>
+              ${SMSData.getHospitaisAtivos().map(h => `
+                <div style="display:grid; grid-template-columns:1fr auto; gap:10px; margin-bottom:10px; padding:10px; background:rgba(19,40,64,0.5); border-radius:10px;">
+                  <div>
+                    <strong style="display:block; color:#eaf3ff;">${h.sigla}</strong>
+                    <small style="color:#c7d8ee;">${h.garis} garis • ${h.containersTotal || 0} containers</small>
+                  </div>
+                  <div style="text-align:right;">
+                    <strong style="display:block; color:#5b9bd5; font-size:16px;">${HUB.utils.formatMoney(h.receitaMensal)}</strong>
+                    <small style="color:#aebfd5;">mensal</small>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+            <div style="border-top:1px solid rgba(255,255,255,0.08); padding-top:12px; color:#c7d8ee; font-size:13px; line-height:1.5;">
+              <strong style="display:block; margin-bottom:6px; color:#fff;">Observação:</strong>
+              Hospital Municipal Ronaldo Gazolla saiu do contrato em meados de 2024.
+            </div>
           </div>
         </div>
       </div>
-    `);
+    `;
   },
 
-  _renderCascata(data, total) {
-    const filtros = PessoasApp.filters;
-    
-    let campo = "diretoria";
-    let titulo = "Distribuição por Diretoria";
-    let hint = "Selecione uma Diretoria para abrir por Superintendência";
-    
-    if (filtros.dir && !filtros.sup) {
-      campo = "superintendencia";
-      titulo = "Distribuição por Superintendência / Coordenação";
-      hint = "Selecione para abrir por Gerência";
-    } else if (filtros.sup && !filtros.ger) {
-      campo = "gerencia";
-      titulo = "Distribuição por Gerência";
-      hint = "Selecione para abrir por Setor";
-    } else if (filtros.ger) {
-      campo = "setor";
-      titulo = "Distribuição por Setor";
-      hint = "Leitura por setor operacional";
-    }
-    
-    HUB.dom.setText("tituloCardCascata", titulo);
-    HUB.dom.setText("hintCardCascata", hint);
-    
-    const dados = HUB.array.groupCount(data, campo).slice(0, 8);
-    HUB.simpleBar.render("chartLaudosGerencia", dados, {
-      total: Math.max(total, 1),
-      color: "purple",
-      onclick: name => `PessoasApp.setDrill('${campo}','${HUB.format.esc(name).replaceAll("'", "&#39;")}','${HUB.format.esc(name).replaceAll("'", "&#39;")}')`
-    });
-  },
+  /**
+   * TELA 2: ESTRUTURA CONTRATUAL
+   */
+  renderEstruturaContratual() {
+    const hospitais = SMSData.getHospitaisAtivos();
 
-  // ============================================
-  // TELA 2: SAÚDE OCUPACIONAL
-  // ============================================
-  
-  renderSaude(data) {
-    const total = data.length;
-    const laudos = data.filter(r => r.possuiLaudo);
-    const afastados = data.filter(r => r.afastado);
-    const laudo60 = data.filter(r => r.possuiLaudo && r.risco60);
-    const laudoAfast = data.filter(r => r.possuiLaudo && r.afastado);
-    const laudoEC = data.filter(r => r.possuiLaudo && r.ecInformado);
-    
-    // KPIs
-    HUB.cards.render("kpisSaude", [
-      {
-        label: "Total com laudo",
-        value: laudos.length,
-        note: HUB.format.pct(HUB.format.calcPct(laudos.length, total)),
-        feature: true,
-        color: "purple",
-        onclick: "PessoasApp.setDrill('situacao','laudo','Servidores com laudo')"
-      },
-      {
-        label: "Afastados",
-        value: afastados.length,
-        note: "Indisponibilidade registrada",
-        color: "orange",
-        onclick: "PessoasApp.setDrill('situacao','afastado','Servidores afastados')"
-      },
-      {
-        label: "Laudo + 60+",
-        value: laudo60.length,
-        note: "Pressão ocupacional futura",
-        color: "red"
-      },
-      {
-        label: "Laudo + afastamento",
-        value: laudoAfast.length,
-        note: "Maior criticidade",
-        color: "red"
-      },
-      {
-        label: "Laudo + EC",
-        value: laudoEC.length,
-        note: "Restrição e redistribuição",
-        color: "purple"
-      }
-    ]);
-    
-    // Gráfico 1: Pressão por Gerência
-    const pressao = HUB.array.groupCount(
-      data.filter(r => r.possuiLaudo || r.afastado || r.risco65),
-      "gerencia"
-    ).slice(0, 10);
-    HUB.simpleBar.render("chartPressaoGerencia", pressao, {
-      total: Math.max(total, 1),
-      color: "red"
-    });
-    
-    // Gráfico 2: Tipos de Laudo
-    const tipoMap = new Map();
-    laudos.forEach(r => {
-      const tipos = r.tiposLaudos ? r.tiposLaudos.split(";").map(x => HUB.format.clean(x)).filter(Boolean) : ["Laudo informado"];
-      tipos.forEach(t => tipoMap.set(t, (tipoMap.get(t) || 0) + 1));
-    });
-    const tipos = [...tipoMap.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8);
-    HUB.simpleBar.render("chartTiposLaudo", tipos, {
-      total: Math.max(laudos.length, 1),
-      color: "green"
-    });
-    
-    // Gráfico 3: Funções com laudo
-    const funcoes = HUB.array.groupCount(laudos, "funcaoAtuacao").slice(0, 8);
-    HUB.simpleBar.render("chartFuncaoLaudo", funcoes, {
-      total: Math.max(laudos.length, 1),
-      color: "orange"
-    });
-  },
+    const html = hospitais.map(h => `
+      <div class="panel">
+        <div class="panelHead">
+          <div>
+            <h2>${h.nome}</h2>
+            <div class="hint">${h.sigla}</div>
+          </div>
+        </div>
+        <div class="body">
+          <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-bottom:16px;">
+            
+            <div style="background:#132840; border-radius:14px; padding:16px;">
+              <small style="display:block; color:#a8bdd5; font-size:9px; font-weight:900; letter-spacing:0.13em; text-transform:uppercase;">Receita Mensal</small>
+              <strong style="display:block; font-size:24px; margin-top:8px; color:#5b9bd5;">${HUB.utils.formatMoney(h.receitaMensal)}</strong>
+            </div>
 
-  // ============================================
-  // TELA 3: AFASTAMENTOS
-  // ============================================
-  
-  renderAfastamentos(data) {
-    const subset = data.filter(r => r.afastado);
-    const total = subset.length;
-    const inss = subset.filter(r => 
-      HUB.format.norm(r.tipoAfastamento).includes("INSS") || 
-      HUB.format.norm(r.afastamento).includes("INSS")
-    ).length;
-    const afastLaudo = subset.filter(r => r.possuiLaudo).length;
-    
-    // KPIs
-    HUB.cards.render("kpisAfastamentos", [
-      {
-        label: "Total afastados",
-        value: total,
-        note: "Colaboradores afastados no recorte",
-        feature: true,
-        color: "orange",
-        onclick: "PessoasApp.setDrill('situacao','afastado','Servidores afastados')"
-      },
-      {
-        label: "INSS",
-        value: inss,
-        note: "Registros contendo INSS",
-        onclick: "PessoasApp.setDrill('tipoAfast','INSS','Afastamentos INSS')"
-      },
-      {
-        label: "Afastados com laudo",
-        value: afastLaudo,
-        note: "Cruzamento ocupacional"
-      }
-    ]);
-    
-    // Gráficos
-    const tipoAfast = HUB.array.groupCount(subset, "tipoAfastamento").slice(0, 8);
-    HUB.simpleBar.render("chartTipoAfast", tipoAfast, {
-      total: Math.max(total, 1),
-      color: "orange"
-    });
-    
-    const gerencias = HUB.array.groupCount(subset, "gerencia").slice(0, 8);
-    HUB.simpleBar.render("chartAfastGerencia", gerencias, {
-      total: Math.max(total, 1)
-    });
-    
-    const faixas = HUB.array.faixaCount(subset, "tempoCasa", [
-      ["0-10", 0, 10],
-      ["11-20", 11, 20],
-      ["21-30", 21, 30],
-      ["31-40", 31, 40],
-      ["41-50", 41, 50],
-      ["51+", 51, 999]
-    ]);
-    this._renderCols("chartTempoAfast", faixas, "tempoFaixa");
-  },
+            <div style="background:#132840; border-radius:14px; padding:16px;">
+              <small style="display:block; color:#a8bdd5; font-size:9px; font-weight:900; letter-spacing:0.13em; text-transform:uppercase;">Efetivo Operacional</small>
+              <strong style="display:block; font-size:24px; margin-top:8px;">${h.garis} garis</strong>
+            </div>
 
-  // ============================================
-  // TELA 4: DEMOGRÁFICO
-  // ============================================
-  
-  renderDemografico(data) {
-    const total = data.length;
-    const idadeMedia = HUB.array.avg(data, "idade");
-    const masc = data.filter(r => 
-      HUB.format.norm(r.sexo) === "M" || 
-      HUB.format.norm(r.sexo).startsWith("MASC")
-    ).length;
-    const fem = data.filter(r => 
-      HUB.format.norm(r.sexo) === "F" || 
-      HUB.format.norm(r.sexo).startsWith("FEM")
-    ).length;
-    const escolPred = HUB.array.groupCount(data, "escolaridade")[0] || ["-", 0];
-    const cidPred = HUB.array.groupCount(data, "cidade")[0] || ["-", 0];
-    
-    // KPIs
-    HUB.cards.render("kpisDemografico", [
-      {
-        label: "Idade média",
-        value: idadeMedia.toFixed(1).replace(".", ","),
-        note: "Anos",
-        format: "custom",
-        customFormatter: v => v
-      },
-      {
-        label: "Masculino",
-        value: masc,
-        note: HUB.format.pct(HUB.format.calcPct(masc, total)),
-        onclick: "PessoasApp.setDrill('sexo','M','Masculino')"
-      },
-      {
-        label: "Feminino",
-        value: fem,
-        note: HUB.format.pct(HUB.format.calcPct(fem, total)),
-        onclick: "PessoasApp.setDrill('sexo','F','Feminino')"
-      },
-      {
-        label: "Escolaridade predominante",
-        value: escolPred[0],
-        note: "Grau mais comum",
-        format: "custom",
-        customFormatter: v => `<span style="font-size:18px">${v}</span>`
-      },
-      {
-        label: "Cidade predominante",
-        value: cidPred[0],
-        note: "Residência",
-        format: "custom",
-        customFormatter: v => `<span style="font-size:18px">${v}</span>`
-      }
-    ]);
-    
-    // Gráficos
-    const faixasIdade = HUB.array.faixaCount(data, "idade", [
-      ["<30", 0, 30],
-      ["31-40", 31, 40],
-      ["41-50", 41, 50],
-      ["51-60", 51, 60],
-      ["61-70", 61, 70],
-      ["71+", 71, 999]
-    ]);
-    this._renderCols("chartIdade", faixasIdade, "idadeFaixa");
-    
-    const escolaridade = HUB.array.groupCount(data, "escolaridade").slice(0, 8);
-    HUB.simpleBar.render("chartEscolaridade", escolaridade, {
-      total,
-      color: "green"
-    });
-    
-    const faixasTempo = HUB.array.faixaCount(data, "tempoCasa", [
-      ["0-10", 0, 10],
-      ["11-20", 11, 20],
-      ["21-30", 21, 30],
-      ["31-40", 31, 40],
-      ["41-50", 41, 50],
-      ["51+", 51, 999]
-    ]);
-    this._renderCols("chartTempoCasa", faixasTempo, "tempoFaixa");
-    
-    this._renderTerritorialMap(data, total);
-    
-    const jornada = HUB.array.groupCount(data, "jornada").slice(0, 8);
-    HUB.simpleBar.render("chartJornada", jornada, { total });
-  },
+            <div style="background:#132840; border-radius:14px; padding:16px;">
+              <small style="display:block; color:#a8bdd5; font-size:9px; font-weight:900; letter-spacing:0.13em; text-transform:uppercase;">Containers Totais</small>
+              <strong style="display:block; font-size:24px; margin-top:8px; color:#e87535;">${h.containersTotal || "-"}</strong>
+            </div>
 
-  _renderTerritorialMap(data, total) {
-    const top = HUB.array.groupCount(data, "cidade")
-      .filter(x => x[0] && x[0] !== "Não informado")
-      .slice(0, 8);
-    
-    const principal = top[0] || ["Sem dados", 0];
-    const foraRJ = data.filter(r => 
-      HUB.format.norm(r.cidade) && 
-      HUB.format.norm(r.cidade) !== "RIO DE JANEIRO" && 
-      HUB.format.norm(r.cidade) !== "NAO INFORMADO"
-    ).length;
-    
-    const bairros = HUB.array.groupCount(data, "bairroRes")
-      .filter(x => x[0] && x[0] !== "Não informado")
-      .slice(0, 5);
-    const bairroTop = bairros[0] || ["Sem dados", 0];
-    
-    const max = Math.max(...top.map(x => x[1]), 1);
-    
-    const linhas = top.map(([cid, cnt]) => `
-      <div class="territorialRow" onclick="PessoasApp.setDrill('cidade','${HUB.format.esc(cid).replaceAll("'", "&#39;")}','${HUB.format.esc(cid).replaceAll("'", "&#39;")}')">
-        <div class="territorialName" title="${HUB.format.esc(cid)}">${HUB.format.esc(cid)}</div>
-        <div class="territorialTrack"><div class="territorialFill" style="width:${cnt / max * 100}%"></div></div>
-        <div class="territorialNum">${HUB.format.int(cnt)}</div>
-        <div class="territorialPct">${HUB.format.pct(HUB.format.calcPct(cnt, total))}</div>
+            <div style="background:#132840; border-radius:14px; padding:16px;">
+              <small style="display:block; color:#a8bdd5; font-size:9px; font-weight:900; letter-spacing:0.13em; text-transform:uppercase;">Containers RSS</small>
+              <strong style="display:block; font-size:24px; margin-top:8px; color:#ef6a5d;">${h.containersRSS || "-"}</strong>
+            </div>
+
+          </div>
+
+          <div style="display:grid; gap:10px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.08);">
+            <div style="display:grid; grid-template-columns:140px 1fr; gap:10px;">
+              <span style="color:#aebfd5;">Vencimento:</span>
+              <strong>${h.vencimento}</strong>
+            </div>
+            <div style="display:grid; grid-template-columns:140px 1fr; gap:10px;">
+              <span style="color:#aebfd5;">Reajuste:</span>
+              <strong>${h.reajuste}</strong>
+            </div>
+            <div style="display:grid; grid-template-columns:140px 1fr; gap:10px;">
+              <span style="color:#aebfd5;">Localização:</span>
+              <strong>${h.lat.toFixed(4)}, ${h.lng.toFixed(4)}</strong>
+            </div>
+          </div>
+        </div>
       </div>
     `).join("");
-    
-    HUB.dom.setHTML("rankCidades", `
-      <div class="territorialExec">
-        <div class="territorialSummary">
-          <div class="territorialCard">
-            <small>Município predominante</small>
-            <b title="${HUB.format.esc(principal[0])}">${HUB.format.esc(principal[0])}</b>
-            <span>${HUB.format.int(principal[1])} servidores • ${HUB.format.pct(HUB.format.calcPct(principal[1], total))}</span>
-          </div>
-          <div class="territorialCard">
-            <small>Fora do Rio</small>
-            <b>${HUB.format.int(foraRJ)}</b>
-            <span>${HUB.format.pct(HUB.format.calcPct(foraRJ, total))} do recorte atual</span>
-          </div>
-          <div class="territorialCard">
-            <small>Bairro mais frequente</small>
-            <b title="${HUB.format.esc(bairroTop[0])}">${HUB.format.esc(bairroTop[0])}</b>
-            <span>${HUB.format.int(bairroTop[1])} servidores</span>
-          </div>
-        </div>
-        <div class="territorialNote">
-          Ranking territorial por município de moradia. Clique em uma linha para filtrar o painel.
-        </div>
-        <div class="territorialRank">
-          ${linhas || '<div class="empty">Sem dados territoriais</div>'}
-        </div>
-      </div>
-    `);
+
+    document.getElementById("estrutura-cards").innerHTML = html;
   },
 
-  // ============================================
-  // TELA 5: ANALÍTICO
-  // ============================================
-  
-  renderAnalitico(data) {
-    const search = HUB.format.norm(HUB.dom.$("searchBox")?.value || "");
-    
-    let filtered = data;
-    if (search) {
-      filtered = data.filter(r => HUB.format.norm([
-        r.registro, r.nome, r.diretoria, r.superintendencia, r.gerencia, r.setor,
-        r.tipoCargo, r.funcaoCargo, r.funcaoEC, r.funcaoAtuacao, r.afastamento,
-        r.tipoAfastamento, r.tiposLaudos, r.cidade
-      ].join(" ")).includes(search));
-    }
-    
-    const rows = filtered.slice(0, 1200);
-    
-    HUB.dom.setHTML("tableAnalitico", `
-      <table class="dataTable">
-        <thead><tr>
-          <th>Registro</th><th>Nome</th><th>Diretoria</th><th>Superintendência</th>
-          <th>Gerência</th><th>Setor</th><th>Tipo Cargo</th><th>Função Cargo</th>
-          <th>Função EC</th><th>Atuação</th><th>Situação</th><th>Afastamento</th>
-          <th>Tipo Afast.</th><th>Idade</th><th>Tempo Casa</th><th>Laudo</th>
-        </tr></thead>
-        <tbody>
-        ${rows.map(r => `
-          <tr>
-            <td>${HUB.format.esc(r.registro)}</td>
-            <td>${HUB.format.esc(r.nome)}</td>
-            <td>${HUB.format.esc(r.diretoria)}</td>
-            <td>${HUB.format.esc(r.superintendencia)}</td>
-            <td>${HUB.format.esc(r.gerencia)}</td>
-            <td>${HUB.format.esc(r.setor)}</td>
-            <td>${HUB.format.esc(r.tipoCargo)}</td>
-            <td>${HUB.format.esc(r.funcaoCargo)}</td>
-            <td>${HUB.format.esc(r.funcaoEC || "-")}</td>
-            <td>${HUB.format.esc(r.funcaoAtuacao)}</td>
-            <td><span class="tag ${r.afastado ? 'att' : 'ok'}">${r.afastado ? 'Afastado' : 'Ativo'}</span></td>
-            <td>${HUB.format.esc(r.afastamento || "-")}</td>
-            <td>${HUB.format.esc(r.tipoAfastamento || "-")}</td>
-            <td>${r.idade || ""}</td>
-            <td>${r.tempoCasa || ""}</td>
-            <td><span class="tag ${r.possuiLaudo ? 'purple' : 'ok'}">${r.possuiLaudo ? 'Sim' : 'Não'}</span></td>
-          </tr>
-        `).join("")}
-        </tbody>
-      </table>
-    `);
+  /**
+   * TELA 3: TERRITORIAL
+   */
+  renderTerritorial() {
+    const hospitais = SMSData.getHospitaisAtivos();
+    const totais = SMSData.getTotais();
+
+    // Resumo territorial
+    document.getElementById("territorial-summary").innerHTML = `
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px;">
+        <div style="background:#132840; border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:16px;">
+          <small style="display:block; color:#a8bdd5; font-size:9px; font-weight:900; letter-spacing:0.13em; text-transform:uppercase; margin-bottom:8px;">Unidades Hospitalares</small>
+          <strong style="display:block; font-size:24px; color:#fff;">${totais.hospitais}</strong>
+          <span style="display:block; color:#c7d8ee; font-size:12px; margin-top:6px;">Ativas no contrato</span>
+        </div>
+
+        <div style="background:#132840; border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:16px;">
+          <small style="display:block; color:#a8bdd5; font-size:9px; font-weight:900; letter-spacing:0.13em; text-transform:uppercase; margin-bottom:8px;">Efetivo Total</small>
+          <strong style="display:block; font-size:24px; color:#fff;">${totais.garis}</strong>
+          <span style="display:block; color:#c7d8ee; font-size:12px; margin-top:6px;">Garis no contrato</span>
+        </div>
+
+        <div style="background:#132840; border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:16px;">
+          <small style="display:block; color:#a8bdd5; font-size:9px; font-weight:900; letter-spacing:0.13em; text-transform:uppercase; margin-bottom:8px;">Containers RSS</small>
+          <strong style="display:block; font-size:24px; color:#fff;">${totais.containersRSS || "-"}</strong>
+          <span style="display:block; color:#c7d8ee; font-size:12px; margin-top:6px;">Resíduos biológicos</span>
+        </div>
+      </div>
+    `;
+
+    // Ranking de unidades
+    const ranking = hospitais
+      .sort((a, b) => b.garis - a.garis)
+      .map(h => `
+        <div style="display:grid; grid-template-columns:180px 1fr 82px 70px; gap:10px; align-items:center; background:rgba(19,40,64,0.72); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:12px; cursor:pointer; transition:0.18s;" onmouseover="this.style.borderColor='#6fa7d8'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)'">
+          <div style="font-weight:900; color:#eaf3ff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${h.sigla}</div>
+          <div style="height:18px; background:#09182a; border-radius:999px; overflow:hidden;">
+            <div style="height:100%; width:${(h.garis / totais.garis * 100).toFixed(1)}%; background:linear-gradient(90deg,#2f67a5,#5b9bd5); border-radius:999px;"></div>
+          </div>
+          <div style="text-align:right; font-weight:900; color:#fff;">${h.garis}</div>
+          <div style="text-align:right; font-weight:900; color:#fff;">${(h.garis / totais.garis * 100).toFixed(1)}%</div>
+        </div>
+      `).join("");
+
+    document.getElementById("territorial-rank").innerHTML = `
+      <div class="panel">
+        <div class="panelHead">
+          <h2>Ranking de Unidades</h2>
+          <div class="hint">Por efetivo operacional</div>
+        </div>
+        <div class="body">
+          <div style="display:grid; gap:10px;">
+            ${ranking}
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Mapa territorial
+    this.renderMapa("mapa-territorial");
   },
 
-  // ============================================
-  // HELPERS
-  // ============================================
-  
-  _renderCols(containerId, faixas, drillType) {
-    const max = Math.max(...faixas.map(x => x[1]), 1);
+  /**
+   * Renderiza mapa com hospitais
+   */
+  renderMapa(containerId = "mapa-exec") {
+    const hospitais = SMSData.getHospitaisParaMapa();
     
-    HUB.dom.setHTML(containerId, `
-      <div class="cols">
-        ${faixas.map(([fx, cnt]) => `
-          <div class="colWrap" onclick="PessoasApp.setDrill('${drillType}','${fx}','${fx}')">
-            <div class="colVal">${HUB.format.int(cnt)}</div>
-            <div class="col" style="--h:${cnt / max * 100}%"></div>
-            <div class="colLbl">${fx}</div>
+    const mapHtml = `
+      <div class="panel">
+        <div class="panelHead">
+          <h2>Distribuição Territorial</h2>
+          <div class="hint">Localização das unidades hospitalares</div>
+        </div>
+        <div class="body">
+          <div style="position:relative; min-height:320px; background:radial-gradient(circle at 35% 45%,rgba(75,134,189,.55),transparent 18%), radial-gradient(circle at 62% 50%,rgba(232,117,53,.45),transparent 16%), radial-gradient(circle at 42% 72%,rgba(120,170,163,.35),transparent 18%), linear-gradient(135deg,#08192d,#102844); border-radius:18px; border:1px solid rgba(255,255,255,.08); overflow:hidden;">
+            
+            <div style="position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px), linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px); background-size:34px 34px;"></div>
+
+            ${hospitais.map((h, i) => `
+              <div style="position:absolute; left:${25 + (i * 20)}%; top:${30 + (i * 15)}%; background:rgba(6,17,31,0.9); border:1px solid #4b86bd; border-radius:12px; padding:10px; min-width:180px; box-shadow:0 8px 24px rgba(0,0,0,0.3);">
+                <strong style="display:block; color:#5b9bd5; font-size:13px; margin-bottom:6px;">${h.sigla}</strong>
+                <div style="font-size:11px; color:#c7d8ee; line-height:1.4;">
+                  ${h.garis} garis<br>
+                  ${h.containers || 0} containers${h.containersRSS ? ` (${h.containersRSS} RSS)` : ""}<br>
+                  <span style="color:#aebfd5; font-size:10px;">${h.lat.toFixed(4)}, ${h.lng.toFixed(4)}</span>
+                </div>
+              </div>
+            `).join("")}
+
+            <div style="position:absolute; left:16px; right:16px; bottom:16px; background:rgba(6,17,31,.85); border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:13px; color:#d9e6f8;">
+              <strong style="display:block; margin-bottom:4px;">Mapa Interativo</strong>
+              <span style="font-size:12px; color:#aebfd5;">Visualização geográfica das ${hospitais.length} unidades hospitalares do contrato SMS</span>
+            </div>
           </div>
-        `).join("")}
+        </div>
       </div>
-    `);
+    `;
+
+    document.getElementById(containerId).innerHTML = mapHtml;
   }
 };
