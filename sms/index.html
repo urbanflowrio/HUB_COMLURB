@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel SMS • HUB COMLURB</title>
+  <meta name="description" content="Painel Executivo de Limpeza e Higienização Hospitalar • HUB COMLURB">
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="../assets/hub-premium.css">
+  
+  <!-- External Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+</head>
+<body>
+  <div class="app">
+    
+    <!-- HEADER -->
+    <div id="header"></div>
+
+    <!-- NAVEGAÇÃO -->
+    <div class="navTabs">
+      <button class="tabBtn active" data-screen="exec">Visão Executiva</button>
+      <button class="tabBtn" data-screen="estrutura">Estrutura Contratual</button>
+      <button class="tabBtn" data-screen="territorial">Territorial</button>
+    </div>
+
+    <!-- LOADING -->
+    <div id="loading" style="display:none; padding:40px; text-align:center; color:#aebfd5;">
+      <div style="font-size:18px; margin-bottom:10px;">⏳ Carregando dados do SMS...</div>
+      <small>Aguarde enquanto processamos as informações do contrato</small>
+    </div>
+
+    <!-- ==========================================
+         TELA 1: VISÃO EXECUTIVA
+         ========================================== -->
+    <main id="screen-exec" class="screen active">
+      
+      <!-- KPIs -->
+      <div id="kpis-exec" class="kpis"></div>
+
+      <!-- Gráficos + Mapa -->
+      <div class="grid2">
+        <div id="chart-hospitais"></div>
+        <div id="resumo-contrato"></div>
+      </div>
+
+      <div id="mapa-exec"></div>
+
+    </main>
+
+    <!-- ==========================================
+         TELA 2: ESTRUTURA CONTRATUAL
+         ========================================== -->
+    <main id="screen-estrutura" class="screen">
+      
+      <div style="margin-bottom:14px;">
+        <h2>Estrutura do Contrato SMS</h2>
+        <p class="hint">Detalhamento operacional e financeiro por unidade hospitalar</p>
+      </div>
+
+      <div id="estrutura-cards" style="display:grid; gap:14px;"></div>
+
+    </main>
+
+    <!-- ==========================================
+         TELA 3: TERRITORIAL
+         ========================================== -->
+    <main id="screen-territorial" class="screen">
+      
+      <div id="territorial-summary" style="margin-bottom:14px;"></div>
+
+      <div class="grid2">
+        <div id="mapa-territorial"></div>
+        <div id="territorial-rank"></div>
+      </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <div id="footer" class="footer"></div>
+
+  </div>
+
+  <!-- HUB Components -->
+  <script src="../assets/components/hub-utils.js"></script>
+  <script src="../assets/components/hub-cards.js"></script>
+  <script src="../assets/components/hub-charts.js"></script>
+  <script src="../assets/components/hub-layout.js"></script>
+
+  <!-- SMS Modules -->
+  <script src="data.js"></script>
+  <script src="screens.js"></script>
+  <script src="app.js"></script>
+
+</body>
+</html>
