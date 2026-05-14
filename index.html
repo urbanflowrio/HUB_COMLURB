@@ -1,184 +1,278 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>HUB COMLURB</title>
-
-<style>
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
-
-body{
-    font-family:Segoe UI, sans-serif;
-    background:#071018;
-    color:white;
-    min-height:100vh;
-    padding:40px;
-}
-
-h1{
-    font-size:42px;
-    margin-bottom:10px;
-}
-
-.sub{
-    color:#8ca3b8;
-    margin-bottom:50px;
-}
-
-.grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-    gap:25px;
-}
-
-.card{
-    background:#0c1724;
-    border:1px solid rgba(255,255,255,.05);
-    border-radius:22px;
-    padding:30px;
-    text-decoration:none;
-    color:white;
-    transition:.25s;
-    position:relative;
-    overflow:hidden;
-}
-
-.card:hover{
-    transform:translateY(-5px);
-    border-color:#2563eb;
-    box-shadow:0 10px 35px rgba(37,99,235,.25);
-}
-
-.card::before{
-    content:"";
-    position:absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height:4px;
-    background:#2563eb;
-}
-
-.icon{
-    font-size:34px;
-    margin-bottom:20px;
-}
-
-.title{
-    font-size:24px;
-    font-weight:700;
-    margin-bottom:10px;
-}
-
-.desc{
-    color:#9db0c2;
-    line-height:1.5;
-}
-
-.topbar{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:50px;
-    flex-wrap:wrap;
-    gap:20px;
-}
-
-.badge{
-    background:#132235;
-    color:#7ab7ff;
-    padding:10px 18px;
-    border-radius:999px;
-    font-size:14px;
-}
-
-.footer{
-    margin-top:60px;
-    color:#6f8598;
-    font-size:14px;
-}
-
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestão de Pessoas | HUB COMLURB</title>
+  
+  <!-- CSS do HUB -->
+  <link rel="stylesheet" href="../assets/css/hub-premium.css">
 </head>
+
 <body>
-
-<div class="topbar">
-
-<div>
-<h1>HUB COMLURB</h1>
-<div class="sub">
-Centro de Inteligência Operacional
+<div class="app">
+  
+  <!-- ============================================
+       HEADER (gerado via JS)
+       ============================================ -->
+  <div id="header"></div>
+  
+  <!-- ============================================
+       FILTROS
+       ============================================ -->
+  <section class="filters">
+    <div class="field">
+      <label>Diretoria</label>
+      <select id="fDir"><option value="">Todas</option></select>
+    </div>
+    
+    <div class="field">
+      <label>Superintendência / Coordenação</label>
+      <select id="fSup"><option value="">Todas</option></select>
+    </div>
+    
+    <div class="field">
+      <label>Gerência</label>
+      <select id="fGerencia"><option value="">Todas</option></select>
+    </div>
+    
+    <div class="field">
+      <label>Tipo Cargo</label>
+      <select id="fTipoCargo"><option value="">Todos</option></select>
+    </div>
+    
+    <div class="field">
+      <label>Situação</label>
+      <select id="fSituacao">
+        <option value="">Todos</option>
+        <option value="ativo">Ativos</option>
+        <option value="afastado">Afastados</option>
+        <option value="laudo">Com laudo</option>
+        <option value="risco65">Risco 65+</option>
+        <option value="ec">Com EC</option>
+      </select>
+    </div>
+    
+    <div class="field">
+      <label>Função Cargo</label>
+      <div class="multiBox" id="funcaoMulti">
+        <button class="multiBtn" id="fFuncaoBtn" type="button">Todas</button>
+        <div class="multiPanel">
+          <input class="multiSearch" id="fFuncaoSearch" placeholder="Buscar função...">
+          <div class="multiList" id="fFuncaoList"></div>
+          <div class="multiActions">
+            <button type="button" onclick="clearFuncao()">Limpar</button>
+            <button type="button" onclick="closeFuncao()">Aplicar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <button class="actionBtn" onclick="clearAll()">Limpar</button>
+  </section>
+  
+  <!-- ============================================
+       BANNER DE DRILL DOWN
+       ============================================ -->
+  <div id="drillBanner"></div>
+  
+  <!-- ============================================
+       TELA 1: VISÃO GERAL
+       ============================================ -->
+  <main class="screen active" id="screenVisao">
+    <div class="kpis" id="kpis"></div>
+    
+    <div class="grid">
+      <div class="panel">
+        <div class="panelHead">
+          <h2>Distribuição por Diretoria</h2>
+          <div class="hint">Clique para filtrar</div>
+        </div>
+        <div class="body" id="chartDiretorias"></div>
+      </div>
+      
+      <div class="panel">
+        <div class="panelHead">
+          <h2>Capacidade x Pressão</h2>
+          <div class="hint">Distribuição do efetivo</div>
+        </div>
+        <div class="body" id="chartAtvAfast"></div>
+      </div>
+      
+      <div class="panel">
+        <div class="panelHead">
+          <h2 id="tituloCardCascata">Distribuição por Superintendência</h2>
+          <div class="hint" id="hintCardCascata">De acordo com o filtro aplicado</div>
+        </div>
+        <div class="body" id="chartLaudosGerencia"></div>
+      </div>
+    </div>
+  </main>
+  
+  <!-- ============================================
+       TELA 2: SAÚDE OCUPACIONAL
+       ============================================ -->
+  <main class="screen" id="screenSaude">
+    <div class="kpis" id="kpisSaude"></div>
+    
+    <div class="grid">
+      <div class="panel">
+        <div class="panelHead">
+          <h2>Pressão por Gerência</h2>
+          <div class="hint">Laudos, afastamentos e idade crítica</div>
+        </div>
+        <div class="body" id="chartPressaoGerencia"></div>
+      </div>
+      
+      <div class="panel">
+        <div class="panelHead">
+          <h2>Tipos de Laudo</h2>
+          <div class="hint">Classificação pela conclusão</div>
+        </div>
+        <div class="body" id="chartTiposLaudo"></div>
+      </div>
+      
+      <div class="panel">
+        <div class="panelHead">
+          <h2>Funções com laudo</h2>
+          <div class="hint">Cargos com maior concentração</div>
+        </div>
+        <div class="body" id="chartFuncaoLaudo"></div>
+      </div>
+    </div>
+  </main>
+  
+  <!-- ============================================
+       TELA 3: AFASTAMENTOS
+       ============================================ -->
+  <main class="screen" id="screenAfastamentos">
+    <div class="kpis" id="kpisAfastamentos"></div>
+    
+    <div class="grid">
+      <div class="panel">
+        <div class="panelHead">
+          <h2>Tipos de Afastamento</h2>
+          <div class="hint">Clique para filtrar</div>
+        </div>
+        <div class="body" id="chartTipoAfast"></div>
+      </div>
+      
+      <div class="panel">
+        <div class="panelHead">
+          <h2>Afastados por Gerência</h2>
+          <div class="hint">Ranking gerencial</div>
+        </div>
+        <div class="body" id="chartAfastGerencia"></div>
+      </div>
+      
+      <div class="panel">
+        <div class="panelHead">
+          <h2>Tempo de Casa - Afastados</h2>
+          <div class="hint">Anos de serviço</div>
+        </div>
+        <div class="body" id="chartTempoAfast"></div>
+      </div>
+    </div>
+  </main>
+  
+  <!-- ============================================
+       TELA 4: DEMOGRÁFICO
+       ============================================ -->
+  <main class="screen" id="screenDemografico">
+    <div class="kpis" id="kpisDemografico"></div>
+    
+    <div class="grid">
+      <div class="panel">
+        <div class="panelHead">
+          <h2>Faixa etária</h2>
+          <div class="hint">Clique para filtrar</div>
+        </div>
+        <div class="body" id="chartIdade"></div>
+      </div>
+      
+      <div class="panel">
+        <div class="panelHead">
+          <h2>Escolaridade</h2>
+          <div class="hint">Nível educacional</div>
+        </div>
+        <div class="body" id="chartEscolaridade"></div>
+      </div>
+      
+      <div class="panel">
+        <div class="panelHead">
+          <h2>Tempo de casa</h2>
+          <div class="hint">Distribuição por permanência</div>
+        </div>
+        <div class="body" id="chartTempoCasa"></div>
+      </div>
+    </div>
+    
+    <div class="grid2" style="margin-top:14px">
+      <div class="panel">
+        <div class="panelHead">
+          <h2>Mapa territorial de residência</h2>
+          <div class="hint">Concentração dos principais municípios/bairros</div>
+        </div>
+        <div class="body" id="rankCidades"></div>
+      </div>
+      
+      <div class="panel">
+        <div class="panelHead">
+          <h2>Jornada</h2>
+          <div class="hint">Tipos de jornada</div>
+        </div>
+        <div class="body" id="chartJornada"></div>
+      </div>
+    </div>
+  </main>
+  
+  <!-- ============================================
+       TELA 5: ANALÍTICO
+       ============================================ -->
+  <main class="screen" id="screenAnalitico">
+    <div class="panel">
+      <div class="panelHead">
+        <h2>Base analítica enriquecida</h2>
+        <button class="actionBtn primary" onclick="exportExcel()">📊 Exportar Excel</button>
+      </div>
+      <div class="body">
+        <div class="field" style="margin-bottom:12px">
+          <label>Busca analítica</label>
+          <input id="searchBox" placeholder="Buscar por nome, registro, diretoria, gerência, setor, função..." oninput="searchDebounced()">
+        </div>
+        <div class="tableWrap" id="tableAnalitico"></div>
+      </div>
+    </div>
+  </main>
+  
+  <!-- ============================================
+       FOOTER (gerado via JS)
+       ============================================ -->
+  <div id="footer"></div>
+  
 </div>
-</div>
 
-<div class="badge">
-Plataforma Territorial & Analítica
-</div>
+<!-- ============================================
+     DEPENDÊNCIAS EXTERNAS
+     ============================================ -->
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-</div>
+<!-- ============================================
+     COMPONENTES HUB
+     ============================================ -->
+<script src="../assets/components/hub-utils.js"></script>
+<script src="../assets/components/hub-cards.js"></script>
+<script src="../assets/components/hub-charts.js"></script>
+<script src="../assets/components/hub-filters.js"></script>
+<script src="../assets/components/hub-layout.js"></script>
 
-<div class="grid">
-
-<a class="card" href="./territorial/">
-<div class="icon">🗺️</div>
-<div class="title">Territorial</div>
-<div class="desc">
-Mapa territorial inteligente com clusters, APs, bairros e logradouros.
-</div>
-</a>
-
-<a class="card" href="./pessoas/">
-<div class="icon">👥</div>
-<div class="title">Pessoas</div>
-<div class="desc">
-Indicadores de efetivo, afastamentos, distribuição e risco operacional.
-</div>
-</a>
-
-<a class="card" href="./sme/">
-<div class="icon">🏫</div>
-<div class="title">SME</div>
-<div class="desc">
-Monitoramento operacional e territorial das unidades escolares.
-</div>
-</a>
-
-<a class="card" href="./sms/">
-<div class="icon">🏥</div>
-<div class="title">SMS</div>
-<div class="desc">
-Painéis executivos e analíticos da operação de saúde.
-</div>
-</a>
-
-<a class="card" href="./contratos/">
-<div class="icon">📊</div>
-<div class="title">Contratos</div>
-<div class="desc">
-Análise financeira, glosas, faturamento e performance contratual.
-</div>
-</a>
-
-<a class="card" href="#">
-<div class="icon">♻️</div>
-<div class="title">ESG</div>
-<div class="desc">
-Indicadores ambientais, resíduos, reciclagem e carbono.
-</div>
-</a>
-
-</div>
-
-<div class="footer">
-HUB COMLURB • Inteligência Territorial e Operacional
-</div>
+<!-- ============================================
+     CÓDIGO DO PAINEL
+     ============================================ -->
+<script src="data.js"></script>
+<script src="screens.js"></script>
+<script src="app.js"></script>
 
 </body>
 </html>
