@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestão de Pessoas | HUB COMLURB</title>
+  
+  <!-- CSS do HUB -->
+  <link rel="stylesheet" href="../assets/css/hub-premium.css">
+</head>
+
+<body>
+<div class="app">
+  
+  <!-- ============================================
+       HEADER (gerado via JS)
+       ============================================ -->
+  <div id="header"></div>
+  
+  <!-- ============================================
+       FILTROS
+       ============================================ -->
+  <section class="filters">
+    <div class="field">
+      <label>Diretoria</label>
+      <select id="fDir"><option value="">Todas</option></select>
+    </div>
+    
+    <div class="field">
+      <label>Superintendência / Coordenação</label>
+      <select id="fSup"><option value="">Todas</option></select>
+    </div>
+    
+    <div class="field">
+      <label>Gerência</label>
+      <select id="fGerencia"><option value="">Todas</option></select>
+    </div>
+    
+    <div class="field">
+      <label>Tipo Cargo</label>
+      <select id="fTipoCargo"><option value="">Todos</option></select>
+    </div>
+    
+    <div class="field">
+      <label>Situação</label>
+      <select id="fSituacao">
+        <option value="">Todos</option>
+        <option value="ativo">Ativos</option>
+        <option value="afastado">Afastados</option>
+        <option value="laudo">Com laudo</option>
+        <option value="risco65">Risco 65+</option>
+        <option value="ec">Com EC</option>
+      </select>
+    </div>
+    
+    <div class="field">
+      <label>Função Cargo</label>
+      <div class="multiBox" id="funcaoMulti">
+        <button class="multiBtn" id="fFuncaoBtn" type="button">Todas</button>
+        <div class="multiPanel">
+          <input class="multiSearch" id="fFuncaoSearch" placeholder="Buscar função...">
+          <div class="multiList" id="fFuncaoList"></div>
+          <div class="multiActions">
+            <button type="button" onclick="clearFuncao()">Limpar</button>
+            <button type="button" onclick="closeFuncao()">Aplicar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <button class="actionBtn" onclick="clearAll()">Limpar</button>
+  </section>
+  
+  <!-- ============================================
+       BANNER DE DRILL DOWN
+       ============================================ -->
+  <div id="drillBanner"></div>
+  
+  <!-- ============================================
+       TELA 1: VISÃO GERAL
+       ============================================ -->
+  <main class="screen active" id="screenVisao">
+    <div class="kpis" id="kpis"></div>
+    
+    <div class="grid">
+      <div class="panel">
+        <div class="panelHead">
+          <h2>Distribuição por Diretoria</h2>
+          <div class="hint">Clique para filtrar</div>
+        </div>
+        <div class="body" id="chartDiretorias"></div>
+      </div>
+      
+      <div class="panel">
+        <div class="panelHead">
+          <h2>Capacidade x Pressão</h2>
+          <div class="hint">Distribuição do efetivo</div>
+        </div>
+        <div class="body" id="chartAtvAfast"></div>
+      </div>
+      
+      <div class="panel">
+        <div class="panelHead">
+          <h2 id="tituloCardCascata">Distribuição por Superintendência</h2>
+          <div class="hint" id="hintCardCascata">De acordo com o filtro aplicado</div>
+        </div>
+        <div class="body" id="chartLaudosGerencia"></div>
+      </div>
+    </div>
+  </main>
+  
+  <!-- ============================================
+       TELA 2: SAÚDE OCUPACIONAL
+       ============================================ -->
+  <main class="screen" id="screenSaude">
+    <div class="kpis" id="kpisSaude"></div>
+    
+    <div class="grid">
+      <div class="panel">
+        <div class="panelHead">
+          <h2>Pressão por Gerência</h2>
+          <div class="hint">Laudos, afastamentos e idade crítica</div>
+        </div>
+        <div class="body" id="chartPressaoGerencia"></div>
+      </div>
+      
+      <div class="panel">
+        <div class="panelHead">
+          <h2>Tipos de Laudo</h2>
+          <div class="hint">Classificação pela conclusão</div>
+        </div>
+        <div class="body" id="chartTiposLaudo"></div>
+      </div>
+      
+      <div class="panel">
+        <div class="panelHead">
+          <h2>Funções com laudo</h2>
+          <div class="hint">Cargos com maior concentração</div>
+        </div>
+        <div class="body" id="chartFuncaoLaudo"></div>
+      </div>
+    </div>
+  </main>
+  
+  <!-- ============================================
+       TELA 3: AFASTAMENTOS
+       ============================================ -->
+  <main class="screen" id="screenAfastamentos">
+    <div class="kpis" id="kpisAfastamentos"></div>
+    
+    <div class="grid">
+      <div class="panel">
+        <div class="panelHead">
+          <h2>Tipos de Afastamento</h2>
+          <div class="hint">Clique para filtrar</div>
+        </div>
+        <div class="body" id="chartTipoAfast"></div>
+      </div>
+      
+      <div class="panel">
+        <div class="panelHead">
+          <h2>Afastados por Gerência</h2>
+          <div class="hint">Ranking gerencial</div>
+        </div>
+        <div class="body" id="chartAfastGerencia"></div>
+      </div>
+      
+      <div class="panel">
+        <div class="panelHead">
+          <h2>Tempo de Casa - Afastados</h2>
+          <div class="hint">Anos de serviço</div>
+        </div>
+        <div class="body" id="chartTempoAfast"></div>
+      </div>
+    </div>
+  </main>
+  
+  <!-- ============================================
+       TELA 4: DEMOGRÁFICO
+       ============================================ -->
+  <main class="screen" id="screenDemografico">
+    <div class="kpis" id="kpisDemografico"></div>
+    
+    <div class="grid">
+      <div class="panel">
+        <div class="panelHead">
+          <h2>Faixa etária</h2>
+          <div class="hint">Clique para filtrar</div>
+        </div>
+        <div class="body" id="chartIdade"></div>
+      </div>
+      
+      <div class="panel">
+        <div class="panelHead">
+          <h2>Escolaridade</h2>
+          <div class="hint">Nível educacional</div>
+        </div>
+        <div class="body" id="chartEscolaridade"></div>
+      </div>
+      
+      <div class="panel">
+        <div class="panelHead">
+          <h2>Tempo de casa</h2>
+          <div class="hint">Distribuição por permanência</div>
+        </div>
+        <div class="body" id="chartTempoCasa"></div>
+      </div>
+    </div>
+    
+    <div class="grid2" style="margin-top:14px">
+      <div class="panel">
+        <div class="panelHead">
+          <h2>Mapa territorial de residência</h2>
+          <div class="hint">Concentração dos principais municípios/bairros</div>
+        </div>
+        <div class="body" id="rankCidades"></div>
+      </div>
+      
+      <div class="panel">
+        <div class="panelHead">
+          <h2>Jornada</h2>
+          <div class="hint">Tipos de jornada</div>
+        </div>
+        <div class="body" id="chartJornada"></div>
+      </div>
+    </div>
+  </main>
+  
+  <!-- ============================================
+       TELA 5: ANALÍTICO
+       ============================================ -->
+  <main class="screen" id="screenAnalitico">
+    <div class="panel">
+      <div class="panelHead">
+        <h2>Base analítica enriquecida</h2>
+        <button class="actionBtn primary" onclick="exportExcel()">📊 Exportar Excel</button>
+      </div>
+      <div class="body">
+        <div class="field" style="margin-bottom:12px">
+          <label>Busca analítica</label>
+          <input id="searchBox" placeholder="Buscar por nome, registro, diretoria, gerência, setor, função..." oninput="searchDebounced()">
+        </div>
+        <div class="tableWrap" id="tableAnalitico"></div>
+      </div>
+    </div>
+  </main>
+  
+  <!-- ============================================
+       FOOTER (gerado via JS)
+       ============================================ -->
+  <div id="footer"></div>
+  
+</div>
+
+<!-- ============================================
+     DEPENDÊNCIAS EXTERNAS
+     ============================================ -->
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<!-- ============================================
+     COMPONENTES HUB
+     ============================================ -->
+<script src="../assets/components/hub-utils.js"></script>
+<script src="../assets/components/hub-cards.js"></script>
+<script src="../assets/components/hub-charts.js"></script>
+<script src="../assets/components/hub-filters.js"></script>
+<script src="../assets/components/hub-layout.js"></script>
+
+<!-- ============================================
+     CÓDIGO DO PAINEL
+     ============================================ -->
+<script src="data.js"></script>
+<script src="screens.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
