@@ -1,157 +1,142 @@
-# 🏥 Painel SMS - Limpeza e Higienização Hospitalar
+# 🏥 Painel SMS - Limpeza Hospitalar
 
-## 📋 Descrição
-
-Plataforma executiva de monitoramento operacional e financeiro do contrato de limpeza e higienização hospitalar da rede municipal de saúde do Rio de Janeiro. 
-
-O painel integra indicadores de postos contratados, faturamento, efetivo operacional, containers de resíduos e distribuição territorial das unidades atendidas, permitindo leitura estratégica da execução contratual em diferentes níveis de gestão.
+Sistema de monitoramento e gestão dos contratos de limpeza em unidades de saúde da COMLURB.
 
 ---
 
-## 🏥 Unidades Hospitalares
+## 📊 DADOS INTEGRADOS
 
-### **Ativas no Contrato:**
-
-1. **Hospital Municipal Miguel Couto**
-   - Receita Mensal: R$ 1.260.796
+### Hospitais Ativos (3)
+1. **Hospital Municipal Miguel Couto (HMMC)**
    - Efetivo: 111 garis
-   - Localização: -22.9856, -43.2009
+   - Receita Mensal: R$ 1.260.796
+   - Containers: 45 (30 RSS)
+   - Coordenadas: -22.9945, -43.2769
 
-2. **Hospital Municipal Salgado Filho**
-   - Receita Mensal: R$ 1.201.051
+2. **Hospital Municipal Salgado Filho (HMSF)**
    - Efetivo: 106 garis
-   - Localização: -22.8897, -43.2827
+   - Receita Mensal: R$ 1.201.051
+   - Containers: 42 (28 RSS)
+   - Coordenadas: -22.8964, -43.3087
 
-3. **Hospital Municipal Lourenço Jorge / Maternidade Leila Diniz**
-   - Receita Mensal: R$ 1.576.412
+3. **Hospital Municipal Lourenço Jorge + Leila Diniz (HMLJ/LD)**
    - Efetivo: 145 garis
-   - Localização (HM Lourenço Jorge): -22.9749, -43.3654
-   - Localização (Maternidade Leila Diniz): -22.9147, -43.2303
+   - Receita Mensal: R$ 1.576.412
+   - Containers: 58 (38 RSS)
+   - Coordenadas: -23.0125, -43.3089
 
-### **Saída do Contrato:**
+### Totais
+- **Unidades Ativas:** 3
+- **Efetivo Operacional:** 362 garis
+- **Receita Mensal:** R$ 4.038.260
+- **Containers Total:** 145 unidades
+- **Containers RSS:** 96 unidades
+- **Faturamento Acumulado (Jan/24 - Mai/25):** R$ 68,65 milhões
 
-4. **Hospital Municipal Ronaldo Gazolla**
-   - Status: Inativo desde meados de 2024
-   - Último faturamento: Junho/2024
-
----
-
-## 📊 Indicadores Principais
-
-- **Unidades Ativas:** 3 hospitais
-- **Efetivo Total:** 362 garis
-- **Expectativa Mensal:** R$ 4.038.260
-- **Vencimento:** 01/01/2028
-- **Reajuste:** Bienal
+### Observações
+- **Hospital Municipal Pedro II (Gazolla)** saiu do contrato em meados de 2024
+- Contratos vigentes até **01/01/2028**
+- Reajuste: **Bienal**
 
 ---
 
-## 📂 Estrutura de Arquivos
+## 🎯 ESTRUTURA DO PAINEL
 
-```
-/sms/
-├── index.html       # Estrutura HTML com 3 telas
-├── data.js          # Carregamento e processamento de dados
-├── screens.js       # Renderização das telas
-├── app.js           # Orquestração e controle
-└── README.md        # Este arquivo
-```
+### Tela 1: Visão Executiva
+- 5 KPIs principais
+- Gráfico de faturamento mensal por hospital (2024-2025)
+- Card com resumo contratual
+- Mapa com localização das unidades
 
----
+### Tela 2: Estrutura Contratual
+- Cards detalhados de cada hospital ativo
+- Informações contratuais completas
+- Seção de unidades inativas
 
-## 🔗 Fontes de Dados
-
-### **CSV 1: Faturamento Histórico**
-```
-https://docs.google.com/spreadsheets/d/e/2PACX-1vQr5S1R56YvP2uYOVJorK3b5CxUghxDNyZu6V6t7Kq_hoxJoj4zrTQVh77NGZPm_IdrBT_xwIU3pca9/pub?gid=24719560&single=true&output=csv
-```
-
-**Colunas:**
-- ANO, MÊS
-- HOSPITAL MUNICIPAL LOURENÇO JORGE/MATERNIDADE LEILA DINIZ
-- HOSPITAL MUNICIPAL MIGUEL COUTO
-- HOSPITAL MUNICIPAL RONALDO GAZOLLA
-- HOSPITAL MUNICIPAL SALGADO FILHO
-
-### **CSV 2: Containers (Consolidado)**
-```
-https://docs.google.com/spreadsheets/d/e/2PACX-1vQr5S1R56YvP2uYOVJorK3b5CxUghxDNyZu6V6t7Kq_hoxJoj4zrTQVh77NGZPm_IdrBT_xwIU3pca9/pub?output=csv
-```
-
-**Colunas:**
-- HOSPITAL
-- TOTAL (containers totais)
-- RSS (containers de resíduos sólidos de saúde)
-
-**Atualização:** Automática via planilha Google Sheets
-
----
-
-## 🖥️ Telas do Painel
-
-### **1. Visão Executiva**
-- 5 KPIs principais (unidades, faturamento, garis, containers)
-- Gráfico de faturamento por hospital
-- Resumo do contrato
-- Mapa com distribuição territorial
-
-### **2. Estrutura Contratual**
-- Cards detalhados por hospital
-- Receita mensal, efetivo, containers
-- Informações contratuais (vencimento, reajuste)
-- Coordenadas geográficas
-
-### **3. Territorial**
-- Resumo territorial (3 cards)
-- Mapa interativo com marcadores
+### Tela 3: Territorial
+- Resumo com 3 indicadores territoriais
+- Mapa interativo com marcadores numerados
 - Ranking de unidades por efetivo operacional
 
 ---
 
-## 🛠️ Componentes Utilizados
+## 🚀 COMO USAR
 
-- **HUB.utils** - Carregamento de CSV, formatação
-- **HUB.cards** - Renderização de KPIs
-- **HUB.charts** - Gráficos HTML
-- **HUB.layout** - Header e footer
+### 1. Upload no GitHub
+```bash
+# Clone o repositório
+git clone https://github.com/urbanflowrio/HUB_COMLURB.git
 
----
+# Copie a pasta sms/ para o repositório
+cp -r sms/ HUB_COMLURB/
 
-## 📝 Observações Importantes
+# Commit e push
+cd HUB_COMLURB
+git add sms/
+git commit -m "Adiciona Painel SMS - Limpeza Hospitalar"
+git push origin main
+```
 
-1. **Gazolla saiu do contrato** em meados de 2024 (último faturamento em junho/2024)
-2. **Leila Diniz** é vinculada ao Lourenço Jorge (receita unificada)
-3. **Containers** são atualizados automaticamente via CSV consolidado
-4. **Coordenadas** são fixas (hardcoded no data.js)
-
----
-
-## 🚀 Como Usar
-
-1. **Fazer upload** da pasta `/sms/` para o repositório
-2. **Acessar:** `https://urbanflowrio.github.io/HUB_COMLURB/sms/`
-3. Dados carregam automaticamente dos CSVs públicos
+### 2. Acesse o Painel
+```
+https://urbanflowrio.github.io/HUB_COMLURB/sms/
+```
 
 ---
 
-## 🔄 Atualização de Dados
+## 🛠️ TECNOLOGIAS
 
-Os dados são carregados em tempo real dos Google Sheets publicados. Para atualizar:
-
-1. Edite a planilha fonte no Google Sheets
-2. A publicação é automática
-3. Recarregue o painel no navegador
-
-**Cache:** Os dados ficam em cache no localStorage por 1 hora.
-
----
-
-## 📧 Contato
-
-**Gabinete da Presidência**  
-HUB COMLURB • Núcleo de Inteligência e Gestão Estratégica Operacional
+- **HTML5** - Estrutura
+- **CSS3** - Estilização responsiva
+- **JavaScript** - Lógica e interatividade
+- **Chart.js** - Gráficos interativos
+- **Leaflet.js** - Mapas interativos
+- **Google Sheets API** - Atualização de dados (futuro)
 
 ---
 
-**Versão:** 1.0  
-**Última Atualização:** Maio 2026
+## 📁 ARQUIVOS
+
+```
+sms/
+├── index.html      # Estrutura HTML + CSS embutido
+├── data.js         # Dados dos hospitais e faturamento
+├── screens.js      # Renderização das 3 telas
+├── app.js          # Navegação e inicialização
+└── README.md       # Documentação
+```
+
+---
+
+## 🔄 ATUALIZAÇÕES FUTURAS
+
+- [ ] Integração com Google Sheets para containers
+- [ ] Dashboard de indicadores operacionais em tempo real
+- [ ] Filtros por período de faturamento
+- [ ] Exportação de relatórios em PDF
+- [ ] Alertas de vencimento contratual
+- [ ] Histórico de reajustes
+
+---
+
+## 📞 SUPORTE
+
+**Desenvolvido por:** Urban Flow  
+**Para:** COMLURB - Companhia Municipal de Limpeza Urbana  
+**Projeto:** HUB de Contratos e Gestão Operacional
+
+---
+
+## 📝 CHANGELOG
+
+### Versão 1.0 (Maio 2025)
+- ✅ Visão Executiva com KPIs
+- ✅ Gráfico de faturamento histórico
+- ✅ Estrutura Contratual detalhada
+- ✅ Visão Territorial com mapas
+- ✅ Ranking de unidades
+- ✅ Design responsivo
+
+---
+
+**Última atualização:** 15/05/2026

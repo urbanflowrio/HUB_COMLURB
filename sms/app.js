@@ -1,122 +1,163 @@
-/**
- * SMS APP MODULE
- * Orquestração do painel SMS
- */
+// ============================================
+// APP.JS - ORQUESTRAÇÃO DO PAINEL SMS
+// ============================================
 
-const SMSApp = {
-  currentScreen: "exec",
+let currentScreen = 'executiva';
+let chartInstance = null;
 
-  /**
-   * Inicialização
-   */
-  async init() {
-    console.log("🏥 Iniciando Painel SMS...");
+// INICIALIZAÇÃO
+document.addEventListener('DOMContentLoaded', () => {
+  setupNavigation();
+  renderScreen('executiva');
+});
 
-    // Header
-    HUB.layout.renderHeader("header", {
-      logo: "../assets/logos/logo-comlurb.png",
-      systemLabel: "GESTÃO DE CONTRATOS",
-      title: "Limpeza e Higienização Hospitalar",
-      subtitle: "Monitoramento operacional e financeiro do contrato SMS • Rede Municipal de Saúde"
-    });
-
-    // Navegação
-    this.setupNavigation();
-
-    // Loading
-    document.getElementById("loading").style.display = "block";
-
-    // Carrega dados
-    try {
-      await SMSData.load();
+// NAVEGAÇÃO ENTRE TELAS
+function setupNavigation() {
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const screen = e.target.dataset.screen;
+      renderScreen(screen);
       
-      // Renderiza tela inicial
-      this.showScreen("exec");
-      
-      document.getElementById("loading").style.display = "none";
-      
-    } catch (error) {
-      console.error("Erro ao carregar dados:", error);
-      document.getElementById("loading").innerHTML = `
-        <div style="color:#ef6a5d; padding:20px; text-align:center;">
-          ⚠️ Erro ao carregar dados do SMS.<br>
-          <small style="color:#aebfd5; margin-top:8px; display:block;">Verifique as fontes de dados ou tente novamente.</small>
-        </div>
-      `;
-    }
-
-    // Footer
-    HUB.footer.render("footer", {
-      customText: `
-        <strong>Gabinete da Presidência</strong><br>
-        HUB COMLURB • Núcleo de Inteligência e Gestão Estratégica Operacional
-      `,
-      version: "1.0",
-      showTimestamp: false
+      // Atualiza estado ativo dos botões
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
     });
-  },
+  });
+}
 
-  /**
-   * Configurar navegação entre telas
-   */
-  setupNavigation() {
-    const tabs = document.querySelectorAll(".tabBtn");
-    
-    tabs.forEach(tab => {
-      tab.addEventListener("click", () => {
-        const screen = tab.dataset.screen;
-        this.showScreen(screen);
-      });
-    });
-  },
-
-  /**
-   * Mostrar tela
-   */
-  showScreen(screenId) {
-    // Atualiza abas
-    document.querySelectorAll(".tabBtn").forEach(btn => {
-      btn.classList.toggle("active", btn.dataset.screen === screenId);
-    });
-
-    // Esconde todas as telas
-    document.querySelectorAll(".screen").forEach(s => {
-      s.classList.remove("active");
-    });
-
-    // Mostra tela selecionada
-    const screen = document.getElementById(`screen-${screenId}`);
-    if (screen) {
-      screen.classList.add("active");
-      
-      // Renderiza conteúdo da tela
-      this.renderScreen(screenId);
-    }
-
-    this.currentScreen = screenId;
-  },
-
-  /**
-   * Renderiza conteúdo da tela
-   */
-  renderScreen(screenId) {
-    switch(screenId) {
-      case "exec":
-        SMSScreens.renderVisaoExecutiva();
-        break;
-      case "estrutura":
-        SMSScreens.renderEstruturaContratual();
-        break;
-      case "territorial":
-        SMSScreens.renderTerritorial();
-        break;
-    }
+// RENDERIZAÇÃO DE TELA
+function renderScreen(screenName) {
+  currentScreen = screenName;
+  const container = document.getElementById('content');
+  
+  // Destrói gráfico anterior se existir
+  if (chartInstance) {
+    chartInstance.destroy();
+    chartInstance = null;
   }
-};
+  
+  // Renderiza conteúdo
+  switch(screenName) {
+    case 'executiva':
+      container.innerHTML = renderVisaoExecutiva();
+      setTimeout(() => {
+        initChartFaturamento();
+        initMapExecutivo();
+      }, 100);
+      break;
+    case 'contratual':
+      container.innerHTML = renderEstruturaContratual();
+      break;
+    case 'territorial':
+      container.innerHTML = renderTerritorial();
+      setTimeout(() => initMapTerritorial(), 100);
+      break;
+  }
+}
 
-// Auto-inicializa quando DOM carregar
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", () => SMSApp.init());
-} else {
-  SMSApp.init();
+// GRÁFICO DE FATURAMENTO
+function initChartFaturamento() {
+  const ctx = document.getElementById('chartFaturamento');
+  if (!ctx) return;
+  
+  const labels = faturamentoHistorico.map(m => m.mes);
+  const datasets = [
+    {
+      label: 'HMMC',
+      data: faturamentoHistorico.map(m => m.hmmc),
+      backgroundColor: 'rgba(54, 162, 235, 0.7)',
+      borderColor: 'rgba(54, 162, 235, 1)',
+      borderWidth: 2
+    },
+    {
+      label: 'HMSF',
+      data: faturamentoHistorico.map(m => m.hmsf),
+      backgroundColor: 'rgba(75, 192, 192, 0.7)',
+      borderColor: 'rgba(75, 192, 192, 1)',
+      borderWidth: 2
+    },
+    {
+      label: 'HMLJ/LD',
+      data: faturamentoHistorico.map(m => m.hmlj),
+      backgroundColor: 'rgba(255, 159, 64, 0.7)',
+      borderColor: 'rgba(255, 159, 64, 1)',
+      borderWidth: 2
+    }
+  ];
+  
+  chartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top' },
+        title: { display: false }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: value => 'R$ ' + (value / 1000).toFixed(0) + 'k'
+          }
+        }
+      }
+    }
+  });
+}
+
+// MAPA EXECUTIVO
+function initMapExecutivo() {
+  const mapEl = document.getElementById('mapExecutivo');
+  if (!mapEl) return;
+  
+  const map = L.map('mapExecutivo').setView([-22.95, -43.25], 11);
+  
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+  
+  // Adiciona marcadores
+  hospitalData.ativo.forEach(hospital => {
+    const marker = L.marker([hospital.coordenadas.lat, hospital.coordenadas.lng])
+      .addTo(map)
+      .bindPopup(`
+        <strong>${hospital.nome}</strong><br>
+        Efetivo: ${hospital.efetivo} garis<br>
+        Receita: R$ ${(hospital.receitaMensal / 1000).toFixed(0)}k/mês
+      `);
+  });
+}
+
+// MAPA TERRITORIAL
+function initMapTerritorial() {
+  const mapEl = document.getElementById('mapTerritorial');
+  if (!mapEl) return;
+  
+  const map = L.map('mapTerritorial').setView([-22.95, -43.25], 11);
+  
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+  
+  // Adiciona marcadores com numeração
+  hospitalData.ativo.forEach((hospital, index) => {
+    const customIcon = L.divIcon({
+      className: 'custom-marker',
+      html: `<div class="marker-pin">${index + 1}</div>`,
+      iconSize: [30, 42],
+      iconAnchor: [15, 42]
+    });
+    
+    L.marker([hospital.coordenadas.lat, hospital.coordenadas.lng], { icon: customIcon })
+      .addTo(map)
+      .bindPopup(`
+        <strong>#${index + 1} - ${hospital.sigla}</strong><br>
+        ${hospital.nome}<br>
+        <strong>Efetivo:</strong> ${hospital.efetivo} garis<br>
+        <strong>Containers:</strong> ${hospital.containers.total} (${hospital.containers.rss} RSS)<br>
+        <strong>Receita:</strong> R$ ${hospital.receitaMensal.toLocaleString('pt-BR')}/mês
+      `);
+  });
 }

@@ -3,96 +3,458 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Painel SMS • HUB COMLURB</title>
-  <meta name="description" content="Painel Executivo de Limpeza e Higienização Hospitalar • HUB COMLURB">
+  <title>Painel SMS - Limpeza Hospitalar | HUB COMLURB</title>
   
-  <!-- CSS -->
-  <link rel="stylesheet" href="../assets/hub-premium.css">
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   
-  <!-- External Libraries -->
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* HEADER */
+    header {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      font-size: 2em;
+      color: #667eea;
+      margin-bottom: 5px;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 1.1em;
+    }
+
+    /* NAVEGAÇÃO */
+    .nav-bar {
+      display: flex;
+      gap: 10px;
+      background: white;
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    .nav-btn {
+      flex: 1;
+      padding: 15px 25px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .nav-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .nav-btn.active {
+      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.6);
+    }
+
+    /* CONTENT AREA */
+    #content {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    .screen-header {
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 3px solid #667eea;
+    }
+
+    .screen-header h2 {
+      font-size: 1.8em;
+      color: #667eea;
+      margin-bottom: 8px;
+    }
+
+    .screen-header p {
+      color: #666;
+      font-size: 1.1em;
+    }
+
+    /* KPIs */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .kpi-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 25px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      transition: transform 0.3s ease;
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .kpi-icon {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+
+    .kpi-value {
+      font-size: 2.2em;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .kpi-label {
+      font-size: 0.95em;
+      opacity: 0.9;
+    }
+
+    /* GRÁFICO */
+    .chart-container {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 30px;
+      height: 400px;
+    }
+
+    .chart-container h3 {
+      color: #667eea;
+      margin-bottom: 20px;
+    }
+
+    /* INFO CARD */
+    .info-card {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 30px;
+    }
+
+    .info-card h3 {
+      color: #667eea;
+      margin-bottom: 20px;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .hospitals-summary {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    .hospital-mini {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      flex: 1;
+      min-width: 250px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    /* MAPA */
+    .map-container {
+      margin-bottom: 30px;
+    }
+
+    .map {
+      height: 500px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    /* CONTRATOS */
+    .contracts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+
+    .contract-card {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .contract-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .contract-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .contract-header h3 {
+      font-size: 1.3em;
+      margin: 0;
+    }
+
+    .badge-active {
+      background: rgba(255,255,255,0.3);
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 0.85em;
+      font-weight: 600;
+    }
+
+    .contract-body {
+      padding: 25px;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #dee2e6;
+    }
+
+    .info-row:last-child {
+      border-bottom: none;
+    }
+
+    .info-row .label {
+      font-weight: 600;
+      color: #495057;
+    }
+
+    .info-row .value {
+      color: #667eea;
+      font-weight: 500;
+    }
+
+    /* INATIVO */
+    .inactive-section {
+      background: #fff3cd;
+      border: 2px solid #ffc107;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 30px;
+    }
+
+    .inactive-section h3 {
+      color: #856404;
+      margin-bottom: 15px;
+    }
+
+    .inactive-card {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      border-left: 4px solid #ffc107;
+    }
+
+    /* TERRITORIAL */
+    .territorial-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .summary-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 25px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .summary-icon {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+
+    .summary-value {
+      font-size: 2.2em;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .summary-label {
+      font-size: 0.95em;
+      opacity: 0.9;
+    }
+
+    /* RANKING */
+    .ranking-container {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 25px;
+      margin-top: 30px;
+    }
+
+    .ranking-container h3 {
+      color: #667eea;
+      margin-bottom: 20px;
+    }
+
+    .ranking-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .ranking-table thead {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .ranking-table th,
+    .ranking-table td {
+      padding: 15px;
+      text-align: left;
+    }
+
+    .ranking-table tbody tr {
+      border-bottom: 1px solid #dee2e6;
+      transition: background 0.2s ease;
+    }
+
+    .ranking-table tbody tr:hover {
+      background: #f8f9fa;
+    }
+
+    .rank-position {
+      font-size: 1.3em;
+      font-weight: bold;
+      color: #667eea;
+      text-align: center;
+    }
+
+    /* MARKER PERSONALIZADO */
+    .custom-marker {
+      background: transparent;
+      border: none;
+    }
+
+    .marker-pin {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 14px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+    }
+
+    /* RESPONSIVO */
+    @media (max-width: 768px) {
+      .container {
+        padding: 10px;
+      }
+
+      h1 {
+        font-size: 1.5em;
+      }
+
+      .nav-bar {
+        flex-direction: column;
+      }
+
+      .kpi-grid,
+      .contracts-grid,
+      .territorial-summary {
+        grid-template-columns: 1fr;
+      }
+
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hospitals-summary {
+        flex-direction: column;
+      }
+
+      .map {
+        height: 350px;
+      }
+    }
+  </style>
 </head>
 <body>
-  <div class="app">
-    
-    <!-- HEADER -->
-    <div id="header"></div>
+  <div class="container">
+    <header>
+      <h1>🏥 Painel SMS - Limpeza Hospitalar</h1>
+      <p class="subtitle">Sistema de Monitoramento e Gestão de Serviços em Unidades de Saúde</p>
+    </header>
 
-    <!-- NAVEGAÇÃO -->
-    <div class="navTabs">
-      <button class="tabBtn active" data-screen="exec">Visão Executiva</button>
-      <button class="tabBtn" data-screen="estrutura">Estrutura Contratual</button>
-      <button class="tabBtn" data-screen="territorial">Territorial</button>
-    </div>
+    <nav class="nav-bar">
+      <button class="nav-btn active" data-screen="executiva">📊 Visão Executiva</button>
+      <button class="nav-btn" data-screen="contratual">📑 Estrutura Contratual</button>
+      <button class="nav-btn" data-screen="territorial">🗺️ Territorial</button>
+    </nav>
 
-    <!-- LOADING -->
-    <div id="loading" style="display:none; padding:40px; text-align:center; color:#aebfd5;">
-      <div style="font-size:18px; margin-bottom:10px;">⏳ Carregando dados do SMS...</div>
-      <small>Aguarde enquanto processamos as informações do contrato</small>
-    </div>
-
-    <!-- ==========================================
-         TELA 1: VISÃO EXECUTIVA
-         ========================================== -->
-    <main id="screen-exec" class="screen active">
-      
-      <!-- KPIs -->
-      <div id="kpis-exec" class="kpis"></div>
-
-      <!-- Gráficos + Mapa -->
-      <div class="grid2">
-        <div id="chart-hospitais"></div>
-        <div id="resumo-contrato"></div>
-      </div>
-
-      <div id="mapa-exec"></div>
-
+    <main id="content">
+      <!-- Conteúdo será injetado aqui via JavaScript -->
     </main>
-
-    <!-- ==========================================
-         TELA 2: ESTRUTURA CONTRATUAL
-         ========================================== -->
-    <main id="screen-estrutura" class="screen">
-      
-      <div style="margin-bottom:14px;">
-        <h2>Estrutura do Contrato SMS</h2>
-        <p class="hint">Detalhamento operacional e financeiro por unidade hospitalar</p>
-      </div>
-
-      <div id="estrutura-cards" style="display:grid; gap:14px;"></div>
-
-    </main>
-
-    <!-- ==========================================
-         TELA 3: TERRITORIAL
-         ========================================== -->
-    <main id="screen-territorial" class="screen">
-      
-      <div id="territorial-summary" style="margin-bottom:14px;"></div>
-
-      <div class="grid2">
-        <div id="mapa-territorial"></div>
-        <div id="territorial-rank"></div>
-      </div>
-
-    </main>
-
-    <!-- FOOTER -->
-    <div id="footer" class="footer"></div>
-
   </div>
 
-  <!-- HUB Components -->
-  <script src="../assets/components/hub-utils.js"></script>
-  <script src="../assets/components/hub-cards.js"></script>
-  <script src="../assets/components/hub-charts.js"></script>
-  <script src="../assets/components/hub-layout.js"></script>
-
-  <!-- SMS Modules -->
+  <!-- BIBLIOTECAS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  
+  <!-- SCRIPTS DO PAINEL -->
   <script src="data.js"></script>
   <script src="screens.js"></script>
   <script src="app.js"></script>
-
 </body>
 </html>
