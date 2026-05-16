@@ -1,16 +1,14 @@
 // ============================================
-// APP.JS - PAINEL DTE COMPLETO
-// 4 Telas | Drill-down | Filtros | Responsivo
+// APP.JS - PAINEL DTE V2
+// Responsivo | 2 Planilhas | Filtros Dinâmicos
 // ============================================
 
-// CONFIGURAÇÃO
 const CONFIG = {
   panelName: "Painel Estratégico DTE",
   systemLabel: "DIRETORIA TÉCNICA E DE ENGENHARIA",
   subtitle: "Monitoramento Operacional e Análise de Performance"
 };
 
-// ESTADO GLOBAL
 let DRILL = null;
 let CURRENT_SCREEN = "screenVisao";
 
@@ -20,12 +18,7 @@ let CURRENT_SCREEN = "screenVisao";
 
 async function init() {
   try {
-    HUB.loading.showMultiple([
-      "kpisVisao", "chartEvolucao", "chartETRs", "chartTipoColeta", "chartSazonalidade", "chartBemVerde",
-      "kpisFrota", "chartUtilizacaoTipos", "chartHorasExtras", "chartOfensoras", "chartSobrecarga", "chartTratores",
-      "kpisBio", "chartBiogas", "chartBiogasDistrib", "chartChorume", "chartPurificacao", "chartRCC",
-      "kpisInfra", "chartFrota", "chartDiesel", "chartIntervencoes", "chartLubrificantes", "chartTiposIntervencao"
-    ]);
+    showLoadingAll();
     
     HUB.header.render("header", {
       systemLabel: CONFIG.systemLabel,
@@ -33,14 +26,9 @@ async function init() {
       subtitle: CONFIG.subtitle
     });
     
-    const response = await fetch(DATA_URL, { 
-      cache: "no-store",
-      headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
-    });
-    const text = await response.text();
-    const parsed = Papa.parse(text, { header: false, skipEmptyLines: true });
+    // Carrega AMBAS as planilhas
+    await Promise.all([loadData1(), loadData2()]);
     
-    DATA_RAW = parsed.data;
     processData();
     populateFilters();
     setupNavigation();
@@ -49,7 +37,7 @@ async function init() {
     
     HUB.footer.render("footer", {
       customText: `<strong>Gabinete da Presidência</strong><br>HUB COMLURB • Núcleo de Inteligência e Gestão Estratégica Operacional`,
-      version: "1.0",
+      version: "2.0",
       showTimestamp: true
     });
     
@@ -59,11 +47,36 @@ async function init() {
   }
 }
 
+function showLoadingAll() {
+  const ids = [
+    "kpisVisao", "chartEvolucao", "chartETRs", "chartTipoColeta", "chartSazonalidade", "chartBemVerde",
+    "kpisFrota", "chartUtilTipos", "chartHE", "chartOfensoras", "chartSobrecarga", "chartTratores",
+    "kpisBio", "chartBiogas", "chartBioDistrib", "chartChorume", "chartPurif", "chartRCC",
+    "kpisInfra", "chartFrota", "chartDiesel", "chartIntervencoes", "chartLubric", "chartTipos"
+  ];
+  HUB.loading.showMultiple(ids);
+}
+
+async function loadData1() {
+  const res = await fetch(DATA_URL_1, { cache: "no-store", headers: { 'Cache-Control': 'no-cache' }});
+  const text = await res.text();
+  const parsed = Papa.parse(text, { header: false, skipEmptyLines: true });
+  DATA_RAW = parsed.data;
+}
+
+async function loadData2() {
+  const res = await fetch(DATA_URL_2, { cache: "no-store", headers: { 'Cache-Control': 'no-cache' }});
+  const text = await res.text();
+  const parsed = Papa.parse(text, { header: false, skipEmptyLines: true });
+  DATA_RAW_2 = parsed.data;
+}
+
 // ============================================
-// PROCESSAMENTO DE DADOS
+// PROCESSAMENTO
 // ============================================
 
 function processData() {
+  // Recebimento ETRs
   const recIdx = findSection("I - Recebimento Resíduos Totais");
   if (recIdx !== -1) {
     const meses = DATA_RAW[recIdx].slice(1);
@@ -80,6 +93,7 @@ function processData() {
     }
   }
   
+  // Tipo de Coleta
   const tipoIdx = findSection("II - Recebimento Residos Recebidos nas ETR");
   if (tipoIdx !== -1) {
     const meses = DATA_RAW[tipoIdx].slice(1);
@@ -94,6 +108,7 @@ function processData() {
     }
   }
   
+  // Biogás
   const bioIdx = findSection("V - Geração Biogás");
   if (bioIdx !== -1) {
     const meses = DATA_RAW[bioIdx].slice(1);
@@ -106,6 +121,7 @@ function processData() {
     }
   }
   
+  // Chorume
   const choIdx = findSection("VII - Geração Chorume");
   if (choIdx !== -1) {
     const meses = DATA_RAW[choIdx].slice(1);
@@ -119,6 +135,7 @@ function processData() {
     }
   }
   
+  // Utilização
   const utilIdx = findSection("Coleta Domiociliar e Comunidade");
   if (utilIdx !== -1) {
     const meses = DATA_RAW[utilIdx].slice(1);
@@ -128,6 +145,7 @@ function processData() {
     }
   }
   
+  // Sobrecarga
   const sobIdx = findSection("Sobrecarga >10%");
   if (sobIdx !== -1) {
     const meses = DATA_RAW[sobIdx].slice(1);
@@ -137,6 +155,7 @@ function processData() {
     }
   }
   
+  // Horas Extras
   const heIdx = findSection("Análise de Horas Extras");
   if (heIdx !== -1) {
     const meses = DATA_RAW[heIdx].slice(1);
@@ -146,6 +165,7 @@ function processData() {
     }
   }
   
+  // Frota Própria
   const frotaIdx = findSection("C - MANUTENÇÃO FROTA PRÓPRIA");
   if (frotaIdx !== -1) {
     const meses = DATA_RAW[frotaIdx].slice(1);
@@ -159,6 +179,7 @@ function processData() {
     }
   }
   
+  // Intervenções
   const intIdx = findSection("D - MANUTENÇÃO PREDIAL");
   if (intIdx !== -1) {
     const meses = DATA_RAW[intIdx].slice(1);
@@ -172,6 +193,8 @@ function processData() {
       });
     }
   }
+  
+  console.log("✅ Dados processados:", DATA);
 }
 
 // ============================================
@@ -185,7 +208,6 @@ function setupNavigation() {
       document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
       btn.classList.add("active");
       document.getElementById(btn.dataset.screen).classList.add("active");
-      CURRENT_SCREEN = btn.dataset.screen;
     });
   });
 }
@@ -205,10 +227,16 @@ function setupFilters() {
   });
 }
 
-function applyPeriodoFilter(data) {
+function applyFilters(data) {
+  let filtered = [...data];
+  
+  // Filtro de Período
   const periodo = document.getElementById("fPeriodo").value;
-  if (!periodo) return data;
-  return data.slice(-parseInt(periodo));
+  if (periodo) {
+    filtered = filtered.slice(-parseInt(periodo));
+  }
+  
+  return filtered;
 }
 
 function clearAll() {
@@ -223,7 +251,7 @@ function clearAll() {
 function setDrill(field, value, label) {
   DRILL = { field, value, label };
   HUB.drillBanner.show("drillBanner", {
-    title: `Filtro ativo: ${label}`,
+    title: `Filtro: ${label}`,
     description: "Clique para remover",
     onClear: "clearDrill()"
   });
@@ -237,7 +265,7 @@ function clearDrill() {
 }
 
 // ============================================
-// RENDERIZAÇÃO PRINCIPAL
+// RENDERIZAÇÃO
 // ============================================
 
 function render() {
@@ -249,13 +277,13 @@ function render() {
 
 
 // ============================================
-// TELA 1 - VISÃO GERAL OPERACIONAL
+// TELA 1 - VISÃO GERAL
 // ============================================
 
 function renderTela1() {
   if (!DATA.recebimento.length) return;
   
-  const dados = applyPeriodoFilter(DATA.recebimento);
+  const dados = applyFilters(DATA.recebimento);
   const ultimo = dados[dados.length - 1];
   const penultimo = dados[dados.length - 2] || ultimo;
   const variacao = ((ultimo.total - penultimo.total) / penultimo.total * 100);
@@ -267,15 +295,15 @@ function renderTela1() {
   // KPIs
   HUB.cards.render("kpisVisao", [
     {
-      label: "Recebimento Total",
+      label: "Total Mês",
       value: ultimo.total,
-      note: `${ultimo.mes} • ${variacao > 0 ? '+' : ''}${HUB.format.pct(variacao, 1)} vs mês anterior`,
+      note: `${ultimo.mes}`,
       feature: true,
       format: "int",
       color: variacao > 0 ? "orange" : "green"
     },
     {
-      label: "ETR Caju (Líder)",
+      label: "ETR Caju",
       value: ultimo.caju,
       note: `${HUB.format.pct((ultimo.caju / ultimo.total) * 100)} do total`,
       format: "int",
@@ -283,60 +311,125 @@ function renderTela1() {
       onclick: "setDrill('etr', 'Caju', 'ETR Caju')"
     },
     {
-      label: "Média Mensal",
+      label: "Média",
       value: media,
-      note: `Últimos ${dados.length} meses`,
+      note: `${dados.length} meses`,
       format: "int",
       color: "green"
     },
     {
-      label: "Utilização Frota CDC",
+      label: "Util. Frota",
       value: ultimaUtil,
-      note: "Peso / capacidade estimada",
+      note: "CDC",
       format: "pct",
       color: ultimaUtil > 75 ? "green" : "orange"
     },
     {
-      label: "Frota Própria Ativa",
+      label: "Frota Ativa",
       value: ultimaFrota.operacao,
-      note: `${ultimaFrota.total} total • ${HUB.format.pct((ultimaFrota.operacao / ultimaFrota.total) * 100, 0)} operacional`,
+      note: `${ultimaFrota.total} total`,
       format: "int",
       color: "purple"
     }
   ]);
   
-  // Evolução
-  HUB.charts.line("chartEvolucao", {
-    labels: dados.map(r => r.mes),
-    values: dados.map(r => r.total)
-  }, {
-    label: "Recebimento Total (t)",
-    color: HUB.charts.colors.blueGradient
-  });
+  // Evolução - SEM FUNDO PRETO
+  const ctx1 = document.getElementById("chartEvolucao");
+  if (ctx1) {
+    const chart1 = Chart.getChart(ctx1);
+    if (chart1) chart1.destroy();
+    
+    new Chart(ctx1, {
+      type: "line",
+      data: {
+        labels: dados.map(r => r.mes),
+        datasets: [{
+          label: "Recebimento (t)",
+          data: dados.map(r => r.total),
+          borderColor: "#5b9bd5",
+          backgroundColor: "rgba(91, 155, 213, 0.1)",
+          borderWidth: 3,
+          tension: 0.4,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: "rgba(13,31,54,0.95)",
+            titleColor: "#fff",
+            bodyColor: "#fff",
+            callbacks: { label: ctx => `${HUB.format.int(ctx.parsed.y)} t` }
+          }
+        },
+        scales: {
+          y: {
+            grid: { color: "rgba(41,72,102,0.3)" },
+            ticks: { color: "#b8c9de", callback: v => HUB.format.int(v) }
+          },
+          x: {
+            grid: { color: "rgba(41,72,102,0.3)" },
+            ticks: { color: "#b8c9de" }
+          }
+        }
+      }
+    });
+  }
   
   // Ranking ETRs
   const etrsData = [
-    ["ETR Caju", ultimo.caju],
-    ["ETR Mal Hermes", ultimo.hermes],
-    ["ETR Bangu", ultimo.bangu],
-    ["ETR Jacarepaguá", ultimo.jacarepagua],
-    ["ETR Santa Cruz", ultimo.santa_cruz]
+    ["Caju", ultimo.caju],
+    ["Mal Hermes", ultimo.hermes],
+    ["Bangu", ultimo.bangu],
+    ["Jacarepaguá", ultimo.jacarepagua],
+    ["Santa Cruz", ultimo.santa_cruz]
   ].sort((a, b) => b[1] - a[1]);
   
   HUB.simpleBar.render("chartETRs", etrsData, {
     total: ultimo.total,
     color: "blue",
-    onclick: name => `setDrill('etr', '${name}', '${name}')`
+    onclick: name => `setDrill('etr', '${name}', 'ETR ${name}')`
   });
   
   // Tipo de Coleta
   if (DATA.tipoColeta.length) {
-    const dadosTipo = applyPeriodoFilter(DATA.tipoColeta);
+    const dadosTipo = applyFilters(DATA.tipoColeta);
     const ultimoTipo = dadosTipo[dadosTipo.length - 1];
-    HUB.charts.donut("chartTipoColeta", {
-      labels: ["Domiciliar", "Comunidades", "Lixo Público", "Grandes Geradores"],
-      values: [ultimoTipo.domiciliar, ultimoTipo.comunidades, ultimoTipo.publico, ultimoTipo.geradores]
-    });
+    
+    const ctx2 = document.getElementById("chartTipoColeta");
+    if (ctx2) {
+      const chart2 = Chart.getChart(ctx2);
+      if (chart2) chart2.destroy();
+      
+      new Chart(ctx2, {
+        type: "doughnut",
+        data: {
+          labels: ["Domiciliar", "Comunidades", "Lixo Público", "Grandes Geradores"],
+          values: [ultimoTipo.domiciliar, ultimoTipo.comunidades, ultimoTipo.publico, ultimoTipo.geradores],
+          datasets: [{
+            data: [ultimoTipo.domiciliar, ultimoTipo.comunidades, ultimoTipo.publico, ultimoTipo.geradores],
+            backgroundColor: ["#5b9bd5", "#78aaa3", "#e87535", "#a78bfa"]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: { color: "#b8c9de", font: { size: 11 }, padding: 10, usePointStyle: true }
+            },
+            tooltip: {
+              backgroundColor: "rgba(13,31,54,0.95)",
+              callbacks: { label: ctx => `${ctx.label}: ${HUB.format.int(ctx.parsed)} t` }
+            }
+          }
+        }
+      });
+    }
   }
   
   // Sazonalidade
@@ -347,10 +440,10 @@ function renderTela1() {
     mesesAgrupados[mes].push(r.total);
   });
   
-  const sazonalidade = Object.entries(mesesAgrupados).map(([mes, valores]) => {
-    const media = valores.reduce((a, b) => a + b, 0) / valores.length;
-    return [mes, media];
-  });
+  const sazonalidade = Object.entries(mesesAgrupados).map(([mes, valores]) => [
+    mes,
+    valores.reduce((a, b) => a + b, 0) / valores.length
+  ]);
   
   const mediaSaz = sazonalidade.reduce((a, b) => a + b[1], 0) / sazonalidade.length;
   HUB.simpleBar.render("chartSazonalidade", sazonalidade, {
@@ -358,24 +451,55 @@ function renderTela1() {
     color: "green"
   });
   
-  // Bem Verde (simulado - ajustar conforme planilha)
-  HUB.charts.bar("chartBemVerde", {
-    labels: dados.slice(-6).map(r => r.mes),
-    values: dados.slice(-6).map(r => r.total * 0.08)
-  }, {
-    label: "Operação Bem Verde (t)",
-    color: HUB.charts.colors.greenGradient
-  });
+  // Bem Verde
+  const ctx3 = document.getElementById("chartBemVerde");
+  if (ctx3) {
+    const chart3 = Chart.getChart(ctx3);
+    if (chart3) chart3.destroy();
+    
+    new Chart(ctx3, {
+      type: "bar",
+      data: {
+        labels: dados.slice(-6).map(r => r.mes),
+        datasets: [{
+          label: "Bem Verde (t)",
+          data: dados.slice(-6).map(r => r.total * 0.08),
+          backgroundColor: "#78aaa3"
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: "rgba(13,31,54,0.95)",
+            callbacks: { label: ctx => `${HUB.format.int(ctx.parsed.y)} t` }
+          }
+        },
+        scales: {
+          y: {
+            grid: { color: "rgba(41,72,102,0.3)" },
+            ticks: { color: "#b8c9de", callback: v => HUB.format.int(v) }
+          },
+          x: {
+            grid: { color: "rgba(41,72,102,0.3)" },
+            ticks: { color: "#b8c9de" }
+          }
+        }
+      }
+    });
+  }
 }
 
 // ============================================
-// TELA 2 - PERFORMANCE DE FROTA
+// TELA 2 - FROTA
 // ============================================
 
 function renderTela2() {
-  const dadosUtil = applyPeriodoFilter(DATA.utilizacao);
-  const dadosSobre = applyPeriodoFilter(DATA.sobrecarga);
-  const dadosHE = applyPeriodoFilter(DATA.horasExtras);
+  const dadosUtil = applyFilters(DATA.utilizacao);
+  const dadosSobre = applyFilters(DATA.sobrecarga);
+  const dadosHE = applyFilters(DATA.horasExtras);
   
   if (!dadosUtil.length) return;
   
@@ -387,44 +511,44 @@ function renderTela2() {
   // KPIs
   HUB.cards.render("kpisFrota", [
     {
-      label: "Utilização CDC",
+      label: "Util. CDC",
       value: ultimaUtil,
-      note: "Coleta Domiciliar e Comunidades",
+      note: "Atual",
       feature: true,
       format: "pct",
       color: ultimaUtil > 75 ? "green" : "orange"
     },
     {
-      label: "Sobrecarga >10% PBT",
+      label: "Sobrecarga",
       value: ultimaSobre,
-      note: "Pesagens acima do limite",
+      note: ">10% PBT",
       format: "pct",
       color: ultimaSobre > 25 ? "red" : "orange"
     },
     {
       label: "Horas Extras",
       value: ultimaHE,
-      note: "% sobre faturamento",
+      note: "% fatur.",
       format: "pct",
       color: ultimaHE > 2 ? "red" : "green"
     },
     {
-      label: "Média de Utilização",
+      label: "Média Util.",
       value: mediaUtil,
-      note: `Últimos ${dadosUtil.length} meses`,
+      note: `${dadosUtil.length} meses`,
       format: "pct",
       color: "blue"
     },
     {
-      label: "Meta de Utilização",
+      label: "Meta",
       value: 85,
-      note: "Target definido pela gestão",
+      note: "Target",
       format: "pct",
       color: "purple"
     }
   ]);
   
-  // Utilização por Tipo (simulado)
+  // Utilização por Tipo
   const tiposVeiculo = [
     ["Compactador 15m³", 78],
     ["Compactador 19m³", 82],
@@ -433,23 +557,58 @@ function renderTela2() {
     ["Roll-on/off", 68]
   ];
   
-  HUB.simpleBar.render("chartUtilizacaoTipos", tiposVeiculo, {
+  HUB.simpleBar.render("chartUtilTipos", tiposVeiculo, {
     total: 85,
     color: "blue"
   });
   
   // Horas Extras
   if (dadosHE.length) {
-    HUB.charts.line("chartHorasExtras", {
-      labels: dadosHE.map(r => r.mes),
-      values: dadosHE.map(r => r.pct)
-    }, {
-      label: "Horas Extras (% faturamento)",
-      color: HUB.charts.colors.orangeGradient
-    });
+    const ctx1 = document.getElementById("chartHE");
+    if (ctx1) {
+      const chart1 = Chart.getChart(ctx1);
+      if (chart1) chart1.destroy();
+      
+      new Chart(ctx1, {
+        type: "line",
+        data: {
+          labels: dadosHE.map(r => r.mes),
+          datasets: [{
+            label: "HE (%)",
+            data: dadosHE.map(r => r.pct),
+            borderColor: "#e87535",
+            backgroundColor: "rgba(232, 117, 53, 0.1)",
+            borderWidth: 3,
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: "rgba(13,31,54,0.95)",
+              callbacks: { label: ctx => `${ctx.parsed.y.toFixed(2)}%` }
+            }
+          },
+          scales: {
+            y: {
+              grid: { color: "rgba(41,72,102,0.3)" },
+              ticks: { color: "#b8c9de", callback: v => `${v}%` }
+            },
+            x: {
+              grid: { color: "rgba(41,72,102,0.3)" },
+              ticks: { color: "#b8c9de" }
+            }
+          }
+        }
+      });
+    }
   }
   
-  // Gerências Ofensoras (simulado)
+  // Gerências Ofensoras
   const ofensoras = [
     ["AP 5.1", 18],
     ["AP 3.2", 15],
@@ -463,20 +622,51 @@ function renderTela2() {
   
   // Sobrecarga
   if (dadosSobre.length) {
-    HUB.charts.bar("chartSobrecarga", {
-      labels: dadosSobre.map(r => r.mes),
-      values: dadosSobre.map(r => r.pct)
-    }, {
-      label: "Sobrecarga >10% PBT (%)",
-      color: HUB.charts.colors.redGradient
-    });
+    const ctx2 = document.getElementById("chartSobrecarga");
+    if (ctx2) {
+      const chart2 = Chart.getChart(ctx2);
+      if (chart2) chart2.destroy();
+      
+      new Chart(ctx2, {
+        type: "bar",
+        data: {
+          labels: dadosSobre.map(r => r.mes),
+          datasets: [{
+            label: "Sobrecarga (%)",
+            data: dadosSobre.map(r => r.pct),
+            backgroundColor: "#ef6a5d"
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: "rgba(13,31,54,0.95)",
+              callbacks: { label: ctx => `${ctx.parsed.y.toFixed(1)}%` }
+            }
+          },
+          scales: {
+            y: {
+              grid: { color: "rgba(41,72,102,0.3)" },
+              ticks: { color: "#b8c9de", callback: v => `${v}%` }
+            },
+            x: {
+              grid: { color: "rgba(41,72,102,0.3)" },
+              ticks: { color: "#b8c9de" }
+            }
+          }
+        }
+      });
+    }
   }
   
-  // Tratores (simulado)
+  // Tratores
   const tratores = [
-    ["Trator Tipo A", 92],
-    ["Trator Tipo B", 87],
-    ["Trator Tipo C", 79]
+    ["Tipo A", 92],
+    ["Tipo B", 87],
+    ["Tipo C", 79]
   ];
   
   HUB.simpleBar.render("chartTratores", tratores, {
@@ -486,18 +676,18 @@ function renderTela2() {
 }
 
 // ============================================
-// TELA 3 - BIOENERGIA & SUSTENTABILIDADE
+// TELA 3 - BIOENERGIA
 // ============================================
 
 function renderTela3() {
-  const dadosBio = applyPeriodoFilter(DATA.biogas);
-  const dadosCho = applyPeriodoFilter(DATA.chorume);
+  const dadosBio = applyFilters(DATA.biogas);
+  const dadosCho = applyFilters(DATA.chorume);
   
   if (!dadosBio.length) return;
   
   const ultimo = dadosBio[dadosBio.length - 1];
   const totalBio = ultimo.seropedica + ultimo.gramacho;
-  const taxaPurif = 0.67; // 67% conforme planilha
+  const taxaPurif = 0.67;
   const ultimoCho = dadosCho.length ? dadosCho[dadosCho.length - 1].geracao : 0;
   
   // KPIs
@@ -505,117 +695,69 @@ function renderTela3() {
     {
       label: "Biogás Total",
       value: totalBio,
-      note: `${ultimo.mes} • CTR + Gramacho`,
+      note: `${ultimo.mes}`,
       feature: true,
       format: "int",
       color: "green"
     },
     {
-      label: "CTR Seropédica",
+      label: "CTR Serop.",
       value: ultimo.seropedica,
-      note: `${HUB.format.pct((ultimo.seropedica / totalBio) * 100)} do total`,
+      note: `${HUB.format.pct((ultimo.seropedica / totalBio) * 100)}`,
       format: "int",
       color: "blue"
     },
     {
-      label: "Aterro Gramacho",
+      label: "Gramacho",
       value: ultimo.gramacho,
-      note: `${HUB.format.pct((ultimo.gramacho / totalBio) * 100)} do total`,
+      note: `${HUB.format.pct((ultimo.gramacho / totalBio) * 100)}`,
       format: "int",
       color: "orange"
     },
     {
-      label: "Chorume Gerado",
+      label: "Chorume",
       value: ultimoCho,
-      note: "Metros cúbicos (m³)",
+      note: "m³",
       format: "int",
       color: "purple"
     },
     {
-      label: "Taxa de Purificação",
+      label: "Taxa Purif.",
       value: taxaPurif * 100,
-      note: "CTR Seropédica",
+      note: "CTR",
       format: "pct",
       color: "green"
     }
   ]);
   
-  // Geração Biogás
-  const ctx1 = document.getElementById("chartBiogas").getContext("2d");
-  new Chart(ctx1, {
-    type: "line",
-    data: {
-      labels: dadosBio.map(r => r.mes),
-      datasets: [
-        {
-          label: "CTR Seropédica",
-          data: dadosBio.map(r => r.seropedica / 1000),
-          borderColor: "#78aaa3",
-          backgroundColor: "rgba(120, 170, 163, 0.1)",
-          borderWidth: 3,
-          tension: 0.4,
-          fill: true
-        },
-        {
-          label: "Aterro Gramacho",
-          data: dadosBio.map(r => r.gramacho / 1000),
-          borderColor: "#5b9bd5",
-          backgroundColor: "rgba(91, 155, 213, 0.1)",
-          borderWidth: 3,
-          tension: 0.4,
-          fill: true
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: "bottom",
-          labels: { color: "#b8c9de", font: { size: 12 }, padding: 15, usePointStyle: true }
-        },
-        tooltip: {
-          backgroundColor: "rgba(13,31,54,0.95)",
-          callbacks: { label: ctx => `${ctx.dataset.label}: ${HUB.format.int(ctx.parsed.y)} mil Nm³` }
-        }
-      },
-      scales: {
-        y: {
-          grid: { color: "rgba(41,72,102,0.3)" },
-          ticks: { color: "#b8c9de", callback: v => `${v}k` }
-        },
-        x: {
-          grid: { color: "rgba(41,72,102,0.3)" },
-          ticks: { color: "#b8c9de" }
-        }
-      }
-    }
-  });
-  
-  // Distribuição
-  HUB.charts.donut("chartBiogasDistrib", {
-    labels: ["CTR Seropédica", "Aterro Gramacho"],
-    values: [ultimo.seropedica, ultimo.gramacho]
-  });
-  
-  // Chorume (se tiver dados)
-  if (dadosCho.length) {
-    const ctx2 = document.getElementById("chartChorume").getContext("2d");
-    new Chart(ctx2, {
-      type: "bar",
+  // Biogás
+  const ctx1 = document.getElementById("chartBiogas");
+  if (ctx1) {
+    const chart1 = Chart.getChart(ctx1);
+    if (chart1) chart1.destroy();
+    
+    new Chart(ctx1, {
+      type: "line",
       data: {
-        labels: dadosCho.map(r => r.mes),
+        labels: dadosBio.map(r => r.mes),
         datasets: [
           {
-            label: "Uso Interno",
-            data: dadosCho.map(r => r.interno),
-            backgroundColor: "#78aaa3"
+            label: "CTR",
+            data: dadosBio.map(r => r.seropedica / 1000),
+            borderColor: "#78aaa3",
+            backgroundColor: "rgba(120, 170, 163, 0.1)",
+            borderWidth: 3,
+            tension: 0.4,
+            fill: true
           },
           {
-            label: "Uso Externo",
-            data: dadosCho.map(r => r.externo),
-            backgroundColor: "#5b9bd5"
+            label: "Gramacho",
+            data: dadosBio.map(r => r.gramacho / 1000),
+            borderColor: "#5b9bd5",
+            backgroundColor: "rgba(91, 155, 213, 0.1)",
+            borderWidth: 3,
+            tension: 0.4,
+            fill: true
           }
         ]
       },
@@ -623,33 +765,189 @@ function renderTela3() {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { position: "bottom", labels: { color: "#b8c9de", usePointStyle: true } }
+          legend: {
+            position: "bottom",
+            labels: { color: "#b8c9de", font: { size: 11 }, padding: 10, usePointStyle: true }
+          },
+          tooltip: {
+            backgroundColor: "rgba(13,31,54,0.95)",
+            callbacks: { label: ctx => `${ctx.dataset.label}: ${HUB.format.int(ctx.parsed.y)}k Nm³` }
+          }
         },
         scales: {
-          y: { stacked: true, grid: { color: "rgba(41,72,102,0.3)" }, ticks: { color: "#b8c9de" } },
-          x: { stacked: true, grid: { color: "rgba(41,72,102,0.3)" }, ticks: { color: "#b8c9de" } }
+          y: {
+            grid: { color: "rgba(41,72,102,0.3)" },
+            ticks: { color: "#b8c9de", callback: v => `${v}k` }
+          },
+          x: {
+            grid: { color: "rgba(41,72,102,0.3)" },
+            ticks: { color: "#b8c9de" }
+          }
         }
       }
     });
   }
   
-  // Purificação
-  HUB.charts.line("chartPurificacao", {
-    labels: dadosBio.slice(-6).map(r => r.mes),
-    values: dadosBio.slice(-6).map(r => r.seropedica * taxaPurif)
-  }, {
-    label: "Biogás Purificado (Nm³)",
-    color: HUB.charts.colors.greenGradient
-  });
+  // Distribuição
+  const ctx2 = document.getElementById("chartBioDistrib");
+  if (ctx2) {
+    const chart2 = Chart.getChart(ctx2);
+    if (chart2) chart2.destroy();
+    
+    new Chart(ctx2, {
+      type: "doughnut",
+      data: {
+        labels: ["CTR Seropédica", "Aterro Gramacho"],
+        datasets: [{
+          data: [ultimo.seropedica, ultimo.gramacho],
+          backgroundColor: ["#78aaa3", "#5b9bd5"]
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: "bottom",
+            labels: { color: "#b8c9de", font: { size: 11 }, padding: 10, usePointStyle: true }
+          },
+          tooltip: {
+            backgroundColor: "rgba(13,31,54,0.95)",
+            callbacks: { label: ctx => `${ctx.label}: ${HUB.format.int(ctx.parsed)} Nm³` }
+          }
+        }
+      }
+    });
+  }
   
-  // RCC Gericinó (simulado)
-  HUB.charts.bar("chartRCC", {
-    labels: dadosBio.slice(-6).map(r => r.mes),
-    values: [12500, 13200, 12800, 14100, 13500, 13900]
-  }, {
-    label: "RCC Recebido (t)",
-    color: HUB.charts.colors.purpleGradient
-  });
+  // Chorume
+  if (dadosCho.length) {
+    const ctx3 = document.getElementById("chartChorume");
+    if (ctx3) {
+      const chart3 = Chart.getChart(ctx3);
+      if (chart3) chart3.destroy();
+      
+      new Chart(ctx3, {
+        type: "bar",
+        data: {
+          labels: dadosCho.map(r => r.mes),
+          datasets: [
+            {
+              label: "Interno",
+              data: dadosCho.map(r => r.interno),
+              backgroundColor: "#78aaa3"
+            },
+            {
+              label: "Externo",
+              data: dadosCho.map(r => r.externo),
+              backgroundColor: "#5b9bd5"
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: { color: "#b8c9de", font: { size: 11 }, usePointStyle: true }
+            },
+            tooltip: {
+              backgroundColor: "rgba(13,31,54,0.95)"
+            }
+          },
+          scales: {
+            y: { stacked: true, grid: { color: "rgba(41,72,102,0.3)" }, ticks: { color: "#b8c9de" } },
+            x: { stacked: true, grid: { color: "rgba(41,72,102,0.3)" }, ticks: { color: "#b8c9de" } }
+          }
+        }
+      });
+    }
+  }
+  
+  // Purificação
+  const ctx4 = document.getElementById("chartPurif");
+  if (ctx4) {
+    const chart4 = Chart.getChart(ctx4);
+    if (chart4) chart4.destroy();
+    
+    new Chart(ctx4, {
+      type: "line",
+      data: {
+        labels: dadosBio.slice(-6).map(r => r.mes),
+        datasets: [{
+          label: "Purificado",
+          data: dadosBio.slice(-6).map(r => r.seropedica * taxaPurif),
+          borderColor: "#78aaa3",
+          backgroundColor: "rgba(120, 170, 163, 0.1)",
+          borderWidth: 3,
+          tension: 0.4,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: "rgba(13,31,54,0.95)",
+            callbacks: { label: ctx => `${HUB.format.int(ctx.parsed.y)} Nm³` }
+          }
+        },
+        scales: {
+          y: {
+            grid: { color: "rgba(41,72,102,0.3)" },
+            ticks: { color: "#b8c9de", callback: v => HUB.format.int(v) }
+          },
+          x: {
+            grid: { color: "rgba(41,72,102,0.3)" },
+            ticks: { color: "#b8c9de" }
+          }
+        }
+      }
+    });
+  }
+  
+  // RCC
+  const ctx5 = document.getElementById("chartRCC");
+  if (ctx5) {
+    const chart5 = Chart.getChart(ctx5);
+    if (chart5) chart5.destroy();
+    
+    new Chart(ctx5, {
+      type: "bar",
+      data: {
+        labels: dadosBio.slice(-6).map(r => r.mes),
+        datasets: [{
+          label: "RCC (t)",
+          data: [12500, 13200, 12800, 14100, 13500, 13900],
+          backgroundColor: "#a78bfa"
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: "rgba(13,31,54,0.95)",
+            callbacks: { label: ctx => `${HUB.format.int(ctx.parsed.y)} t` }
+          }
+        },
+        scales: {
+          y: {
+            grid: { color: "rgba(41,72,102,0.3)" },
+            ticks: { color: "#b8c9de", callback: v => HUB.format.int(v) }
+          },
+          x: {
+            grid: { color: "rgba(41,72,102,0.3)" },
+            ticks: { color: "#b8c9de" }
+          }
+        }
+      }
+    });
+  }
 }
 
 // ============================================
@@ -657,8 +955,8 @@ function renderTela3() {
 // ============================================
 
 function renderTela4() {
-  const dadosFrota = applyPeriodoFilter(DATA.frotaPropria);
-  const dadosInt = applyPeriodoFilter(DATA.intervencoes);
+  const dadosFrota = applyFilters(DATA.frotaPropria);
+  const dadosInt = applyFilters(DATA.intervencoes);
   
   if (!dadosFrota.length) return;
   
@@ -672,105 +970,189 @@ function renderTela4() {
   // KPIs
   HUB.cards.render("kpisInfra", [
     {
-      label: "Redução de Frota",
+      label: "Redução",
       value: reducao,
-      note: `${primeiro.total} → ${ultimo.total} veículos`,
+      note: `${primeiro.total}→${ultimo.total}`,
       feature: true,
       format: "pct",
       color: "red"
     },
     {
-      label: "Veículos em Operação",
+      label: "Operação",
       value: ultimo.operacao,
-      note: `${ultimo.total} veículos no total`,
+      note: `${ultimo.total} total`,
       format: "int",
       color: "green"
     },
     {
-      label: "Consumo de Diesel",
+      label: "Diesel",
       value: ultimo.diesel,
-      note: `${ultimo.mes} • Litros`,
+      note: "Litros",
       format: "int",
       color: "orange"
     },
     {
-      label: "Intervenções Prediais",
+      label: "Intervenções",
       value: somaInt,
-      note: `${ultimo.mes} • Todas as categorias`,
+      note: ultimo.mes,
       format: "int",
       color: "blue"
     },
     {
-      label: "Taxa Operacional",
+      label: "Taxa Op.",
       value: taxaOp,
-      note: "Veículos ativos / total",
+      note: "Ativos/total",
       format: "pct",
       color: taxaOp > 20 ? "green" : "red"
     }
   ]);
   
-  // Frota Própria
-  const ctx1 = document.getElementById("chartFrota").getContext("2d");
-  new Chart(ctx1, {
-    type: "line",
-    data: {
-      labels: dadosFrota.map(r => r.mes),
-      datasets: [
-        {
-          label: "Frota Total",
-          data: dadosFrota.map(r => r.total),
-          borderColor: "#ef6a5d",
-          backgroundColor: "rgba(239, 106, 93, 0.1)",
-          borderWidth: 3,
-          tension: 0.4,
-          fill: true
-        },
-        {
-          label: "Em Operação",
-          data: dadosFrota.map(r => r.operacao),
-          borderColor: "#78aaa3",
-          backgroundColor: "rgba(120, 170, 163, 0.1)",
-          borderWidth: 3,
-          tension: 0.4,
-          fill: true
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { position: "bottom", labels: { color: "#b8c9de", usePointStyle: true } }
+  // Frota
+  const ctx1 = document.getElementById("chartFrota");
+  if (ctx1) {
+    const chart1 = Chart.getChart(ctx1);
+    if (chart1) chart1.destroy();
+    
+    new Chart(ctx1, {
+      type: "line",
+      data: {
+        labels: dadosFrota.map(r => r.mes),
+        datasets: [
+          {
+            label: "Total",
+            data: dadosFrota.map(r => r.total),
+            borderColor: "#ef6a5d",
+            backgroundColor: "rgba(239, 106, 93, 0.1)",
+            borderWidth: 3,
+            tension: 0.4,
+            fill: true
+          },
+          {
+            label: "Operação",
+            data: dadosFrota.map(r => r.operacao),
+            borderColor: "#78aaa3",
+            backgroundColor: "rgba(120, 170, 163, 0.1)",
+            borderWidth: 3,
+            tension: 0.4,
+            fill: true
+          }
+        ]
       },
-      scales: {
-        y: { grid: { color: "rgba(41,72,102,0.3)" }, ticks: { color: "#b8c9de" } },
-        x: { grid: { color: "rgba(41,72,102,0.3)" }, ticks: { color: "#b8c9de" } }
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: "bottom",
+            labels: { color: "#b8c9de", font: { size: 11 }, padding: 10, usePointStyle: true }
+          },
+          tooltip: {
+            backgroundColor: "rgba(13,31,54,0.95)",
+            callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y}` }
+          }
+        },
+        scales: {
+          y: {
+            grid: { color: "rgba(41,72,102,0.3)" },
+            ticks: { color: "#b8c9de" }
+          },
+          x: {
+            grid: { color: "rgba(41,72,102,0.3)" },
+            ticks: { color: "#b8c9de" }
+          }
+        }
       }
-    }
-  });
+    });
+  }
   
   // Diesel
-  HUB.charts.bar("chartDiesel", {
-    labels: dadosFrota.map(r => r.mes),
-    values: dadosFrota.map(r => r.diesel)
-  }, {
-    label: "Consumo de Diesel (L)",
-    color: HUB.charts.colors.orangeGradient
-  });
+  const ctx2 = document.getElementById("chartDiesel");
+  if (ctx2) {
+    const chart2 = Chart.getChart(ctx2);
+    if (chart2) chart2.destroy();
+    
+    new Chart(ctx2, {
+      type: "bar",
+      data: {
+        labels: dadosFrota.map(r => r.mes),
+        datasets: [{
+          label: "Diesel (L)",
+          data: dadosFrota.map(r => r.diesel),
+          backgroundColor: "#e87535"
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: "rgba(13,31,54,0.95)",
+            callbacks: { label: ctx => `${HUB.format.int(ctx.parsed.y)} L` }
+          }
+        },
+        scales: {
+          y: {
+            grid: { color: "rgba(41,72,102,0.3)" },
+            ticks: { color: "#b8c9de", callback: v => HUB.format.int(v) }
+          },
+          x: {
+            grid: { color: "rgba(41,72,102,0.3)" },
+            ticks: { color: "#b8c9de" }
+          }
+        }
+      }
+    });
+  }
   
   // Intervenções
   if (dadosInt.length) {
     const totais = dadosInt.map(r => r.hidraulica + r.ecopontos + r.limpeza + r.refrigeracao);
-    HUB.charts.line("chartIntervencoes", {
-      labels: dadosInt.map(r => r.mes),
-      values: totais
-    }, {
-      label: "Total de Intervenções",
-      color: HUB.charts.colors.blueGradient
-    });
+    
+    const ctx3 = document.getElementById("chartIntervencoes");
+    if (ctx3) {
+      const chart3 = Chart.getChart(ctx3);
+      if (chart3) chart3.destroy();
+      
+      new Chart(ctx3, {
+        type: "line",
+        data: {
+          labels: dadosInt.map(r => r.mes),
+          datasets: [{
+            label: "Total",
+            data: totais,
+            borderColor: "#5b9bd5",
+            backgroundColor: "rgba(91, 155, 213, 0.1)",
+            borderWidth: 3,
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: "rgba(13,31,54,0.95)"
+            }
+          },
+          scales: {
+            y: {
+              grid: { color: "rgba(41,72,102,0.3)" },
+              ticks: { color: "#b8c9de" }
+            },
+            x: {
+              grid: { color: "rgba(41,72,102,0.3)" },
+              ticks: { color: "#b8c9de" }
+            }
+          }
+        }
+      });
+    }
   }
   
-  // Lubrificantes (simulado)
+  // Lubrificantes
   const lubData = [
     ["Óleo Motor", 450],
     ["Óleo Hidráulico", 280],
@@ -778,17 +1160,42 @@ function renderTela4() {
     ["Outros", 90]
   ];
   
-  HUB.simpleBar.render("chartLubrificantes", lubData, {
+  HUB.simpleBar.render("chartLubric", lubData, {
     total: 1000,
     color: "orange"
   });
   
   // Tipos de Intervenção
   if (dadosInt.length) {
-    HUB.charts.donut("chartTiposIntervencao", {
-      labels: ["Hidráulica", "Ecopontos", "Limpeza", "Refrigeração"],
-      values: [totalInt.hidraulica, totalInt.ecopontos, totalInt.limpeza, totalInt.refrigeracao]
-    });
+    const ctx4 = document.getElementById("chartTipos");
+    if (ctx4) {
+      const chart4 = Chart.getChart(ctx4);
+      if (chart4) chart4.destroy();
+      
+      new Chart(ctx4, {
+        type: "doughnut",
+        data: {
+          labels: ["Hidráulica", "Ecopontos", "Limpeza", "Refrigeração"],
+          datasets: [{
+            data: [totalInt.hidraulica, totalInt.ecopontos, totalInt.limpeza, totalInt.refrigeracao],
+            backgroundColor: ["#5b9bd5", "#78aaa3", "#e87535", "#a78bfa"]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: { color: "#b8c9de", font: { size: 11 }, padding: 10, usePointStyle: true }
+            },
+            tooltip: {
+              backgroundColor: "rgba(13,31,54,0.95)"
+            }
+          }
+        }
+      });
+    }
   }
 }
 
