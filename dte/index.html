@@ -18,6 +18,16 @@
   <div id="header"></div>
   
   <!-- ============================================
+       NAVEGAÇÃO ENTRE TELAS
+       ============================================ -->
+  <div class="navTabs">
+    <button class="tabBtn active" data-screen="screenVisao">📊 Visão Geral</button>
+    <button class="tabBtn" data-screen="screenFrota">🚛 Performance de Frota</button>
+    <button class="tabBtn" data-screen="screenBio">♻️ Bioenergia</button>
+    <button class="tabBtn" data-screen="screenInfra">🔧 Infraestrutura</button>
+  </div>
+  
+  <!-- ============================================
        FILTROS
        ============================================ -->
   <section class="filters">
@@ -53,102 +63,289 @@
   <div id="drillBanner"></div>
   
   <!-- ============================================
-       KPIS
+       TELA 1 - VISÃO GERAL OPERACIONAL
        ============================================ -->
-  <div class="kpis" id="kpis"></div>
+  <div class="screen active" id="screenVisao">
+    <!-- KPIS -->
+    <div class="kpis" id="kpisVisao"></div>
+    
+    <!-- GRÁFICOS -->
+    <div class="grid2">
+      <div class="panel">
+        <div class="panelHead">
+          <div>
+            <h2>Evolução do Recebimento nas ETRs</h2>
+            <div class="hint">Últimos 13 meses - Toneladas</div>
+          </div>
+        </div>
+        <div class="body">
+          <canvas id="chartEvolucao" style="height: 340px"></canvas>
+        </div>
+      </div>
+      
+      <div class="panel">
+        <div class="panelHead">
+          <div>
+            <h2>Distribuição por ETR</h2>
+            <div class="hint">Clique para filtrar</div>
+          </div>
+        </div>
+        <div class="body" id="chartETRs"></div>
+      </div>
+    </div>
+    
+    <div class="grid">
+      <div class="panel">
+        <div class="panelHead">
+          <div>
+            <h2>Por Tipo de Coleta</h2>
+            <div class="hint">Distribuição percentual</div>
+          </div>
+        </div>
+        <div class="body">
+          <canvas id="chartTipoColeta" style="height: 300px"></canvas>
+        </div>
+      </div>
+      
+      <div class="panel">
+        <div class="panelHead">
+          <div>
+            <h2>Sazonalidade Mensal</h2>
+            <div class="hint">Identificação de padrões</div>
+          </div>
+        </div>
+        <div class="body" id="chartSazonalidade"></div>
+      </div>
+      
+      <div class="panel">
+        <div class="panelHead">
+          <div>
+            <h2>Operação Bem Verde</h2>
+            <div class="hint">Resíduos recebidos - Toneladas</div>
+          </div>
+        </div>
+        <div class="body">
+          <canvas id="chartBemVerde" style="height: 300px"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
   
   <!-- ============================================
-       GRÁFICOS - VISÃO GERAL
+       TELA 2 - PERFORMANCE DE FROTA CONTRATADA
        ============================================ -->
-  <div class="grid2">
-    <!-- Evolução Temporal -->
-    <div class="panel">
-      <div class="panelHead">
-        <div>
-          <h2>Evolução do Recebimento nas ETRs</h2>
-          <div class="hint">Últimos 13 meses - Toneladas</div>
+  <div class="screen" id="screenFrota">
+    <!-- KPIS -->
+    <div class="kpis" id="kpisFrota"></div>
+    
+    <!-- GRÁFICOS -->
+    <div class="grid2">
+      <div class="panel">
+        <div class="panelHead">
+          <div>
+            <h2>Taxa de Utilização por Tipo de Veículo</h2>
+            <div class="hint">Peso coletado / capacidade estimada</div>
+          </div>
         </div>
+        <div class="body" id="chartUtilizacaoTipos"></div>
       </div>
-      <div class="body">
-        <canvas id="chartEvolucao" style="height: 340px"></canvas>
+      
+      <div class="panel">
+        <div class="panelHead">
+          <div>
+            <h2>Evolução de Horas Extras</h2>
+            <div class="hint">% sobre faturamento total</div>
+          </div>
+        </div>
+        <div class="body">
+          <canvas id="chartHorasExtras" style="height: 340px"></canvas>
+        </div>
       </div>
     </div>
     
-    <!-- Ranking ETRs -->
-    <div class="panel">
-      <div class="panelHead">
-        <div>
-          <h2>Distribuição por ETR</h2>
-          <div class="hint">Clique para filtrar</div>
+    <div class="grid">
+      <div class="panel">
+        <div class="panelHead">
+          <div>
+            <h2>Top 3 Gerências Ofensoras - CDC</h2>
+            <div class="hint">Coleta Domiciliar e Comunidades</div>
+          </div>
+        </div>
+        <div class="body" id="chartOfensoras"></div>
+      </div>
+      
+      <div class="panel">
+        <div class="panelHead">
+          <div>
+            <h2>Sobrecarga de Veículos</h2>
+            <div class="hint">% de pesagens >10% do PBT</div>
+          </div>
+        </div>
+        <div class="body">
+          <canvas id="chartSobrecarga" style="height: 300px"></canvas>
         </div>
       </div>
-      <div class="body" id="chartETRs"></div>
+      
+      <div class="panel">
+        <div class="panelHead">
+          <div>
+            <h2>Utilização de Tratores</h2>
+            <div class="hint">Horas utilizadas / estimadas</div>
+          </div>
+        </div>
+        <div class="body" id="chartTratores"></div>
+      </div>
     </div>
   </div>
   
-  <div class="grid">
-    <!-- Tipo de Coleta -->
-    <div class="panel">
-      <div class="panelHead">
-        <div>
-          <h2>Por Tipo de Coleta</h2>
-          <div class="hint">Distribuição percentual</div>
+  <!-- ============================================
+       TELA 3 - BIOENERGIA & SUSTENTABILIDADE
+       ============================================ -->
+  <div class="screen" id="screenBio">
+    <!-- KPIS -->
+    <div class="kpis" id="kpisBio"></div>
+    
+    <!-- GRÁFICOS -->
+    <div class="grid2">
+      <div class="panel">
+        <div class="panelHead">
+          <div>
+            <h2>Geração de Biogás</h2>
+            <div class="hint">CTR Seropédica + Aterro Gramacho (mil Nm³)</div>
+          </div>
+        </div>
+        <div class="body">
+          <canvas id="chartBiogas" style="height: 340px"></canvas>
         </div>
       </div>
-      <div class="body">
-        <canvas id="chartTipoColeta" style="height: 300px"></canvas>
+      
+      <div class="panel">
+        <div class="panelHead">
+          <div>
+            <h2>Distribuição da Geração</h2>
+            <div class="hint">CTR Seropédica vs Aterro Gramacho</div>
+          </div>
+        </div>
+        <div class="body">
+          <canvas id="chartBiogasDistrib" style="height: 340px"></canvas>
+        </div>
       </div>
     </div>
     
-    <!-- Sazonalidade -->
-    <div class="panel">
-      <div class="panelHead">
-        <div>
-          <h2>Sazonalidade Mensal</h2>
-          <div class="hint">Identificação de padrões</div>
+    <div class="grid">
+      <div class="panel">
+        <div class="panelHead">
+          <div>
+            <h2>Produção de Chorume - CTR</h2>
+            <div class="hint">Metros cúbicos (m³)</div>
+          </div>
+        </div>
+        <div class="body">
+          <canvas id="chartChorume" style="height: 300px"></canvas>
         </div>
       </div>
-      <div class="body" id="chartSazonalidade"></div>
-    </div>
-    
-    <!-- Performance Frota -->
-    <div class="panel">
-      <div class="panelHead">
-        <div>
-          <h2>Utilização de Frota CDC</h2>
-          <div class="hint">% Peso coletado / capacidade</div>
+      
+      <div class="panel">
+        <div class="panelHead">
+          <div>
+            <h2>Biogás para Purificação</h2>
+            <div class="hint">CTR Seropédica - Nm³</div>
+          </div>
+        </div>
+        <div class="body">
+          <canvas id="chartPurificacao" style="height: 300px"></canvas>
         </div>
       </div>
-      <div class="body">
-        <canvas id="chartUtilizacao" style="height: 300px"></canvas>
+      
+      <div class="panel">
+        <div class="panelHead">
+          <div>
+            <h2>Aterro de RCC Gericinó</h2>
+            <div class="hint">Recebimento total - Toneladas</div>
+          </div>
+        </div>
+        <div class="body">
+          <canvas id="chartRCC" style="height: 300px"></canvas>
+        </div>
       </div>
     </div>
   </div>
   
-  <div class="grid2">
-    <!-- Bioenergia -->
-    <div class="panel">
-      <div class="panelHead">
-        <div>
-          <h2>Geração de Biogás</h2>
-          <div class="hint">CTR Seropédica + Aterro Gramacho (mil Nm³)</div>
+  <!-- ============================================
+       TELA 4 - INFRAESTRUTURA
+       ============================================ -->
+  <div class="screen" id="screenInfra">
+    <!-- KPIS -->
+    <div class="kpis" id="kpisInfra"></div>
+    
+    <!-- GRÁFICOS -->
+  <!-- ============================================
+       TELA 4 - INFRAESTRUTURA
+       ============================================ -->
+  <div class="screen" id="screenInfra">
+    <!-- KPIS -->
+    <div class="kpis" id="kpisInfra"></div>
+    
+    <!-- GRÁFICOS -->
+    <div class="grid2">
+      <div class="panel">
+        <div class="panelHead">
+          <div>
+            <h2>Evolução da Frota Própria</h2>
+            <div class="hint">Veículos operacionais vs total</div>
+          </div>
+        </div>
+        <div class="body">
+          <canvas id="chartFrota" style="height: 340px"></canvas>
         </div>
       </div>
-      <div class="body">
-        <canvas id="chartBiogas" style="height: 320px"></canvas>
+      
+      <div class="panel">
+        <div class="panelHead">
+          <div>
+            <h2>Consumo de Diesel</h2>
+            <div class="hint">Litros/mês</div>
+          </div>
+        </div>
+        <div class="body">
+          <canvas id="chartDiesel" style="height: 340px"></canvas>
+        </div>
       </div>
     </div>
     
-    <!-- Frota Própria -->
-    <div class="panel">
-      <div class="panelHead">
-        <div>
-          <h2>Evolução da Frota Própria</h2>
-          <div class="hint">Veículos operacionais vs total</div>
+    <div class="grid">
+      <div class="panel">
+        <div class="panelHead">
+          <div>
+            <h2>Intervenções Prediais</h2>
+            <div class="hint">Quantidade por mês</div>
+          </div>
+        </div>
+        <div class="body">
+          <canvas id="chartIntervencoes" style="height: 300px"></canvas>
         </div>
       </div>
-      <div class="body">
-        <canvas id="chartFrota" style="height: 320px"></canvas>
+      
+      <div class="panel">
+        <div class="panelHead">
+          <div>
+            <h2>Consumo de Lubrificantes</h2>
+            <div class="hint">Litros/mês por tipo</div>
+          </div>
+        </div>
+        <div class="body" id="chartLubrificantes"></div>
+      </div>
+      
+      <div class="panel">
+        <div class="panelHead">
+          <div>
+            <h2>Tipos de Intervenções</h2>
+            <div class="hint">Distribuição por categoria</div>
+          </div>
+        </div>
+        <div class="body">
+          <canvas id="chartTiposIntervencao" style="height: 300px"></canvas>
+        </div>
       </div>
     </div>
   </div>
