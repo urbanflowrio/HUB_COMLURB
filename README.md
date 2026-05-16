@@ -1,157 +1,300 @@
-# 🏥 Painel SMS - Limpeza e Higienização Hospitalar
+# Painel DTE - Diretoria Técnica e de Engenharia
 
-## 📋 Descrição
+Sistema de monitoramento operacional da DTE integrado ao HUB COMLURB.
 
-Plataforma executiva de monitoramento operacional e financeiro do contrato de limpeza e higienização hospitalar da rede municipal de saúde do Rio de Janeiro. 
+## 📊 Visão Geral
 
-O painel integra indicadores de postos contratados, faturamento, efetivo operacional, containers de resíduos e distribuição territorial das unidades atendidas, permitindo leitura estratégica da execução contratual em diferentes níveis de gestão.
+Este painel consolida dados operacionais mensais das seguintes áreas:
 
----
+### **A - Atividades Operacionais**
+- Recebimento de resíduos nas 5 ETRs (Bangu, Caju, Jacarepaguá, Mal Hermes, Santa Cruz)
+- Distribuição por tipo de coleta (Domiciliar, Comunidades, Lixo Público, Grandes Geradores)
+- Operação Bem Verde
+- Aterro de RCC Gericinó
 
-## 🏥 Unidades Hospitalares
+### **B - Monitoramento de Frota Contratada**
+- Taxa de utilização por tipo de veículo
+- Análise de sobrecarga (>10% PBT)
+- Gerências ofensoras
+- Horas extras vs faturamento
+- Utilização de tratores
 
-### **Ativas no Contrato:**
+### **C - Bioenergia & Sustentabilidade**
+- Geração de biogás (CTR Seropédica + Aterro Gramacho)
+- Biogás para purificação
+- Produção de chorume
 
-1. **Hospital Municipal Miguel Couto**
-   - Receita Mensal: R$ 1.260.796
-   - Efetivo: 111 garis
-   - Localização: -22.9856, -43.2009
+### **D - Infraestrutura**
+- Frota própria (evolução total vs operacional)
+- Consumo de diesel e lubrificantes
+- Intervenções prediais
 
-2. **Hospital Municipal Salgado Filho**
-   - Receita Mensal: R$ 1.201.051
-   - Efetivo: 106 garis
-   - Localização: -22.8897, -43.2827
+## 🎯 KPIs Principais
 
-3. **Hospital Municipal Lourenço Jorge / Maternidade Leila Diniz**
-   - Receita Mensal: R$ 1.576.412
-   - Efetivo: 145 garis
-   - Localização (HM Lourenço Jorge): -22.9749, -43.3654
-   - Localização (Maternidade Leila Diniz): -22.9147, -43.2303
+1. **Recebimento Total** - Volume mensal nas ETRs (~253 mil toneladas/mês)
+2. **ETR Caju (Líder)** - Principal unidade de recebimento (~40% do total)
+3. **Média Mensal** - Baseline dos últimos 13 meses
+4. **Utilização Frota CDC** - Taxa de aproveitamento da capacidade (70-85%)
+5. **Frota Própria Ativa** - Veículos em operação vs total
 
-### **Saída do Contrato:**
+## 📈 Insights Estratégicos
 
-4. **Hospital Municipal Ronaldo Gazolla**
-   - Status: Inativo desde meados de 2024
-   - Último faturamento: Junho/2024
+### **Gestão de Resíduos**
+- **~253 mil toneladas/mês** de recebimento total
+- **Sazonalidade clara**: picos em dezembro-janeiro (verão carioca)
+- **ETR Caju** concentra 40% do volume
+- **Coleta Domiciliar** representa 50% do total
 
----
+### **Performance de Frota**
+- Taxa de utilização: **70-85%** conforme tipo de serviço
+- **20-30% das pesagens** excedem 10% do PBT (sobrecarga)
+- Horas extras variam entre **0,8-2,3%** do faturamento
+- Sistema de **benchmarking** identifica gerências ofensoras mensalmente
 
-## 📊 Indicadores Principais
+### **Bioenergia**
+- Geração de **~16 milhões de Nm³** de biogás/mês
+- **67% de taxa de purificação** (CTR Seropédica)
+- Aterro Gramacho contribui com ~3% do total
 
-- **Unidades Ativas:** 3 hospitais
-- **Efetivo Total:** 362 garis
-- **Expectativa Mensal:** R$ 4.038.260
-- **Vencimento:** 01/01/2028
-- **Reajuste:** Bienal
+### **Infraestrutura**
+- **Redução crítica**: 177 → 74 veículos próprios (-58%)
+- Taxa operacional: **~19%** (14 de 74 veículos ativos)
+- Consumo otimizado: **~2.000L diesel/mês**
+- **60-115 intervenções prediais/mês**
 
----
+## 🔄 Atualização Automática Mensal
 
-## 📂 Estrutura de Arquivos
+### **Como Funciona:**
 
+1. **Planilha Google Sheets** é atualizada mensalmente pela DTE
+2. **URL publicada como CSV** permanece a mesma
+3. **Painel lê automaticamente** os dados mais recentes toda vez que é carregado
+4. **Sem necessidade de atualizar código** - apenas a planilha
+
+### **URL da Planilha:**
 ```
-/sms/
-├── index.html       # Estrutura HTML com 3 telas
-├── data.js          # Carregamento e processamento de dados
-├── screens.js       # Renderização das telas
-├── app.js           # Orquestração e controle
-└── README.md        # Este arquivo
-```
-
----
-
-## 🔗 Fontes de Dados
-
-### **CSV 1: Faturamento Histórico**
-```
-https://docs.google.com/spreadsheets/d/e/2PACX-1vQr5S1R56YvP2uYOVJorK3b5CxUghxDNyZu6V6t7Kq_hoxJoj4zrTQVh77NGZPm_IdrBT_xwIU3pca9/pub?gid=24719560&single=true&output=csv
-```
-
-**Colunas:**
-- ANO, MÊS
-- HOSPITAL MUNICIPAL LOURENÇO JORGE/MATERNIDADE LEILA DINIZ
-- HOSPITAL MUNICIPAL MIGUEL COUTO
-- HOSPITAL MUNICIPAL RONALDO GAZOLLA
-- HOSPITAL MUNICIPAL SALGADO FILHO
-
-### **CSV 2: Containers (Consolidado)**
-```
-https://docs.google.com/spreadsheets/d/e/2PACX-1vQr5S1R56YvP2uYOVJorK3b5CxUghxDNyZu6V6t7Kq_hoxJoj4zrTQVh77NGZPm_IdrBT_xwIU3pca9/pub?output=csv
+https://docs.google.com/spreadsheets/d/e/2PACX-1vTRbfRYtnjYlxLIPTfIpC_Q7ftJ6uUf1BK9gcZs_CSEiEnIE7qCAk_U_3_bibXftsCAf5K1uQdAPsOx/pub?output=csv
 ```
 
-**Colunas:**
-- HOSPITAL
-- TOTAL (containers totais)
-- RSS (containers de resíduos sólidos de saúde)
+### **Configuração no código:**
+```javascript
+// Em data.js
+const DATA_URL = "URL_DA_PLANILHA/pub?output=csv";
 
-**Atualização:** Automática via planilha Google Sheets
+// Em app.js - fetch SEM cache
+const response = await fetch(DATA_URL, { 
+  cache: "no-store",
+  headers: {
+    'Cache-Control': 'no-cache',
+    'Pragma': 'no-cache'
+  }
+});
+```
 
----
+## 🚀 Arquitetura Técnica
 
-## 🖥️ Telas do Painel
+### **Estrutura de Arquivos**
+```
+/hub-comlurb/
+├── assets/
+│   ├── css/
+│   │   └── hub-premium.css          ← CSS compartilhado
+│   ├── components/
+│   │   ├── hub-utils.js             ← Utilitários
+│   │   ├── hub-cards.js             ← KPIs
+│   │   ├── hub-charts.js            ← Gráficos
+│   │   ├── hub-filters.js           ← Filtros
+│   │   └── hub-layout.js            ← Header/Footer
+│   └── logo.png                     ← Logo COMLURB
+│
+└── dte/                              ← PAINEL DTE
+    ├── index.html                    ← Estrutura HTML
+    ├── data.js                       ← URL e metadados
+    ├── app.js                        ← Lógica de renderização
+    └── README.md                     ← Este arquivo
+```
 
-### **1. Visão Executiva**
-- 5 KPIs principais (unidades, faturamento, garis, containers)
-- Gráfico de faturamento por hospital
-- Resumo do contrato
-- Mapa com distribuição territorial
+### **Fonte de Dados**
+- **Origem**: Google Sheets (planilha DTE atualizada mensalmente)
+- **Formato**: CSV publicado
+- **Atualização**: Automática (sem cache, sempre dados frescos)
+- **Processamento**: Parse via PapaParse + estruturação por seções
 
-### **2. Estrutura Contratual**
-- Cards detalhados por hospital
-- Receita mensal, efetivo, containers
-- Informações contratuais (vencimento, reajuste)
-- Coordenadas geográficas
+### **Componentes HUB Utilizados**
 
-### **3. Territorial**
-- Resumo territorial (3 cards)
-- Mapa interativo com marcadores
-- Ranking de unidades por efetivo operacional
+✅ `HUB.loading.showMultiple()` - Estados de carregamento  
+✅ `HUB.header.render()` - Header com título e navegação  
+✅ `HUB.footer.render()` - Footer institucional padronizado  
+✅ `HUB.cards.render()` - Grid de KPIs  
+✅ `HUB.charts.line()` - Gráficos de linha  
+✅ `HUB.charts.donut()` - Gráficos de rosca  
+✅ `HUB.simpleBar.render()` - Rankings com barras HTML  
+✅ `HUB.filters.populate()` - Sistema de filtros  
+✅ `HUB.drillBanner.show()` - Banner de drill-down  
+✅ `HUB.format.*` - Formatação de números e percentuais
 
----
+## 🔧 Como Usar
 
-## 🛠️ Componentes Utilizados
+### **1. Estrutura de Pastas**
 
-- **HUB.utils** - Carregamento de CSV, formatação
-- **HUB.cards** - Renderização de KPIs
-- **HUB.charts** - Gráficos HTML
-- **HUB.layout** - Header e footer
+Certifique-se de ter a estrutura correta:
 
----
+```
+/hub-comlurb/
+├── assets/
+│   ├── css/
+│   │   └── hub-premium.css
+│   ├── components/
+│   │   ├── hub-utils.js
+│   │   ├── hub-cards.js
+│   │   ├── hub-charts.js
+│   │   ├── hub-filters.js
+│   │   └── hub-layout.js
+│   └── logo.png
+│
+└── dte/
+    ├── index.html
+    ├── data.js
+    ├── app.js
+    └── README.md
+```
 
-## 📝 Observações Importantes
+### **2. Abrir o Painel**
 
-1. **Gazolla saiu do contrato** em meados de 2024 (último faturamento em junho/2024)
-2. **Leila Diniz** é vinculada ao Lourenço Jorge (receita unificada)
-3. **Containers** são atualizados automaticamente via CSV consolidado
-4. **Coordenadas** são fixas (hardcoded no data.js)
+Navegue até: `http://seu-servidor/hub-comlurb/dte/index.html`
 
----
+Ou abra `index.html` diretamente no navegador (funciona localmente).
 
-## 🚀 Como Usar
+### **3. Atualização Mensal**
 
-1. **Fazer upload** da pasta `/sms/` para o repositório
-2. **Acessar:** `https://urbanflowrio.github.io/HUB_COMLURB/sms/`
-3. Dados carregam automaticamente dos CSVs públicos
+**IMPORTANTE:** Você **NÃO precisa mexer no código** para atualizar os dados!
 
----
+1. Atualize a planilha Google Sheets mensalmente
+2. Mantenha a mesma estrutura de seções e cabeçalhos
+3. O painel lerá automaticamente os novos dados
 
-## 🔄 Atualização de Dados
+### **4. Personalização**
 
-Os dados são carregados em tempo real dos Google Sheets publicados. Para atualizar:
+**Adicionar novo KPI:**
+```javascript
+// Em app.js > renderKPIs()
+{
+  label: "Novo KPI",
+  value: calculoDoValor,
+  note: "Descrição",
+  format: "int",
+  color: "green"
+}
+```
 
-1. Edite a planilha fonte no Google Sheets
-2. A publicação é automática
-3. Recarregue o painel no navegador
+**Adicionar novo gráfico:**
+```javascript
+// Em app.js > renderCharts()
+HUB.charts.bar("novoChart", {
+  labels: [...],
+  values: [...]
+});
+```
 
-**Cache:** Os dados ficam em cache no localStorage por 1 hora.
+**Adicionar filtro:**
+```html
+<!-- Em index.html -->
+<div class="field">
+  <label>Novo Filtro</label>
+  <select id="fNovoFiltro">
+    <option value="">Todos</option>
+  </select>
+</div>
+```
 
----
+```javascript
+// Em app.js > populateFilters()
+HUB.filters.populate("fNovoFiltro", valores);
+```
 
-## 📧 Contato
+## 📊 Estrutura da Planilha
+
+**IMPORTANTE:** Manter esta estrutura para o painel funcionar corretamente:
+
+```
+DIRETORIA TÉCNICA E DE ENGENHARIA - DTE 
+A - ATIVIDADES OPERACIONAIS
+I - Recebimento Resíduos Totais - t | abr-25 | mai-25 | jun-25 ...
+ETR Bangu - t                        | 46.155 | 48.998 | ...
+ETR Caju - t                         | 92.326 | 95.340 | ...
+ETR Jacarepagua - t                  | 42.320 | 42.356 | ...
+ETR Mal Hermes - t                   | 48.660 | 49.226 | ...
+ETR Santa Cruz - t                   | 17.850 | 18.313 | ...
+ETR Total -t                         | 247.311 | 254.233 | ...
+
+II - Recebimento Residos Recebidos nas ETR's - Por Tipo
+Coleta Domiciliar - t                | 116.027 | 116.797 | ...
+Coleta em Comunidades - t            | 12.901 | 12.653 | ...
+Lixo Público - t                     | 86.896 | 90.185 | ...
+Grande Geradores (COMLURB) - t       | 25.963 | 27.809 | ...
+
+V - Geração Biogás (Nm³)
+CTR Seriopédica                      | 15.147.384 | ...
+Aterro Gramacho                      | 504.312 | ...
+
+...
+```
+
+**Regras:**
+- ✅ Manter cabeçalhos das seções (I -, II -, V -, etc)
+- ✅ Primeira linha de cada seção: meses (abr-25, mai-25, etc)
+- ✅ Usar vírgula para decimais (46,155 ou 46.155)
+- ✅ Não alterar nome das ETRs e tipos de coleta
+
+## 🎨 Customização Visual
+
+### **Cores dos KPIs**
+```javascript
+color: "green"   // Verde (#78aaa3)
+color: "orange"  // Laranja (#e87535)
+color: "red"     // Vermelho (#ef6a5d)
+color: "blue"    // Azul (#5b9bd5)
+color: "purple"  // Roxo (#a78bfa)
+```
+
+### **Cores dos Gráficos**
+```javascript
+HUB.charts.colors.blueGradient
+HUB.charts.colors.orangeGradient
+HUB.charts.colors.greenGradient
+HUB.charts.colors.redGradient
+HUB.charts.colors.purpleGradient
+```
+
+## 🔍 Funcionalidades
+
+- ✅ **Atualização automática mensal** (lê sempre dados frescos do Google Sheets)
+- ✅ **Filtros dinâmicos** (Período, ETR, Tipo de Serviço)
+- ✅ **Drill-down interativo** (clique nas barras para filtrar)
+- ✅ **Responsivo** (mobile/tablet/desktop)
+- ✅ **Sistema de componentes reutilizáveis** (HUB COMLURB)
+- ✅ **Footer institucional padronizado**
+
+## 📝 Melhorias Futuras
+
+1. **Adicionar telas de navegação** (Tabs para cada seção A, B, C, D)
+2. **Drill-down por gerência ofensora**
+3. **Alertas automáticos** (sobrecarga > 30%, HE > 2%)
+4. **Comparativo ano anterior** (2024 vs 2025)
+5. **Exportação para PDF/Excel**
+6. **Mapa geográfico das ETRs** (Leaflet.js)
+7. **Dashboard de anomalias** (detecção automática de outliers)
+
+## 👥 Créditos
 
 **Gabinete da Presidência**  
-HUB COMLURB • Núcleo de Inteligência e Gestão Estratégica Operacional
+HUB COMLURB • Núcleo de Inteligência e Gestão Estratégica Operacional  
+Versão 1.0 - Maio 2025
 
 ---
 
-**Versão:** 1.0  
-**Última Atualização:** Maio 2026
+## 📞 Suporte
+
+Para dúvidas ou sugestões sobre o painel:
+- Contate o Núcleo de Inteligência e Gestão Estratégica Operacional
+- Verifique a documentação dos componentes HUB em `/assets/components/`

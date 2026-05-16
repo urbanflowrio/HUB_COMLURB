@@ -3,96 +3,183 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Painel SMS • HUB COMLURB</title>
-  <meta name="description" content="Painel Executivo de Limpeza e Higienização Hospitalar • HUB COMLURB">
+  <title>DTE - Diretoria Técnica e de Engenharia | HUB COMLURB</title>
   
-  <!-- CSS -->
-  <link rel="stylesheet" href="../assets/hub-premium.css">
-  
-  <!-- External Libraries -->
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+  <!-- CSS do HUB -->
+  <link rel="stylesheet" href="../assets/css/hub-premium.css">
 </head>
+
 <body>
-  <div class="app">
+<div class="app">
+  
+  <!-- ============================================
+       HEADER - Gerado automaticamente
+       ============================================ -->
+  <div id="header"></div>
+  
+  <!-- ============================================
+       FILTROS
+       ============================================ -->
+  <section class="filters">
+    <div class="field">
+      <label>Período</label>
+      <select id="fPeriodo">
+        <option value="">Últimos 13 meses</option>
+        <option value="6">Últimos 6 meses</option>
+        <option value="3">Últimos 3 meses</option>
+      </select>
+    </div>
     
-    <!-- HEADER -->
-    <div id="header"></div>
-
-    <!-- NAVEGAÇÃO -->
-    <div class="navTabs">
-      <button class="tabBtn active" data-screen="exec">Visão Executiva</button>
-      <button class="tabBtn" data-screen="estrutura">Estrutura Contratual</button>
-      <button class="tabBtn" data-screen="territorial">Territorial</button>
+    <div class="field">
+      <label>ETR</label>
+      <select id="fETR">
+        <option value="">Todas as ETRs</option>
+      </select>
     </div>
-
-    <!-- LOADING -->
-    <div id="loading" style="display:none; padding:40px; text-align:center; color:#aebfd5;">
-      <div style="font-size:18px; margin-bottom:10px;">⏳ Carregando dados do SMS...</div>
-      <small>Aguarde enquanto processamos as informações do contrato</small>
+    
+    <div class="field">
+      <label>Tipo de Serviço</label>
+      <select id="fTipo">
+        <option value="">Todos os tipos</option>
+      </select>
     </div>
-
-    <!-- ==========================================
-         TELA 1: VISÃO EXECUTIVA
-         ========================================== -->
-    <main id="screen-exec" class="screen active">
-      
-      <!-- KPIs -->
-      <div id="kpis-exec" class="kpis"></div>
-
-      <!-- Gráficos + Mapa -->
-      <div class="grid2">
-        <div id="chart-hospitais"></div>
-        <div id="resumo-contrato"></div>
+    
+    <button class="actionBtn" onclick="clearAll()">Limpar</button>
+  </section>
+  
+  <!-- ============================================
+       BANNER DE DRILL DOWN
+       ============================================ -->
+  <div id="drillBanner"></div>
+  
+  <!-- ============================================
+       KPIS
+       ============================================ -->
+  <div class="kpis" id="kpis"></div>
+  
+  <!-- ============================================
+       GRÁFICOS - VISÃO GERAL
+       ============================================ -->
+  <div class="grid2">
+    <!-- Evolução Temporal -->
+    <div class="panel">
+      <div class="panelHead">
+        <div>
+          <h2>Evolução do Recebimento nas ETRs</h2>
+          <div class="hint">Últimos 13 meses - Toneladas</div>
+        </div>
       </div>
-
-      <div id="mapa-exec"></div>
-
-    </main>
-
-    <!-- ==========================================
-         TELA 2: ESTRUTURA CONTRATUAL
-         ========================================== -->
-    <main id="screen-estrutura" class="screen">
-      
-      <div style="margin-bottom:14px;">
-        <h2>Estrutura do Contrato SMS</h2>
-        <p class="hint">Detalhamento operacional e financeiro por unidade hospitalar</p>
+      <div class="body">
+        <canvas id="chartEvolucao" style="height: 340px"></canvas>
       </div>
-
-      <div id="estrutura-cards" style="display:grid; gap:14px;"></div>
-
-    </main>
-
-    <!-- ==========================================
-         TELA 3: TERRITORIAL
-         ========================================== -->
-    <main id="screen-territorial" class="screen">
-      
-      <div id="territorial-summary" style="margin-bottom:14px;"></div>
-
-      <div class="grid2">
-        <div id="mapa-territorial"></div>
-        <div id="territorial-rank"></div>
+    </div>
+    
+    <!-- Ranking ETRs -->
+    <div class="panel">
+      <div class="panelHead">
+        <div>
+          <h2>Distribuição por ETR</h2>
+          <div class="hint">Clique para filtrar</div>
+        </div>
       </div>
-
-    </main>
-
-    <!-- FOOTER -->
-    <div id="footer" class="footer"></div>
-
+      <div class="body" id="chartETRs"></div>
+    </div>
   </div>
+  
+  <div class="grid">
+    <!-- Tipo de Coleta -->
+    <div class="panel">
+      <div class="panelHead">
+        <div>
+          <h2>Por Tipo de Coleta</h2>
+          <div class="hint">Distribuição percentual</div>
+        </div>
+      </div>
+      <div class="body">
+        <canvas id="chartTipoColeta" style="height: 300px"></canvas>
+      </div>
+    </div>
+    
+    <!-- Sazonalidade -->
+    <div class="panel">
+      <div class="panelHead">
+        <div>
+          <h2>Sazonalidade Mensal</h2>
+          <div class="hint">Identificação de padrões</div>
+        </div>
+      </div>
+      <div class="body" id="chartSazonalidade"></div>
+    </div>
+    
+    <!-- Performance Frota -->
+    <div class="panel">
+      <div class="panelHead">
+        <div>
+          <h2>Utilização de Frota CDC</h2>
+          <div class="hint">% Peso coletado / capacidade</div>
+        </div>
+      </div>
+      <div class="body">
+        <canvas id="chartUtilizacao" style="height: 300px"></canvas>
+      </div>
+    </div>
+  </div>
+  
+  <div class="grid2">
+    <!-- Bioenergia -->
+    <div class="panel">
+      <div class="panelHead">
+        <div>
+          <h2>Geração de Biogás</h2>
+          <div class="hint">CTR Seropédica + Aterro Gramacho (mil Nm³)</div>
+        </div>
+      </div>
+      <div class="body">
+        <canvas id="chartBiogas" style="height: 320px"></canvas>
+      </div>
+    </div>
+    
+    <!-- Frota Própria -->
+    <div class="panel">
+      <div class="panelHead">
+        <div>
+          <h2>Evolução da Frota Própria</h2>
+          <div class="hint">Veículos operacionais vs total</div>
+        </div>
+      </div>
+      <div class="body">
+        <canvas id="chartFrota" style="height: 320px"></canvas>
+      </div>
+    </div>
+  </div>
+  
+  <!-- ============================================
+       FOOTER - Gerado automaticamente
+       ============================================ -->
+  <div id="footer"></div>
+  
+</div>
 
-  <!-- HUB Components -->
-  <script src="../assets/components/hub-utils.js"></script>
-  <script src="../assets/components/hub-cards.js"></script>
-  <script src="../assets/components/hub-charts.js"></script>
-  <script src="../assets/components/hub-layout.js"></script>
+<!-- ============================================
+     DEPENDÊNCIAS EXTERNAS
+     ============================================ -->
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
-  <!-- SMS Modules -->
-  <script src="data.js"></script>
-  <script src="screens.js"></script>
-  <script src="app.js"></script>
+<!-- ============================================
+     COMPONENTES HUB
+     ============================================ -->
+<script src="../assets/components/hub-utils.js"></script>
+<script src="../assets/components/hub-cards.js"></script>
+<script src="../assets/components/hub-charts.js"></script>
+<script src="../assets/components/hub-filters.js"></script>
+<script src="../assets/components/hub-layout.js"></script>
+
+<!-- ============================================
+     DADOS E LÓGICA DO PAINEL
+     ============================================ -->
+<script src="data.js"></script>
+<script src="app.js"></script>
 
 </body>
 </html>
